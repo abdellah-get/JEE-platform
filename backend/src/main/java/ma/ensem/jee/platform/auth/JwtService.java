@@ -48,6 +48,7 @@ public class JwtService {
 		Instant now = Instant.now();
 		Instant exp = now.plusSeconds(properties.getRefreshTokenDays() * 24 * 60 * 60);
 		return Jwts.builder()
+				.id(UUID.randomUUID().toString())
 				.subject(user.getId().toString())
 				.claim(CLAIM_TYPE, TYPE_REFRESH)
 				.issuedAt(Date.from(now))

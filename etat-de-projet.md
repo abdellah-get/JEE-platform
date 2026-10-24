@@ -19,7 +19,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P4 Polish | **Terminé** | 2/2 |
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
-| P7 Reporting & qualité | **En cours** | 1/6 (#57–#62) |
+| P7 Reporting & qualité | **En cours** | 2/6 (#57–#62) |
 
 ---
 
@@ -97,7 +97,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | # | Mission | Statut |
 |---|---------|--------|
 | 57 | Dashboard bureau enrichi + export CSV | **Terminé** |
-| 58 | Rotation / révocation refresh tokens | **À faire** |
+| 58 | Rotation / révocation refresh tokens | **Terminé** |
 | 59 | E2E smoke CI | **À faire** |
 | 60 | Permissions tâches (delete chef/bureau) | **À faire** |
 | 61 | Pass accessibilité | **À faire** |
@@ -106,6 +106,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #58 terminée (rotation / révocation refresh tokens)
+
+**Fait :**
+- Flyway **V8** `refresh_tokens` (hash SHA-256, expires, revoked)
+- Login / register / refresh persist le refresh ; refresh = rotation (ancien révoqué)
+- Logout révoque le token du cookie + clear cookie
+- Tests auth : rotation + révocation après logout
+
+**Prochaine mission :** [#59](https://github.com/abdellah-get/JEE-platform/issues/59) — E2E smoke CI.
 
 ### 2026-10-24 — Mission #57 terminée (dashboard bureau + export CSV)
 

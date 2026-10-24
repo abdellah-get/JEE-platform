@@ -18,6 +18,7 @@ Au démarrage, Flyway applique **toutes** les migrations présentes :
 | **V5** | `password_reset_tokens` |
 | **V6** | `task_comments` |
 | **V7** | `notifications` |
+| **V8** | `refresh_tokens` |
 
 Fichiers : `backend/src/main/resources/db/migration/`.
 

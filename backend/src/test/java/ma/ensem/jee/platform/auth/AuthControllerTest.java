@@ -81,13 +81,28 @@ class AuthControllerTest {
 				.header("Authorization", "Bearer " + accessToken))
 				.andExpect(status().isOk());
 
-		mockMvc.perform(post("/api/v1/auth/refresh")
+		MvcResult refreshed = mockMvc.perform(post("/api/v1/auth/refresh")
 				.cookie(new jakarta.servlet.http.Cookie(AuthService.REFRESH_COOKIE, refreshCookie)))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.accessToken").isNotEmpty());
+				.andExpect(jsonPath("$.accessToken").isNotEmpty())
+				.andReturn();
 
-		mockMvc.perform(post("/api/v1/auth/logout"))
+		String rotatedCookie = refreshed.getResponse().getCookie(AuthService.REFRESH_COOKIE).getValue();
+		org.assertj.core.api.Assertions.assertThat(rotatedCookie).isNotEqualTo(refreshCookie);
+
+		// Previous refresh token is revoked after rotation
+		mockMvc.perform(post("/api/v1/auth/refresh")
+				.cookie(new jakarta.servlet.http.Cookie(AuthService.REFRESH_COOKIE, refreshCookie)))
+				.andExpect(status().isUnauthorized());
+
+		mockMvc.perform(post("/api/v1/auth/logout")
+				.cookie(new jakarta.servlet.http.Cookie(AuthService.REFRESH_COOKIE, rotatedCookie)))
 				.andExpect(status().isNoContent());
+
+		// Logout revokes the current refresh token
+		mockMvc.perform(post("/api/v1/auth/refresh")
+				.cookie(new jakarta.servlet.http.Cookie(AuthService.REFRESH_COOKIE, rotatedCookie)))
+				.andExpect(status().isUnauthorized());
 
 		mockMvc.perform(post("/api/v1/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)
