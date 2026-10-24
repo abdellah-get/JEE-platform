@@ -12,7 +12,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | Phase | Statut        | Progression |
 |-------|---------------|-------------|
 | P0 Fondations | **Terminé** | 7/7 missions |
-| P1 Projets & RBAC | À faire | 0/5 |
+| P1 Projets & RBAC | En cours | 3/5 |
 | P2 Tâches Kanban | À faire | 0/4 |
 | P3 Annonces & Dashboard | À faire | 0/2 |
 | P4 Polish | À faire | 0/2 |
@@ -37,9 +37,9 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | # | Mission | Statut |
 |---|---------|--------|
-| 8 | API CRUD projets + désignation chef | À faire |
-| 9 | ProjectMember + gestion équipe | À faire |
-| 10 | Isolation accès projet (tests) | À faire |
+| 8 | API CRUD projets + désignation chef | **Terminé** |
+| 9 | ProjectMember + gestion équipe | **Terminé** |
+| 10 | Isolation accès projet (tests) | **Terminé** |
 | 11 | Pages projets | À faire |
 | 12 | Admin membres et rôles club | À faire |
 
@@ -69,6 +69,22 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Missions #8 #9 #10 terminées (API projets)
+
+**Fait :**
+- Flyway `V2__create_projects.sql` : `projects` + `project_members`
+- API `POST/GET/PATCH /api/v1/projects` + `GET/PUT …/members`
+- `ProjectAccessService` : BUREAU/ADMIN voient tout ; membre hors équipe → **404**
+- Création projet réservée au bureau ; chef désigné à la création
+- Chef (ou bureau) gère l’équipe (`CHEF_PROJET` / `CONTRIBUTEUR`)
+- Tests d’intégration isolation + CRUD équipe verts
+
+**À retenir :**
+- Rôle club ≠ rôle projet : `ClubRole` transverse, `ProjectRole` sur l’équipe
+- 404 plutôt que 403 hors équipe pour ne pas révéler l’existence d’un projet
+
+**Prochaine mission :** #11 — Pages projets (liste, new, detail, team).
 
 ### 2026-10-24 — Pipelines sécurité ajoutés
 
