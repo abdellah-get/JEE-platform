@@ -1,4 +1,5 @@
 import type {
+  AdminUser,
   AuthResponse,
   AuthUser,
   ClubRole,
@@ -197,4 +198,32 @@ export function replaceProjectMembers(
 
 export function listUsers(accessToken: string) {
   return apiFetch<UserSummary[]>("/api/v1/users", { method: "GET" }, accessToken);
+}
+
+export function listAdminUsers(accessToken: string) {
+  return apiFetch<AdminUser[]>("/api/v1/admin/users", { method: "GET" }, accessToken);
+}
+
+export function updateUserActive(
+  accessToken: string,
+  userId: string,
+  active: boolean,
+) {
+  return apiFetch<AdminUser>(
+    `/api/v1/admin/users/${userId}/active`,
+    { method: "PATCH", body: JSON.stringify({ active }) },
+    accessToken,
+  );
+}
+
+export function updateUserClubRole(
+  accessToken: string,
+  userId: string,
+  clubRole: ClubRole,
+) {
+  return apiFetch<AdminUser>(
+    `/api/v1/admin/users/${userId}/role`,
+    { method: "PATCH", body: JSON.stringify({ clubRole }) },
+    accessToken,
+  );
 }

@@ -40,6 +40,16 @@ export type UserSummary = {
   clubRole: ClubRole;
 };
 
+export type AdminUser = {
+  userId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  clubRole: ClubRole;
+  active: boolean;
+  createdAt: string;
+};
+
 export type AuthResponse = {
   accessToken: string;
   tokenType: string;

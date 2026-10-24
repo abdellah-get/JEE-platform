@@ -12,7 +12,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | Phase | Statut        | Progression |
 |-------|---------------|-------------|
 | P0 Fondations | **Terminé** | 7/7 missions |
-| P1 Projets & RBAC | En cours | 4/5 |
+| P1 Projets & RBAC | **Terminé** | 5/5 |
 | P2 Tâches Kanban | À faire | 0/4 |
 | P3 Annonces & Dashboard | À faire | 0/2 |
 | P4 Polish | À faire | 0/2 |
@@ -41,7 +41,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 9 | ProjectMember + gestion équipe | **Terminé** |
 | 10 | Isolation accès projet (tests) | **Terminé** |
 | 11 | Pages projets | **Terminé** |
-| 12 | Admin membres et rôles club | À faire |
+| 12 | Admin membres et rôles club | **Terminé** |
 
 ### P2 — Tâches Kanban
 
@@ -94,6 +94,18 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 - Accès refusé propre (404 API / message UI)
 
 **Prochaine mission :** #12 — Admin membres et rôles club.
+
+### 2026-10-24 — Mission #12 terminée (fin P1)
+
+**Fait :**
+- API `GET/PATCH /api/v1/admin/users` (active + rôle)
+- Bureau : activer/désactiver membres
+- ADMIN_TECH uniquement : changer `ClubRole`
+- Pages `/admin`, `/admin/members`, `/admin/roles`
+- Garde-fous : pas de désactivation de soi, pas de suppression du dernier admin
+
+**Phase P1 = complète.**  
+**Prochaine phase :** P2 — Tâches Kanban (mission #13).
 
 ### 2026-10-24 — Pipelines sécurité ajoutés
 
