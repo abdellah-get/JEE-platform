@@ -28,7 +28,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 		JwtProperties.class,
 		CorsProperties.class,
 		PasswordResetProperties.class,
-		AuthRateLimitProperties.class
+		AuthRateLimitProperties.class,
+		RegistrationProperties.class
 })
 public class SecurityConfig {
 

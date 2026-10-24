@@ -32,6 +32,12 @@ public class ApiExceptionHandler {
 				.body(Map.of("error", ex.getMessage() != null ? ex.getMessage() : "Ressource introuvable"));
 	}
 
+	@ExceptionHandler(BadRequestException.class)
+	public ResponseEntity<Map<String, String>> handleBadRequest(BadRequestException ex) {
+		return ResponseEntity.badRequest()
+				.body(Map.of("error", ex.getMessage() != null ? ex.getMessage() : "Requête invalide"));
+	}
+
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
 		return ResponseEntity.status(HttpStatus.CONFLICT)

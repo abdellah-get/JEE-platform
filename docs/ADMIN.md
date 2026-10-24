@@ -55,6 +55,15 @@ Rôles **projet** (sur l’équipe) : `CHEF_PROJET` / `CONTRIBUTEUR` — le chef
 5. **Désactiver un compte**  
    Admin → Membres → Désactiver (ne peut pas se désactiver soi-même).
 
+## Inscription (domaines + approbation)
+
+| Variable | Défaut | Effet |
+|----------|--------|--------|
+| `REGISTRATION_ALLOWED_DOMAINS` | `ensem.ac.ma,ensem.jee` | Domaines email autorisés (vide = pas de filtre) |
+| `REGISTRATION_REQUIRE_APPROVAL` | `false` | Si `true`, compte créé **inactif** jusqu’activation bureau (Admin → Membres) |
+
+Message login si inactif : *Compte en attente d'activation ou désactivé*.
+
 ## Mot de passe oublié
 
 1. `/forgot-password` → l’API répond toujours le même message (anti-énumération).

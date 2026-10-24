@@ -17,7 +17,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P2 Tâches Kanban | **Terminé** | 4/4 |
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
-| P5 Prod & auth | **En cours** | 4/6 (#45–#50) |
+| P5 Prod & auth | **En cours** | 5/6 (#45–#50) |
 | P6 Collaboration UX | **À faire** | 0/6 (#51–#56) |
 | P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
@@ -78,7 +78,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 46 | Reset MDP API + email + UI forgot/reset | **Terminé** |
 | 47 | Rate-limit endpoints auth | **Terminé** |
 | 48 | Refresh silencieux sur 401 | **Terminé** |
-| 49 | Restriction inscription (domaine / approbation) | **À faire** |
+| 49 | Restriction inscription (domaine / approbation) | **Terminé** |
 | 50 | Dockerfile backend + DEPLOY.md (V1–V4) | **À faire** |
 
 ### P6 — Collaboration & UX tâches
@@ -106,6 +106,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #49 terminée (restriction inscription)
+
+**Fait :**
+- Allowlist domaines email (`REGISTRATION_ALLOWED_DOMAINS`, défaut `ensem.ac.ma,ensem.jee`)
+- Option `REGISTRATION_REQUIRE_APPROVAL` → compte inactif jusqu’activation bureau
+- UI register : message domaine / pending ; admin membres : badge attente
+- Tests reject domaine + flux approbation
+
+**Prochaine mission :** [#50](https://github.com/abdellah-get/JEE-platform/issues/50) — Dockerfile + DEPLOY.
 
 ### 2026-10-24 — Mission #48 terminée (refresh silencieux 401)
 

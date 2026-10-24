@@ -15,6 +15,7 @@ import ma.ensem.jee.platform.auth.dto.ForgotPasswordRequest;
 import ma.ensem.jee.platform.auth.dto.LoginRequest;
 import ma.ensem.jee.platform.auth.dto.MessageResponse;
 import ma.ensem.jee.platform.auth.dto.RegisterRequest;
+import ma.ensem.jee.platform.auth.dto.RegisterResponse;
 import ma.ensem.jee.platform.auth.dto.ResetPasswordRequest;
 
 @RestController
@@ -33,11 +34,14 @@ public class AuthController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-		AuthService.AuthResult result = authService.register(request);
+	public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest request) {
+		AuthService.RegisterOutcome outcome = authService.register(request);
+		if (outcome.pendingApproval()) {
+			return ResponseEntity.status(HttpStatus.CREATED).body(outcome.response());
+		}
 		HttpHeaders headers = new HttpHeaders();
-		result.applyCookie(headers);
-		return ResponseEntity.status(HttpStatus.CREATED).headers(headers).body(result.body());
+		outcome.auth().applyCookie(headers);
+		return ResponseEntity.status(HttpStatus.CREATED).headers(headers).body(outcome.response());
 	}
 
 	@PostMapping("/login")
