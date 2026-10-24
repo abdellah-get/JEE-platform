@@ -36,3 +36,20 @@ Repo → **Settings** → **Code security** → Dependabot alerts + Dependabot s
 - Jamais de `.env` / mots de passe / `JWT_SECRET` dans Git
 - Utiliser `.env.example` sans valeurs réelles
 - Secrets uniquement dans Render / Vercel / GitHub Secrets
+
+## Hardening runtime (P5)
+
+| Contrôle | Comportement |
+|----------|----------------|
+| **H2 console** | Désactivée par défaut ; activée seulement avec le profil `local` (`application-local.properties`). Non exposée en `prod`. |
+| **JWT secret** | Le secret de développement est **refusé** si environnement « prod-like » : profil `prod`, `JWT_COOKIE_SECURE=true`, ou driver PostgreSQL. Voir `ProductionSafetyValidator`. |
+| **Profils** | Local : `spring.profiles.default=local`. Render : `SPRING_PROFILES_ACTIVE=prod`. |
+
+En prod, définir au minimum :
+
+```text
+SPRING_PROFILES_ACTIVE=prod
+JWT_SECRET=<aléatoire ≥ 32 caractères>
+JWT_COOKIE_SECURE=true
+SEED_ENABLED=false
+```

@@ -17,7 +17,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P2 Tâches Kanban | **Terminé** | 4/4 |
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
-| P5 Prod & auth | **À faire** | 0/6 (#45–#50) |
+| P5 Prod & auth | **En cours** | 1/6 (#45–#50) |
 | P6 Collaboration UX | **À faire** | 0/6 (#51–#56) |
 | P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
@@ -74,7 +74,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | # | Mission | Statut |
 |---|---------|--------|
-| 45 | H2 console local-only + fail-fast JWT secret | **À faire** |
+| 45 | H2 console local-only + fail-fast JWT secret | **Terminé** |
 | 46 | Reset MDP API + email + UI forgot/reset | **À faire** |
 | 47 | Rate-limit endpoints auth | **À faire** |
 | 48 | Refresh silencieux sur 401 | **À faire** |
@@ -106,6 +106,17 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #45 terminée (H2 + JWT fail-fast)
+
+**Fait :**
+- Profil `local` par défaut : console H2 uniquement via `application-local.properties`
+- Profil `prod` : H2 off, cookies secure
+- `ProductionSafetyValidator` : refuse secret JWT par défaut / trop court si prod, `JWT_COOKIE_SECURE`, ou Postgres
+- Security : `/h2-console/**` permitAll seulement si console activée
+- Tests unitaires + doc SECURITY / DEPLOY / README
+
+**Prochaine mission :** [#46](https://github.com/abdellah-get/JEE-platform/issues/46) — Reset MDP + email.
 
 ### 2026-10-24 — Étude d’améliorations + board P5–P7
 
