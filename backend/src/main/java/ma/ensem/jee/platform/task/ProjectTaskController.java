@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import ma.ensem.jee.platform.task.dto.CreateTaskRequest;
+import ma.ensem.jee.platform.task.dto.ReorderTasksRequest;
 import ma.ensem.jee.platform.task.dto.TaskResponse;
 
 @RestController
@@ -35,5 +37,12 @@ public class ProjectTaskController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public TaskResponse create(@PathVariable UUID projectId, @Valid @RequestBody CreateTaskRequest request) {
 		return taskService.create(projectId, request);
+	}
+
+	@PutMapping("/reorder")
+	public List<TaskResponse> reorder(
+			@PathVariable UUID projectId,
+			@Valid @RequestBody ReorderTasksRequest request) {
+		return taskService.reorder(projectId, request);
 	}
 }

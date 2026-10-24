@@ -13,6 +13,7 @@ import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import {
+  buildColumnOrder,
   dueDateClassName,
   formatDueDate,
   priorityLabel,
@@ -76,6 +77,11 @@ export default function ProjectTasksPage() {
     for (const task of tasks) {
       map[task.status].push(task);
     }
+    for (const status of Object.keys(map) as TaskStatus[]) {
+      map[status].sort(
+        (a, b) => a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt),
+      );
+    }
     return map;
   }, [tasks]);
 
@@ -124,17 +130,63 @@ export default function ProjectTasksPage() {
     }
   }
 
-  async function moveTask(task: Task, status: TaskStatus) {
-    if (task.status === status) return;
+  async function persistColumnOrder(
+    status: TaskStatus,
+    orderedIds: string[],
+    previousTasks: Task[],
+  ) {
     setError(null);
+    setTasks((prev) =>
+      prev.map((t) => {
+        const idx = orderedIds.indexOf(t.id);
+        if (idx >= 0) {
+          return { ...t, status, sortOrder: idx };
+        }
+        return t;
+      }),
+    );
     try {
-      const updated = await api.updateTask(accessToken!, task.id, { status });
-      setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+      const updated = await api.reorderProjectTasks(accessToken!, projectId, {
+        status,
+        taskIds: orderedIds,
+      });
+      setTasks(updated);
       const p = await api.getProject(accessToken!, projectId);
       setProject(p);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Déplacement impossible");
+      setTasks(previousTasks);
+      setError(err instanceof ApiError ? err.message : "Réordonnancement impossible");
     }
+  }
+
+  /** Drop en fin de colonne, ou déplacement via bouton. */
+  async function moveTaskToColumn(task: Task, status: TaskStatus) {
+    const columnIds = byStatus[status].map((t) => t.id);
+    const next =
+      task.status === status
+        ? buildColumnOrder(columnIds, task.id, null)
+        : buildColumnOrder(
+            columnIds.filter((id) => id !== task.id),
+            task.id,
+            null,
+          );
+    const unchanged =
+      task.status === status &&
+      next.length === columnIds.length &&
+      next.every((id, i) => id === columnIds[i]);
+    if (unchanged) return;
+    await persistColumnOrder(status, next, tasks);
+  }
+
+  /** Drop sur une carte : insère avant la cible. */
+  async function moveTaskBefore(dragged: Task, before: Task) {
+    if (dragged.id === before.id) return;
+    const status = before.status;
+    const columnIds = byStatus[status]
+      .map((t) => t.id)
+      .filter((id) => id !== dragged.id);
+    const next = buildColumnOrder(columnIds, dragged.id, before.id);
+    await persistColumnOrder(status, next, tasks);
   }
 
   async function onDelete(taskId: string) {
@@ -209,7 +261,8 @@ export default function ProjectTasksPage() {
           </Link>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight">Kanban</h1>
           <p className="mt-1 text-sm text-zinc-600">
-            Avancement : {project.progressPercent}% · clique une carte pour éditer
+            Avancement : {project.progressPercent}% · glisser pour réordonner ·
+            cliquer pour éditer
           </p>
         </div>
       </div>
@@ -302,7 +355,7 @@ export default function ProjectTasksPage() {
               e.preventDefault();
               const taskId = e.dataTransfer.getData("text/task-id");
               const task = tasks.find((t) => t.id === taskId);
-              if (task) void moveTask(task, col.status);
+              if (task) void moveTaskToColumn(task, col.status);
             }}
           >
             <h2 className="mb-3 px-1 text-sm font-semibold text-zinc-800">
@@ -319,6 +372,17 @@ export default function ProjectTasksPage() {
                   onDragStart={(e) => {
                     e.dataTransfer.setData("text/task-id", task.id);
                     e.dataTransfer.effectAllowed = "move";
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const taskId = e.dataTransfer.getData("text/task-id");
+                    const dragged = tasks.find((t) => t.id === taskId);
+                    if (dragged) void moveTaskBefore(dragged, task);
                   }}
                   className="cursor-grab rounded-lg border border-zinc-200 bg-white p-3 shadow-sm active:cursor-grabbing"
                 >
@@ -374,7 +438,7 @@ export default function ProjectTasksPage() {
                       <button
                         key={c.status}
                         type="button"
-                        onClick={() => moveTask(task, c.status)}
+                        onClick={() => void moveTaskToColumn(task, c.status)}
                         className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-700 hover:bg-zinc-200"
                       >
                         → {c.label}
