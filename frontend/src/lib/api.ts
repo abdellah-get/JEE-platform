@@ -1,3 +1,8 @@
+import {
+  clearSession,
+  getStoredUser,
+  saveSession,
+} from "./auth-storage";
 import type {
   AdminUser,
   Announcement,
@@ -26,6 +31,19 @@ export type MeResponse = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
 
+type AuthSessionHandlers = {
+  onRefreshed?: (res: AuthResponse) => void;
+  onCleared?: () => void;
+};
+
+let authSessionHandlers: AuthSessionHandlers = {};
+let refreshInFlight: Promise<string | null> | null = null;
+
+/** Wired by AuthProvider so silent refresh keeps React state in sync. */
+export function setAuthSessionHandlers(handlers: AuthSessionHandlers) {
+  authSessionHandlers = handlers;
+}
+
 export class ApiError extends Error {
   status: number;
 
@@ -44,10 +62,60 @@ async function parseError(res: Response): Promise<string> {
   }
 }
 
+function canSilentRefresh(path: string): boolean {
+  return !path.startsWith("/api/v1/auth/");
+}
+
+function toUser(res: AuthResponse): AuthUser {
+  return {
+    userId: res.userId,
+    email: res.email,
+    firstName: res.firstName,
+    lastName: res.lastName,
+    clubRole: res.clubRole,
+  };
+}
+
+/**
+ * Single-flight refresh via HttpOnly cookie. Updates localStorage + AuthProvider.
+ * Returns the new access token, or null if the session is dead.
+ */
+async function silentRefresh(): Promise<string | null> {
+  if (!refreshInFlight) {
+    refreshInFlight = (async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/v1/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+        });
+        if (!res.ok) {
+          clearSession();
+          authSessionHandlers.onCleared?.();
+          return null;
+        }
+        const data = (await res.json()) as AuthResponse;
+        const nextUser = toUser(data);
+        const stored = getStoredUser();
+        saveSession(data.accessToken, stored ?? nextUser);
+        authSessionHandlers.onRefreshed?.(data);
+        return data.accessToken;
+      } catch {
+        clearSession();
+        authSessionHandlers.onCleared?.();
+        return null;
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
+  }
+  return refreshInFlight;
+}
+
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
   accessToken?: string | null,
+  retried = false,
 ): Promise<T> {
   const headers = new Headers(options.headers);
   if (!headers.has("Content-Type") && options.body) {
@@ -64,6 +132,13 @@ export async function apiFetch<T>(
   });
 
   if (!res.ok) {
+    if (res.status === 401 && !retried && canSilentRefresh(path)) {
+      const newToken = await silentRefresh();
+      if (newToken) {
+        return apiFetch<T>(path, options, newToken, true);
+      }
+      throw new ApiError(401, "Session expirée. Reconnecte-toi.");
+    }
     throw new ApiError(res.status, await parseError(res));
   }
 

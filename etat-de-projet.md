@@ -17,7 +17,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P2 Tâches Kanban | **Terminé** | 4/4 |
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
-| P5 Prod & auth | **En cours** | 3/6 (#45–#50) |
+| P5 Prod & auth | **En cours** | 4/6 (#45–#50) |
 | P6 Collaboration UX | **À faire** | 0/6 (#51–#56) |
 | P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
@@ -77,7 +77,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 45 | H2 console local-only + fail-fast JWT secret | **Terminé** |
 | 46 | Reset MDP API + email + UI forgot/reset | **Terminé** |
 | 47 | Rate-limit endpoints auth | **Terminé** |
-| 48 | Refresh silencieux sur 401 | **À faire** |
+| 48 | Refresh silencieux sur 401 | **Terminé** |
 | 49 | Restriction inscription (domaine / approbation) | **À faire** |
 | 50 | Dockerfile backend + DEPLOY.md (V1–V4) | **À faire** |
 
@@ -106,6 +106,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #48 terminée (refresh silencieux 401)
+
+**Fait :**
+- `apiFetch` : sur 401 → un refresh cookie puis retry (hors `/api/v1/auth/**`)
+- Single-flight `silentRefresh` + sync `AuthContext` via `setAuthSessionHandlers`
+- Échec refresh → clear session + redirect `/login?next=…`
+- Doc SECURITY
+
+**Prochaine mission :** [#49](https://github.com/abdellah-get/JEE-platform/issues/49) — restriction inscription.
 
 ### 2026-10-24 — Mission #47 terminée (rate-limit auth)
 

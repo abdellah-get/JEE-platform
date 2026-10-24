@@ -53,6 +53,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
+  const applyAuth = useCallback((res: AuthResponse) => {
+    const nextUser = toUser(res);
+    saveSession(res.accessToken, nextUser);
+    setAccessToken(res.accessToken);
+    setUser(nextUser);
+  }, []);
+
+  useEffect(() => {
+    api.setAuthSessionHandlers({
+      onRefreshed: applyAuth,
+      onCleared: () => {
+        setAccessToken(null);
+        setUser(null);
+        const next =
+          typeof window !== "undefined"
+            ? `${window.location.pathname}${window.location.search}`
+            : "/dashboard";
+        const dest =
+          next.startsWith("/login") || next.startsWith("/register")
+            ? "/login"
+            : `/login?next=${encodeURIComponent(next)}`;
+        router.replace(dest);
+      },
+    });
+    return () => api.setAuthSessionHandlers({});
+  }, [applyAuth, router]);
+
   useEffect(() => {
     const token = getAccessToken();
     const stored = getStoredUser();
@@ -68,23 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     api
       .refresh()
       .then((res) => {
-        const nextUser = toUser(res);
-        saveSession(res.accessToken, nextUser);
-        setAccessToken(res.accessToken);
-        setUser(nextUser);
+        applyAuth(res);
       })
       .catch(() => {
         clearSession();
       })
       .finally(() => setLoading(false));
-  }, []);
-
-  const applyAuth = useCallback((res: AuthResponse) => {
-    const nextUser = toUser(res);
-    saveSession(res.accessToken, nextUser);
-    setAccessToken(res.accessToken);
-    setUser(nextUser);
-  }, []);
+  }, [applyAuth]);
 
   const login = useCallback(
     async (email: string, password: string) => {
