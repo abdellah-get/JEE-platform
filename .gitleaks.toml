@@ -1,0 +1,13 @@
+title = "JEE Platform gitleaks config"
+
+[extend]
+useDefault = true
+
+# Allow documented placeholders (not real secrets)
+[[allowlists]]
+description = "Example env templates"
+paths = [
+  '''(.*?)(\.env\.example)$''',
+  '''(.*?)docs/DEPLOY\.md$''',
+  '''(.*?)docs/SECURITY\.md$''',
+]
