@@ -25,7 +25,9 @@ jobs:
           cache: maven
 
       - name: Run tests
-        run: ./mvnw -B test
+        run: |
+          chmod +x ./mvnw
+          ./mvnw -B test
 
   frontend:
     name: Frontend (Next.js build)
