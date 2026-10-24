@@ -15,6 +15,7 @@ import type {
   ProjectRole,
   ProjectStatus,
   Task,
+  TaskComment,
   TaskPriority,
   TaskStatus,
   UserSummary,
@@ -399,6 +400,38 @@ export function reorderProjectTasks(
 
 export function deleteTask(accessToken: string, taskId: string) {
   return apiFetch<void>(`/api/v1/tasks/${taskId}`, { method: "DELETE" }, accessToken);
+}
+
+export function listTaskComments(accessToken: string, taskId: string) {
+  return apiFetch<TaskComment[]>(
+    `/api/v1/tasks/${taskId}/comments`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function createTaskComment(accessToken: string, taskId: string, body: string) {
+  return apiFetch<TaskComment>(
+    `/api/v1/tasks/${taskId}/comments`,
+    { method: "POST", body: JSON.stringify({ body }) },
+    accessToken,
+  );
+}
+
+export function updateTaskComment(accessToken: string, commentId: string, body: string) {
+  return apiFetch<TaskComment>(
+    `/api/v1/comments/${commentId}`,
+    { method: "PATCH", body: JSON.stringify({ body }) },
+    accessToken,
+  );
+}
+
+export function deleteTaskComment(accessToken: string, commentId: string) {
+  return apiFetch<void>(
+    `/api/v1/comments/${commentId}`,
+    { method: "DELETE" },
+    accessToken,
+  );
 }
 
 export function listMyTasks(

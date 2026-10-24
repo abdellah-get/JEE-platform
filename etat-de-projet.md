@@ -18,7 +18,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
-| P6 Collaboration UX | **En cours** | 4/6 (#51–#56) |
+| P6 Collaboration UX | **En cours** | 5/6 (#51–#56) |
 | P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
 ---
@@ -89,7 +89,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 52 | Persister reorder Kanban (`sortOrder`) | **Terminé** |
 | 53 | Edit annonce + badges overdue | **Terminé** |
 | 54 | Unifier EmptyState / Loading / toasts | **Terminé** |
-| 55 | Commentaires sur tâches | **À faire** |
+| 55 | Commentaires sur tâches | **Terminé** |
 | 56 | Notifications in-app | **À faire** |
 
 ### P7 — Reporting, hardening, qualité
@@ -106,6 +106,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #55 terminée (commentaires tâches)
+
+**Fait :**
+- Flyway **V6** `task_comments`
+- API : `GET/POST /tasks/{id}/comments`, `PATCH/DELETE /comments/{id}`
+- Isolation projet (404 hors équipe) ; edit auteur ; delete auteur/chef/bureau
+- UI commentaires dans `TaskEditPanel`
+
+**Prochaine mission :** [#56](https://github.com/abdellah-get/JEE-platform/issues/56) — notifications in-app.
 
 ### 2026-10-24 — Mission #54 terminée (EmptyState / Loading / toasts)
 

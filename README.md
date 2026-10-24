@@ -105,7 +105,7 @@ App (sidebar) : `/dashboard`, `/projects`, `/tasks`, `/announcements`, `/profile
 docker build -t jee-platform-api -f backend/Dockerfile backend
 ```
 
-Voir [`docs/DEPLOY.md`](docs/DEPLOY.md) (variables prod, Flyway V1–V5, scripts `scripts/smoke-api.*`).
+Voir [`docs/DEPLOY.md`](docs/DEPLOY.md) (variables prod, Flyway V1–V6, scripts `scripts/smoke-api.*`).
 
 ## CI & sécurité
 

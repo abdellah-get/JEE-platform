@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useId, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
+import { TaskComments } from "@/components/tasks/TaskComments";
 import type { ProjectMember, Task, TaskPriority } from "@/lib/types";
 
 export type TaskEditPayload = {
@@ -20,6 +21,7 @@ type Props = {
   members: ProjectMember[];
   saving: boolean;
   error: string | null;
+  canModerateComments?: boolean;
   onClose: () => void;
   onSave: (payload: TaskEditPayload) => Promise<void>;
   onDelete: () => Promise<void>;
@@ -30,6 +32,7 @@ export function TaskEditPanel({
   members,
   saving,
   error,
+  canModerateComments = false,
   onClose,
   onSave,
   onDelete,
@@ -189,6 +192,8 @@ export function TaskEditPanel({
                 {error}
               </p>
             )}
+
+            <TaskComments taskId={task.id} canModerate={canModerateComments} />
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-zinc-100 px-4 py-3">
