@@ -30,7 +30,10 @@ Repo → **Settings** → **Code security** → Dependabot alerts + Dependabot s
 1. **Gitleaks** → un secret est dans l’historique ou le diff → le retirer, le faire tourner (rotation), ne jamais le re-commit.
 2. **npm audit** → `cd frontend && npm audit` puis mettre à jour le package.
 3. **Trivy** → lire le CVE, mettre à jour la dépendance Maven/npm.
-4. **CodeQL** → ouvrir l’alerte dans l’onglet **Security** du repo et corriger.
+4. **CodeQL** → l’analyse tourne en CI ; les SARIF sont en artifact du workflow.
+   L’onglet **Security → Code scanning** GitHub exige un repo **public** ou
+   **GitHub Advanced Security** (payant en privé). Pour l’activer plus tard :
+   Settings → Code security → Code scanning.
 
 ## Règles club
 

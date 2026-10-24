@@ -129,7 +129,19 @@ jobs:
         if: matrix.language == 'javascript-typescript'
         uses: github/codeql-action/autobuild@v3
 
+      # upload: never — le dépôt privé sans GitHub Advanced Security
+      # refuse l'upload SARIF ("Code scanning is not enabled").
+      # L'analyse tourne quand même ; résultats en artifact.
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{ matrix.language }}"
+          upload: never
+          output: sarif-results
+
+      - name: Upload CodeQL SARIF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-${{ matrix.language }}
+          path: sarif-results
+          retention-days: 14
