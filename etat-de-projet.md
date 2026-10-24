@@ -11,7 +11,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | Phase | Statut        | Progression |
 |-------|---------------|-------------|
-| P0 Fondations | En cours | 2/7 missions |
+| P0 Fondations | En cours | 3/7 missions |
 | P1 Projets & RBAC | À faire | 0/5 |
 | P2 Tâches Kanban | À faire | 0/4 |
 | P3 Annonces & Dashboard | À faire | 0/2 |
@@ -27,7 +27,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 |---|---------|--------|
 | 1 | Initialiser le monorepo Spring Boot + Next.js | **Terminé** |
 | 2 | Schéma PostgreSQL + Flyway (User, roles) | **Terminé** |
-| 3 | Auth JWT (login, refresh, logout) | À faire |
+| 3 | Auth JWT (login, refresh, logout) | **Terminé** |
 | 4 | Pages auth frontend | À faire |
 | 5 | Layout app + middleware routes protégées | À faire |
 | 6 | Profil /me + page /profile | À faire |
@@ -69,6 +69,24 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #3 terminée
+
+**Fait :**
+- Spring Security + JWT (jjwt), BCrypt strength 12
+- Endpoints : `POST /api/v1/auth/register|login|refresh|logout`
+- Access token (JSON) + refresh token (cookie HttpOnly `refresh_token`)
+- Filtre `JwtAuthenticationFilter` + `SecurityConfig` (stateless)
+- `/api/v1/health` et `/api/v1/auth/**` publics ; reste authentifié
+- CORS `localhost:3000` (prêt pour le front)
+- Tests AuthController (register → login → refresh → logout + mauvais MDP)
+
+**À retenir :**
+- Access court (15 min) dans le header `Authorization: Bearer …`
+- Refresh long (7 j) en cookie — le JS ne le lit pas (HttpOnly)
+- Logout = suppression du cookie (JWT access reste valide jusqu’à expiration)
+
+**Prochaine mission :** #4 — Pages auth frontend (login, register, reset).
 
 ### 2026-10-24 — Mission #2 terminée
 

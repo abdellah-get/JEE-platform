@@ -54,6 +54,26 @@ DATABASE_DRIVER=org.postgresql.Driver
 
 Flyway applique automatiquement `backend/src/main/resources/db/migration/V1__create_users.sql`.
 
+### Auth API (JWT)
+
+| Méthode | Route | Description |
+|---------|-------|-------------|
+| POST | `/api/v1/auth/register` | Créer un compte (`MEMBRE`) |
+| POST | `/api/v1/auth/login` | Access token (JSON) + refresh cookie |
+| POST | `/api/v1/auth/refresh` | Nouveau access via cookie `refresh_token` |
+| POST | `/api/v1/auth/logout` | Supprime le cookie refresh |
+| GET | `/api/v1/health` | Public (sans token) |
+
+Exemple login :
+
+```bash
+curl -i -X POST http://localhost:8081/api/v1/auth/login ^
+  -H "Content-Type: application/json" ^
+  -d "{\"email\":\"membre@ensem.jee\",\"password\":\"Password123!\"}"
+```
+
+Puis appeler les routes protégées avec : `Authorization: Bearer <accessToken>`.
+
 ### Frontend (port 3000)
 
 ```bash
