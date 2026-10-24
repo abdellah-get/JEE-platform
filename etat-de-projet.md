@@ -107,6 +107,17 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 ## Journal des réalisations
 
+### 2026-10-24 — Mission #46 terminée (reset mot de passe)
+
+**Fait :**
+- Flyway V5 `password_reset_tokens` (hash SHA-256, TTL, single-use)
+- `POST /api/v1/auth/forgot-password` + `POST /api/v1/auth/reset-password`
+- Mail : log local (`LoggingMailService`) ou SMTP si `spring.mail.host` (Brevo…)
+- Front `/forgot-password` + `/reset-password` branchés
+- Tests flux complet + anti-énumération
+
+**Prochaine mission :** [#47](https://github.com/abdellah-get/JEE-platform/issues/47) — rate-limit auth.
+
 ### 2026-10-24 — Mission #45 terminée (H2 + JWT fail-fast)
 
 **Fait :**
