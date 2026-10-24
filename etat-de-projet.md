@@ -11,7 +11,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | Phase | Statut        | Progression |
 |-------|---------------|-------------|
-| P0 Fondations | En cours | 6/7 missions |
+| P0 Fondations | **Terminé** | 7/7 missions |
 | P1 Projets & RBAC | À faire | 0/5 |
 | P2 Tâches Kanban | À faire | 0/4 |
 | P3 Annonces & Dashboard | À faire | 0/2 |
@@ -31,7 +31,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 4 | Pages auth frontend | **Terminé** |
 | 5 | Layout app + middleware routes protégées | **Terminé** |
 | 6 | Profil /me + page /profile | **Terminé** |
-| 7 | CI GitHub Actions + déploiement | À faire |
+| 7 | CI GitHub Actions + déploiement | **Terminé** |
 
 ### P1 — Projets & RBAC
 
@@ -69,6 +69,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #7 terminée (fin P0)
+
+**Fait :**
+- CI GitHub Actions : `.github/workflows/ci.yml` (Maven test + Next build)
+- Guide déploiement : `docs/DEPLOY.md` (Neon + Render + Vercel)
+- Prod-ready : `server.port=${PORT:8081}`, `CORS_ORIGINS` configurable
+
+**Phase P0 fondations = complète.**  
+Prochaine phase : **P1 — Projets & RBAC** (mission #8).
 
 ### 2026-10-24 — Mission #6 terminée
 
