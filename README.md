@@ -78,11 +78,14 @@ Puis appeler les routes protégées avec : `Authorization: Bearer <accessToken>`
 
 ```bash
 cd frontend
+cp .env.example .env.local   # Windows: copy .env.example .env.local
 npm install
 npm run dev
 ```
 
 Ouvrir : [http://localhost:3000](http://localhost:3000)
+
+Pages auth : `/login`, `/register`, `/forgot-password`, `/reset-password`, `/dashboard`.
 
 ## Suivi
 

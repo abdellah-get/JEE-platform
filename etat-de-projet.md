@@ -11,7 +11,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | Phase | Statut        | Progression |
 |-------|---------------|-------------|
-| P0 Fondations | En cours | 3/7 missions |
+| P0 Fondations | En cours | 4/7 missions |
 | P1 Projets & RBAC | À faire | 0/5 |
 | P2 Tâches Kanban | À faire | 0/4 |
 | P3 Annonces & Dashboard | À faire | 0/2 |
@@ -28,7 +28,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 1 | Initialiser le monorepo Spring Boot + Next.js | **Terminé** |
 | 2 | Schéma PostgreSQL + Flyway (User, roles) | **Terminé** |
 | 3 | Auth JWT (login, refresh, logout) | **Terminé** |
-| 4 | Pages auth frontend | À faire |
+| 4 | Pages auth frontend | **Terminé** |
 | 5 | Layout app + middleware routes protégées | À faire |
 | 6 | Profil /me + page /profile | À faire |
 | 7 | CI GitHub Actions + déploiement | À faire |
@@ -69,6 +69,23 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #4 terminée
+
+**Fait :**
+- Client API (`src/lib/api.ts`) + stockage access token (`localStorage`)
+- `AuthContext` : login / register / logout / refresh silencieux
+- Pages : `/login`, `/register`, `/forgot-password`, `/reset-password`, `/dashboard`
+- Redirect auto vers dashboard si déjà connecté ; dashboard protégé côté client
+- Erreurs API affichées dans les formulaires
+- Forgot/reset : UI prête (envoi email Brevo à brancher plus tard)
+
+**À retenir :**
+- Access token → `Authorization: Bearer` + `localStorage`
+- Refresh cookie HttpOnly envoyé avec `credentials: "include"`
+- Middleware Next.js « dur » = mission #5
+
+**Prochaine mission :** #5 — Layout app + middleware routes protégées.
 
 ### 2026-10-24 — Mission #3 terminée
 
