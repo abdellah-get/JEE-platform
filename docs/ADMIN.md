@@ -33,7 +33,7 @@ Le seed est **idempotent** (ne recrée pas si `bureau@ensem.jee` existe) et **d�
 | Rôle | Peut |
 |------|------|
 | **MEMBRE** | Voir ses projets/tâches, lire les annonces |
-| **BUREAU** | Créer projets, gérer membres (actif/inactif), publier annonces, KPI dashboard |
+| **BUREAU** | Créer projets, gérer membres (actif/inactif), publier annonces, KPI dashboard + export CSV |
 | **ADMIN_TECH** | Tout le bureau + changer les rôles club (`/admin/roles`) |
 
 Rôles **projet** (sur l’équipe) : `CHEF_PROJET` / `CONTRIBUTEUR` — le chef compose l’équipe et gère le Kanban.
@@ -51,7 +51,8 @@ Rôles **projet** (sur l’équipe) : `CHEF_PROJET` / `CONTRIBUTEUR` — le chef
    Sur le Kanban : renseigner description et échéance à la création ; cliquer une carte ouvre le panneau d’édition.  
    Glisser-déposer une carte dans une colonne (ou sur une autre carte) enregistre l’ordre (`sortOrder`).  
    Badges « En retard » / « Bientôt » (échéance ≤ 3 jours) sur dashboard, Mes tâches et Kanban.  
-   Commentaires : ouvrir une carte → section en bas du panneau (membres du projet).
+   Commentaires : ouvrir une carte → section en bas du panneau (membres du projet).  
+   Dashboard bureau : projets par statut, avancement moyen, tâches en retard ; bouton **Exporter CSV** pour un suivi AG / hebdo.
 
 4. **Annonce urgente**  
    Annonces → Nouvelle → cocher **Épingler** → visible en tête et sur le dashboard.  

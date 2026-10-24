@@ -19,7 +19,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P4 Polish | **Terminé** | 2/2 |
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
-| P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
+| P7 Reporting & qualité | **En cours** | 1/6 (#57–#62) |
 
 ---
 
@@ -96,7 +96,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | # | Mission | Statut |
 |---|---------|--------|
-| 57 | Dashboard bureau enrichi + export CSV | **À faire** |
+| 57 | Dashboard bureau enrichi + export CSV | **Terminé** |
 | 58 | Rotation / révocation refresh tokens | **À faire** |
 | 59 | E2E smoke CI | **À faire** |
 | 60 | Permissions tâches (delete chef/bureau) | **À faire** |
@@ -106,6 +106,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #57 terminée (dashboard bureau + export CSV)
+
+**Fait :**
+- KPI bureau enrichis : projets par statut, avancement moyen, tâches overdue
+- `GET /api/v1/dashboard/export.csv` (BUREAU / ADMIN_TECH) — projets + progress + tâches ouvertes / overdue
+- UI dashboard : bloc statuts / avg / overdue + bouton **Exporter CSV**
+
+**Prochaine mission :** [#58](https://github.com/abdellah-get/JEE-platform/issues/58) — rotation / révocation refresh tokens.
 
 ### 2026-10-24 — Mission #56 terminée (notifications in-app) — fin P6
 

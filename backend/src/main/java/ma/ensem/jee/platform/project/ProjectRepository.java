@@ -21,4 +21,7 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
 	List<Project> findAllByOrderByUpdatedAtDesc();
 
 	long countByStatus(ProjectStatus status);
+
+	@Query("select coalesce(avg(p.progressPercent), 0) from Project p")
+	double averageProgressPercent();
 }

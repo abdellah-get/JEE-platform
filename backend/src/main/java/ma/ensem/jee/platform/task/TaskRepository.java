@@ -1,5 +1,6 @@
 package ma.ensem.jee.platform.task;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +29,30 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 	long countByProjectIdAndStatus(UUID projectId, TaskStatus status);
 
 	long countByStatusNot(TaskStatus status);
+
+	@Query("""
+			select count(t) from Task t
+			where t.status <> ma.ensem.jee.platform.task.TaskStatus.DONE
+			  and t.dueDate is not null
+			  and t.dueDate < :today
+			""")
+	long countOverdue(@Param("today") LocalDate today);
+
+	@Query("""
+			select count(t) from Task t
+			where t.projectId = :projectId
+			  and t.status <> ma.ensem.jee.platform.task.TaskStatus.DONE
+			""")
+	long countOpenByProjectId(@Param("projectId") UUID projectId);
+
+	@Query("""
+			select count(t) from Task t
+			where t.projectId = :projectId
+			  and t.status <> ma.ensem.jee.platform.task.TaskStatus.DONE
+			  and t.dueDate is not null
+			  and t.dueDate < :today
+			""")
+	long countOverdueByProjectId(@Param("projectId") UUID projectId, @Param("today") LocalDate today);
 
 	@Query("""
 			select t from Task t
