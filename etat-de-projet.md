@@ -17,7 +17,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P2 Tâches Kanban | **Terminé** | 4/4 |
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
-| P5 Prod & auth | **En cours** | 5/6 (#45–#50) |
+| P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **À faire** | 0/6 (#51–#56) |
 | P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
@@ -79,7 +79,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 47 | Rate-limit endpoints auth | **Terminé** |
 | 48 | Refresh silencieux sur 401 | **Terminé** |
 | 49 | Restriction inscription (domaine / approbation) | **Terminé** |
-| 50 | Dockerfile backend + DEPLOY.md (V1–V4) | **À faire** |
+| 50 | Dockerfile backend + DEPLOY.md (V1–V5) | **Terminé** |
 
 ### P6 — Collaboration & UX tâches
 
@@ -106,6 +106,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #50 terminée (Dockerfile + DEPLOY) — fin P5
+
+**Fait :**
+- `backend/Dockerfile` multi-stage (JDK 21 → JRE) + `.dockerignore`
+- `docs/DEPLOY.md` : Flyway V1–V5, Render Java/Docker, variables prod
+- Scripts smoke `scripts/smoke-api.sh` / `.ps1`
+- **Phase P5 = complète**
+
+**Prochaine phase :** P6 — Collaboration & UX (#51…).
 
 ### 2026-10-24 — Mission #49 terminée (restriction inscription)
 

@@ -99,6 +99,14 @@ Si le port 3000 est déjà pris, Next.js utilise **3001** — ouvre l’URL affi
 Pages auth : `/login`, `/register`, `/forgot-password`, `/reset-password`.  
 App (sidebar) : `/dashboard`, `/projects`, `/tasks`, `/announcements`, `/profile`, `/admin` (bureau).
 
+## Docker (API)
+
+```bash
+docker build -t jee-platform-api -f backend/Dockerfile backend
+```
+
+Voir [`docs/DEPLOY.md`](docs/DEPLOY.md) (variables prod, Flyway V1–V5, scripts `scripts/smoke-api.*`).
+
 ## CI & sécurité
 
 | Workflow | Rôle |
@@ -114,7 +122,7 @@ Détails : **[docs/SECURITY.md](docs/SECURITY.md)**.
 | Doc | Contenu |
 |-----|---------|
 | [docs/ADMIN.md](docs/ADMIN.md) | Rôles club, seed demo, parcours bureau |
-| [docs/DEPLOY.md](docs/DEPLOY.md) | Neon + Render + Vercel |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Neon + Render/Docker + Vercel + smoke |
 | [docs/SECURITY.md](docs/SECURITY.md) | Pipelines sécurité |
 | [docs/ETUDE-AMELIORATIONS.md](docs/ETUDE-AMELIORATIONS.md) | Roadmap P5–P7 (post P0–P4) |
 
