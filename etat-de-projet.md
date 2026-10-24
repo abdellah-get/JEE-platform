@@ -12,7 +12,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | Phase | Statut        | Progression |
 |-------|---------------|-------------|
 | P0 Fondations | **Terminé** | 7/7 missions |
-| P1 Projets & RBAC | En cours | 3/5 |
+| P1 Projets & RBAC | En cours | 4/5 |
 | P2 Tâches Kanban | À faire | 0/4 |
 | P3 Annonces & Dashboard | À faire | 0/2 |
 | P4 Polish | À faire | 0/2 |
@@ -40,7 +40,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 8 | API CRUD projets + désignation chef | **Terminé** |
 | 9 | ProjectMember + gestion équipe | **Terminé** |
 | 10 | Isolation accès projet (tests) | **Terminé** |
-| 11 | Pages projets | À faire |
+| 11 | Pages projets | **Terminé** |
 | 12 | Admin membres et rôles club | À faire |
 
 ### P2 — Tâches Kanban
@@ -85,6 +85,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 - 404 plutôt que 403 hors équipe pour ne pas révéler l’existence d’un projet
 
 **Prochaine mission :** #11 — Pages projets (liste, new, detail, team).
+
+### 2026-10-24 — Mission #11 terminée (pages projets)
+
+**Fait :**
+- `/projects`, `/projects/new`, `/projects/[id]`, `/team`, `/settings`
+- Client API projets + `GET /api/v1/users` (annuaire pour composer l’équipe)
+- Accès refusé propre (404 API / message UI)
+
+**Prochaine mission :** #12 — Admin membres et rôles club.
 
 ### 2026-10-24 — Pipelines sécurité ajoutés
 
