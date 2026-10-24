@@ -3,11 +3,17 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { DueBadge } from "@/components/tasks/DueBadge";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { statusLabel } from "@/lib/projects";
-import { priorityLabel, taskStatusLabel } from "@/lib/tasks";
+import {
+  dueDateClassName,
+  formatDueDate,
+  priorityLabel,
+  taskStatusLabel,
+} from "@/lib/tasks";
 import type { Dashboard } from "@/lib/types";
 
 export default function DashboardPage() {
@@ -133,10 +139,21 @@ export default function DashboardPage() {
                     href={`/projects/${t.projectId}/tasks`}
                     className="block rounded-lg px-2 py-2 text-sm hover:bg-zinc-50"
                   >
-                    <p className="font-medium">{t.title}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium">{t.title}</p>
+                      <DueBadge dueDate={t.dueDate} status={t.status} />
+                    </div>
                     <p className="text-xs text-zinc-500">
                       {t.projectName} · {taskStatusLabel(t.status)} ·{" "}
                       {priorityLabel(t.priority)}
+                      {t.dueDate ? (
+                        <>
+                          {" · "}
+                          <span className={dueDateClassName(t.dueDate, t.status)}>
+                            {formatDueDate(t.dueDate)}
+                          </span>
+                        </>
+                      ) : null}
                     </p>
                   </Link>
                 </li>

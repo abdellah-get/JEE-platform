@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { DueBadge } from "@/components/tasks/DueBadge";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
@@ -114,7 +115,10 @@ export default function MyTasksPage() {
             <li key={task.id} className="px-4 py-3">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-zinc-900">{task.title}</p>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-sm font-medium text-zinc-900">{task.title}</p>
+                    <DueBadge dueDate={task.dueDate} status={task.status} />
+                  </div>
                   {task.description && (
                     <p className="mt-1 line-clamp-2 text-xs text-zinc-500">
                       {task.description}

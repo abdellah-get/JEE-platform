@@ -1,6 +1,7 @@
 package ma.ensem.jee.platform.announcement;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,6 +82,57 @@ class AnnouncementControllerTest {
 				.header("Authorization", "Bearer " + memberToken))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.kpis").doesNotExist());
+	}
+
+	@Test
+	void bureauCanEditAnnouncementTitleAndBody() throws Exception {
+		String bureauToken = registerAndPromote("bureau.edit@ensem.jee", "Bureau", "Edit", ClubRole.BUREAU);
+		String memberToken = register("member.edit@ensem.jee", "Membre", "Edit");
+
+		String id = JsonPath.read(
+				mockMvc.perform(post("/api/v1/announcements")
+						.header("Authorization", "Bearer " + bureauToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "title": "Brouillon",
+								  "body": "Texte initial",
+								  "pinned": false
+								}
+								"""))
+						.andExpect(status().isCreated())
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		mockMvc.perform(patch("/api/v1/announcements/" + id)
+				.header("Authorization", "Bearer " + memberToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{ "title": "Hack" }
+						"""))
+				.andExpect(status().isForbidden());
+
+		mockMvc.perform(patch("/api/v1/announcements/" + id)
+				.header("Authorization", "Bearer " + bureauToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "title": "AG reportée",
+						  "body": "Nouvelle date vendredi"
+						}
+						"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.title").value("AG reportée"))
+				.andExpect(jsonPath("$.body").value("Nouvelle date vendredi"))
+				.andExpect(jsonPath("$.pinned").value(false));
+
+		mockMvc.perform(get("/api/v1/announcements/" + id)
+				.header("Authorization", "Bearer " + memberToken))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.title").value("AG reportée"))
+				.andExpect(jsonPath("$.body").value("Nouvelle date vendredi"));
 	}
 
 	private String register(String email, String firstName, String lastName) throws Exception {

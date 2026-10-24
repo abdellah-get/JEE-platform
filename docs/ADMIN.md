@@ -50,10 +50,11 @@ Rôles **projet** (sur l’équipe) : `CHEF_PROJET` / `CONTRIBUTEUR` — le chef
    Le % se calcule automatiquement (tâches DONE / total) sur la fiche projet et le Kanban.
    Sur le Kanban : renseigner description et échéance à la création ; cliquer une carte ouvre le panneau d’édition.  
    Glisser-déposer une carte dans une colonne (ou sur une autre carte) enregistre l’ordre (`sortOrder`).  
-   Les échéances dépassées (hors tâches « Fait ») apparaissent en rouge.
+   Badges « En retard » / « Bientôt » (échéance ≤ 3 jours) sur dashboard, Mes tâches et Kanban.
 
 4. **Annonce urgente**  
-   Annonces → Nouvelle → cocher **Épingler** → visible en tête et sur le dashboard.
+   Annonces → Nouvelle → cocher **Épingler** → visible en tête et sur le dashboard.  
+   Sur le détail : **Modifier** le titre / corps, épingler ou supprimer (bureau).
 
 5. **Désactiver un compte**  
    Admin → Membres → Désactiver (ne peut pas se désactiver soi-même).
