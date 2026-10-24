@@ -49,3 +49,7 @@ export function clearSession() {
 export function canAccessAdmin(role: ClubRole | null | undefined): boolean {
   return role === "BUREAU" || role === "ADMIN_TECH";
 }
+
+export function canManageClubRoles(role: ClubRole | null | undefined): boolean {
+  return role === "ADMIN_TECH";
+}

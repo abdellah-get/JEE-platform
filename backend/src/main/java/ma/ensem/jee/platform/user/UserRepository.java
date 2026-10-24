@@ -13,4 +13,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 	boolean existsByEmailIgnoreCase(String email);
 
 	List<User> findByActiveTrueOrderByLastNameAscFirstNameAsc();
+
+	List<User> findAllByOrderByLastNameAscFirstNameAsc();
+
+	long countByClubRoleAndActiveTrue(ClubRole clubRole);
 }
