@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { NotificationBell } from "@/components/layout/NotificationBell";
 import { useAuth } from "@/context/AuthContext";
 import { canAccessAdmin } from "@/lib/auth-storage";
 
@@ -12,6 +13,7 @@ const NAV = [
   { href: "/projects", label: "Projets" },
   { href: "/tasks", label: "Mes tâches" },
   { href: "/announcements", label: "Annonces" },
+  { href: "/notifications", label: "Notifications" },
   { href: "/profile", label: "Profil" },
 ] as const;
 
@@ -119,8 +121,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             Menu
           </button>
-          <span className="truncate text-sm font-medium">JEE Platform</span>
+          <span className="min-w-0 flex-1 truncate text-sm font-medium">JEE Platform</span>
+          <NotificationBell />
         </header>
+        <div className="hidden items-center justify-end border-b border-zinc-200 bg-white px-8 py-3 md:flex">
+          <NotificationBell />
+        </div>
         <main className="flex-1 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:px-8">
           {children}
         </main>

@@ -55,6 +55,18 @@ export type TaskComment = {
   updatedAt: string;
 };
 
+export type NotificationType = "TASK_ASSIGNED" | "ANNOUNCEMENT_PINNED";
+
+export type AppNotification = {
+  id: string;
+  type: NotificationType;
+  title: string;
+  body: string | null;
+  link: string | null;
+  read: boolean;
+  createdAt: string;
+};
+
 export type ProjectMember = {
   userId: string;
   email: string;

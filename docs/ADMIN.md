@@ -55,9 +55,14 @@ Rôles **projet** (sur l’équipe) : `CHEF_PROJET` / `CONTRIBUTEUR` — le chef
 
 4. **Annonce urgente**  
    Annonces → Nouvelle → cocher **Épingler** → visible en tête et sur le dashboard.  
-   Sur le détail : **Modifier** le titre / corps, épingler ou supprimer (bureau).
+   Sur le détail : **modifier** le titre / corps, épingler ou supprimer (bureau).  
+   Épingler (ou créer épinglée) envoie une notification in-app à tous les membres actifs.
 
-5. **Désactiver un compte**  
+5. **Notifications**  
+   Cloche en en-tête (badge non-lus) ou page `/notifications`.  
+   Déclenchées aussi à l’assignation d’une tâche.
+
+6. **Désactiver un compte**  
    Admin → Membres → Désactiver (ne peut pas se désactiver soi-même).
 
 ## Inscription (domaines + approbation)

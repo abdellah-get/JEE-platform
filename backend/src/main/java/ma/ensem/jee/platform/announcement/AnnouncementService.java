@@ -13,6 +13,7 @@ import ma.ensem.jee.platform.announcement.dto.UpdateAnnouncementRequest;
 import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
+import ma.ensem.jee.platform.notification.NotificationService;
 import ma.ensem.jee.platform.user.ClubRole;
 import ma.ensem.jee.platform.user.UserRepository;
 
@@ -21,10 +22,15 @@ public class AnnouncementService {
 
 	private final AnnouncementRepository announcementRepository;
 	private final UserRepository userRepository;
+	private final NotificationService notificationService;
 
-	public AnnouncementService(AnnouncementRepository announcementRepository, UserRepository userRepository) {
+	public AnnouncementService(
+			AnnouncementRepository announcementRepository,
+			UserRepository userRepository,
+			NotificationService notificationService) {
 		this.announcementRepository = announcementRepository;
 		this.userRepository = userRepository;
+		this.notificationService = notificationService;
 	}
 
 	@Transactional(readOnly = true)
@@ -60,15 +66,20 @@ public class AnnouncementService {
 				Boolean.TRUE.equals(request.pinned()),
 				current.getId());
 		announcementRepository.save(announcement);
+		if (announcement.isPinned()) {
+			notificationService.notifyAnnouncementPinned(
+					announcement.getId(), announcement.getTitle(), current.getId());
+		}
 		return toResponse(announcement);
 	}
 
 	@Transactional
 	public AnnouncementResponse update(UUID id, UpdateAnnouncementRequest request) {
-		requireBureauOrAdmin();
+		UserPrincipal current = requireBureauOrAdmin();
 		Announcement announcement = announcementRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Annonce introuvable"));
 
+		boolean wasPinned = announcement.isPinned();
 		if (request.title() != null && !request.title().isBlank()) {
 			announcement.setTitle(request.title().trim());
 		}
@@ -77,6 +88,10 @@ public class AnnouncementService {
 		}
 		if (request.pinned() != null) {
 			announcement.setPinned(request.pinned());
+		}
+		if (!wasPinned && announcement.isPinned()) {
+			notificationService.notifyAnnouncementPinned(
+					announcement.getId(), announcement.getTitle(), current.getId());
 		}
 		return toResponse(announcement);
 	}
