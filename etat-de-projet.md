@@ -15,7 +15,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P1 Projets & RBAC | **Terminé** | 5/5 |
 | P2 Tâches Kanban | **Terminé** | 4/4 |
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
-| P4 Polish | À faire | 0/2 |
+| P4 Polish | **Terminé** | 2/2 |
 
 ---
 
@@ -63,8 +63,8 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | # | Mission | Statut |
 |---|---------|--------|
-| 19 | UX mobile + polish UI | À faire |
-| 20 | Seed data demo + doc admin | À faire |
+| 19 | UX mobile + polish UI | **Terminé** |
+| 20 | Seed data demo + doc admin | **Terminé** |
 
 ---
 
@@ -129,6 +129,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 **Phase P3 = complète.**  
 **Prochaine phase :** P4 — Polish (#19 UX, #20 seed/doc).
+
+### 2026-10-24 — Missions #19 #20 terminées (fin P4)
+
+**Fait :**
+- UX mobile : sidebar sticky/safe-area, Kanban scroll horizontal, empty/loading, toasts
+- Seed demo (`SEED_ENABLED=true`) : users, projets, tâches, annonces
+- Doc bureau : `docs/ADMIN.md`
+
+**Toutes les phases P0–P4 du board sont livrées.**
 
 ### 2026-10-24 — Pipelines sécurité ajoutés
 

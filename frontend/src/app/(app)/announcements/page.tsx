@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
@@ -13,19 +15,22 @@ export default function AnnouncementsPage() {
   const { accessToken, user, loading } = useAuth();
   const [items, setItems] = useState<Announcement[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(true);
 
   useEffect(() => {
     if (!accessToken) return;
+    setBusy(true);
     api
       .listAnnouncements(accessToken)
       .then(setItems)
       .catch((err) =>
         setError(err instanceof ApiError ? err.message : "Chargement impossible"),
-      );
+      )
+      .finally(() => setBusy(false));
   }, [accessToken]);
 
   if (loading || !user || !accessToken) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock />;
   }
 
   const canWrite = canAccessAdmin(user.clubRole);
@@ -55,10 +60,23 @@ export default function AnnouncementsPage() {
         </p>
       )}
 
-      {items.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-zinc-300 bg-white p-8 text-center text-sm text-zinc-600">
-          Aucune annonce pour le moment.
-        </p>
+      {busy ? (
+        <LoadingBlock label="Chargement des annonces…" />
+      ) : items.length === 0 ? (
+        <EmptyState
+          title="Aucune annonce"
+          description="Le bureau publiera bientôt les infos du club."
+          action={
+            canWrite ? (
+              <Link
+                href="/announcements/new"
+                className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white"
+              >
+                Publier
+              </Link>
+            ) : undefined
+          }
+        />
       ) : (
         <ul className="space-y-3">
           {items.map((a) => (

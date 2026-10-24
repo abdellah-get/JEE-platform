@@ -6,6 +6,7 @@ import { FormEvent, useEffect, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { PROJECT_STATUSES, canCreateProject, statusLabel } from "@/lib/projects";
@@ -13,6 +14,7 @@ import type { ProjectStatus, UserSummary } from "@/lib/types";
 
 export default function NewProjectPage() {
   const { accessToken, user, loading } = useAuth();
+  const toast = useToast();
   const router = useRouter();
   const [users, setUsers] = useState<UserSummary[]>([]);
   const [name, setName] = useState("");
@@ -59,9 +61,13 @@ export default function NewProjectPage() {
         status,
         chefUserId: chefUserId || undefined,
       });
+      toast.success("Projet créé.");
       router.push(`/projects/${project.id}`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Création impossible");
+      const message =
+        err instanceof ApiError ? err.message : "Création impossible";
+      setError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }

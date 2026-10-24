@@ -6,12 +6,14 @@ import { FormEvent, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canAccessAdmin } from "@/lib/auth-storage";
 
 export default function NewAnnouncementPage() {
   const { accessToken, user, loading } = useAuth();
+  const toast = useToast();
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -45,9 +47,13 @@ export default function NewAnnouncementPage() {
         body: body.trim(),
         pinned,
       });
+      toast.success("Annonce publiée.");
       router.push(`/announcements/${created.id}`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Publication impossible");
+      const message =
+        err instanceof ApiError ? err.message : "Publication impossible";
+      setError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }
