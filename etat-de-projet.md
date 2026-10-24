@@ -18,7 +18,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
-| P6 Collaboration UX | **En cours** | 3/6 (#51–#56) |
+| P6 Collaboration UX | **En cours** | 4/6 (#51–#56) |
 | P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
 ---
@@ -88,7 +88,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 51 | Kanban : due dates, description, panneau édition | **Terminé** |
 | 52 | Persister reorder Kanban (`sortOrder`) | **Terminé** |
 | 53 | Edit annonce + badges overdue | **Terminé** |
-| 54 | Unifier EmptyState / Loading / toasts | **À faire** |
+| 54 | Unifier EmptyState / Loading / toasts | **Terminé** |
 | 55 | Commentaires sur tâches | **À faire** |
 | 56 | Notifications in-app | **À faire** |
 
@@ -106,6 +106,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #54 terminée (EmptyState / Loading / toasts)
+
+**Fait :**
+- Dashboard, `/tasks`, Kanban, profil, admin : `LoadingBlock` + `EmptyState` (+ compact)
+- Toasts sur profil, admin membres/rôles, Kanban CRUD, édition annonce
+- Pages projets/annonces restantes migrées vers `LoadingBlock`
+
+**Prochaine mission :** [#55](https://github.com/abdellah-get/JEE-platform/issues/55) — commentaires sur tâches.
 
 ### 2026-10-24 — Mission #53 terminée (edit annonce + badges overdue)
 

@@ -3,21 +3,22 @@
 import { FormEvent, useEffect, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
+import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 
 export default function ProfilePage() {
   const { user, loading, accessToken, updateLocalUser } = useAuth();
+  const toast = useToast();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [profileMsg, setProfileMsg] = useState<string | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [savingProfile, setSavingProfile] = useState(false);
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [passwordMsg, setPasswordMsg] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [savingPassword, setSavingPassword] = useState(false);
 
@@ -29,14 +30,13 @@ export default function ProfilePage() {
   }, [user]);
 
   if (loading || !user || !accessToken) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock />;
   }
 
   const token = accessToken;
 
   async function onSaveProfile(e: FormEvent) {
     e.preventDefault();
-    setProfileMsg(null);
     setProfileError(null);
     setSavingProfile(true);
     try {
@@ -45,11 +45,12 @@ export default function ProfilePage() {
         lastName: lastName.trim(),
       });
       updateLocalUser(api.meToAuthUser(me));
-      setProfileMsg("Profil mis à jour.");
+      toast.success("Profil mis à jour.");
     } catch (err) {
-      setProfileError(
-        err instanceof ApiError ? err.message : "Mise à jour impossible",
-      );
+      const message =
+        err instanceof ApiError ? err.message : "Mise à jour impossible";
+      setProfileError(message);
+      toast.error(message);
     } finally {
       setSavingProfile(false);
     }
@@ -57,7 +58,6 @@ export default function ProfilePage() {
 
   async function onChangePassword(e: FormEvent) {
     e.preventDefault();
-    setPasswordMsg(null);
     setPasswordError(null);
     setSavingPassword(true);
     try {
@@ -67,11 +67,12 @@ export default function ProfilePage() {
       });
       setCurrentPassword("");
       setNewPassword("");
-      setPasswordMsg("Mot de passe modifié.");
+      toast.success("Mot de passe modifié.");
     } catch (err) {
-      setPasswordError(
-        err instanceof ApiError ? err.message : "Changement impossible",
-      );
+      const message =
+        err instanceof ApiError ? err.message : "Changement impossible";
+      setPasswordError(message);
+      toast.error(message);
     } finally {
       setSavingPassword(false);
     }
@@ -119,11 +120,6 @@ export default function ProfilePage() {
               {profileError}
             </p>
           ) : null}
-          {profileMsg ? (
-            <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-              {profileMsg}
-            </p>
-          ) : null}
 
           <button
             type="submit"
@@ -163,11 +159,6 @@ export default function ProfilePage() {
           {passwordError ? (
             <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
               {passwordError}
-            </p>
-          ) : null}
-          {passwordMsg ? (
-            <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-              {passwordMsg}
             </p>
           ) : null}
 

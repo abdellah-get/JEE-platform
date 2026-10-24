@@ -10,7 +10,10 @@ import {
   TaskEditPanel,
   type TaskEditPayload,
 } from "@/components/tasks/TaskEditPanel";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import {
@@ -26,6 +29,7 @@ export default function ProjectTasksPage() {
   const params = useParams<{ id: string }>();
   const projectId = params.id;
   const { accessToken, loading } = useAuth();
+  const toast = useToast();
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [members, setMembers] = useState<ProjectMember[]>([]);
@@ -87,7 +91,7 @@ export default function ProjectTasksPage() {
   }, [tasks]);
 
   if (loading || !accessToken) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock />;
   }
 
   if (error && !project) {
@@ -96,15 +100,13 @@ export default function ProjectTasksPage() {
         <Link href="/projects" className="text-sm text-zinc-500 hover:text-zinc-800">
           ← Projets
         </Link>
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {error}
-        </p>
+        <EmptyState title="Kanban indisponible" description={error} />
       </div>
     );
   }
 
   if (!project) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock label="Chargement du Kanban…" />;
   }
 
   async function onCreate(e: FormEvent) {
@@ -124,8 +126,12 @@ export default function ProjectTasksPage() {
       setDueDate("");
       setAssigneeId("");
       await reload(accessToken!);
+      toast.success("Tâche créée.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Création impossible");
+      const message =
+        err instanceof ApiError ? err.message : "Création impossible";
+      setError(message);
+      toast.error(message);
     } finally {
       setCreating(false);
     }
@@ -199,8 +205,12 @@ export default function ProjectTasksPage() {
         setPanelError(null);
       }
       await reload(accessToken!);
+      toast.success("Tâche supprimée.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Suppression impossible");
+      const message =
+        err instanceof ApiError ? err.message : "Suppression impossible";
+      setError(message);
+      toast.error(message);
     }
   }
 
@@ -243,8 +253,12 @@ export default function ProjectTasksPage() {
       const updated = await api.updateTask(accessToken!, selectedTask.id, body);
       setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
       setSelectedTaskId(null);
+      toast.success("Tâche mise à jour.");
     } catch (err) {
-      setPanelError(err instanceof ApiError ? err.message : "Enregistrement impossible");
+      const message =
+        err instanceof ApiError ? err.message : "Enregistrement impossible";
+      setPanelError(message);
+      toast.error(message);
     } finally {
       setPanelSaving(false);
     }
@@ -344,6 +358,13 @@ export default function ProjectTasksPage() {
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
         </p>
+      )}
+
+      {tasks.length === 0 && (
+        <EmptyState
+          title="Aucune tâche"
+          description="Ajoute la première tâche avec le formulaire ci-dessus."
+        />
       )}
 
       <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0">

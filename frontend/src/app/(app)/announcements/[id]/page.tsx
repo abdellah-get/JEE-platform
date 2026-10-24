@@ -5,7 +5,9 @@ import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
+import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canAccessAdmin } from "@/lib/auth-storage";
@@ -15,6 +17,7 @@ export default function AnnouncementDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { accessToken, user, loading } = useAuth();
+  const toast = useToast();
   const [item, setItem] = useState<Announcement | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -37,7 +40,7 @@ export default function AnnouncementDetailPage() {
   }, [accessToken, params.id]);
 
   if (loading || !user || !accessToken) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock />;
   }
 
   if (error && !item) {
@@ -52,7 +55,7 @@ export default function AnnouncementDetailPage() {
   }
 
   if (!item) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock label="Chargement de l’annonce…" />;
   }
 
   const canWrite = canAccessAdmin(user.clubRole);
@@ -82,8 +85,12 @@ export default function AnnouncementDetailPage() {
       });
       setItem(updated);
       setEditing(false);
+      toast.success("Annonce mise à jour.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Enregistrement impossible");
+      const message =
+        err instanceof ApiError ? err.message : "Enregistrement impossible";
+      setError(message);
+      toast.error(message);
     } finally {
       setBusy(false);
     }
