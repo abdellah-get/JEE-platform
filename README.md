@@ -85,7 +85,8 @@ npm run dev
 
 Ouvrir : [http://localhost:3000](http://localhost:3000)
 
-Pages auth : `/login`, `/register`, `/forgot-password`, `/reset-password`, `/dashboard`.
+Pages auth : `/login`, `/register`, `/forgot-password`, `/reset-password`.  
+App (sidebar) : `/dashboard`, `/projects`, `/tasks`, `/announcements`, `/profile`, `/admin` (bureau).
 
 ## Suivi
 

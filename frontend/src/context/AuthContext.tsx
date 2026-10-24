@@ -55,6 +55,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token = getAccessToken();
     const stored = getStoredUser();
     if (token && stored) {
+      // Resync cookies for Next middleware after refresh navigations
+      saveSession(token, stored);
       setAccessToken(token);
       setUser(stored);
       setLoading(false);
@@ -86,9 +88,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (email: string, password: string) => {
       const res = await api.login({ email, password });
       applyAuth(res);
-      router.replace("/dashboard");
+      // Navigation handled by the caller (supports ?next=)
     },
-    [applyAuth, router],
+    [applyAuth],
   );
 
   const register = useCallback(
