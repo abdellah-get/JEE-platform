@@ -101,6 +101,20 @@ export function logout() {
   return apiFetch<void>("/api/v1/auth/logout", { method: "POST" });
 }
 
+export function forgotPassword(body: { email: string }) {
+  return apiFetch<{ message: string }>("/api/v1/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function resetPassword(body: { token: string; password: string }) {
+  return apiFetch<{ message: string }>("/api/v1/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
 export function getMe(accessToken: string) {
   return apiFetch<MeResponse>("/api/v1/me", { method: "GET" }, accessToken);
 }

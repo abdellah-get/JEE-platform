@@ -17,7 +17,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P2 Tâches Kanban | **Terminé** | 4/4 |
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
-| P5 Prod & auth | **En cours** | 1/6 (#45–#50) |
+| P5 Prod & auth | **En cours** | 2/6 (#45–#50) |
 | P6 Collaboration UX | **À faire** | 0/6 (#51–#56) |
 | P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
@@ -75,7 +75,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | # | Mission | Statut |
 |---|---------|--------|
 | 45 | H2 console local-only + fail-fast JWT secret | **Terminé** |
-| 46 | Reset MDP API + email + UI forgot/reset | **À faire** |
+| 46 | Reset MDP API + email + UI forgot/reset | **Terminé** |
 | 47 | Rate-limit endpoints auth | **À faire** |
 | 48 | Refresh silencieux sur 401 | **À faire** |
 | 49 | Restriction inscription (domaine / approbation) | **À faire** |
@@ -106,6 +106,17 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #46 terminée (reset mot de passe)
+
+**Fait :**
+- Flyway V5 `password_reset_tokens` (hash SHA-256, TTL, single-use)
+- `POST /api/v1/auth/forgot-password` + `POST /api/v1/auth/reset-password`
+- Mail : log local (`LoggingMailService`) ou SMTP si `spring.mail.host` (Brevo…)
+- Front `/forgot-password` + `/reset-password` branchés
+- Tests flux complet + anti-énumération
+
+**Prochaine mission :** [#47](https://github.com/abdellah-get/JEE-platform/issues/47) — rate-limit auth.
 
 ### 2026-10-24 — Mission #45 terminée (H2 + JWT fail-fast)
 
