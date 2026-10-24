@@ -13,12 +13,10 @@
 
 ## Secret scanning GitHub natif
 
-Sur un repo **privé**, le *Secret scanning* / *Push protection* GitHub nécessite souvent **GitHub Advanced Security** (payant).
+Le repo est **public** : tu peux activer *Secret scanning* + *Push protection* :
+Repo → **Settings** → **Code security**.
 
-En compensation, **Gitleaks** tourne à chaque push/PR (équivalent pratique gratuit).
-
-À activer manuellement si dispo :  
-Repo → **Settings** → **Code security** → Secret scanning / Push protection.
+**Gitleaks** tourne aussi à chaque push/PR (filet de sécurité CI).
 
 ## Dependabot
 
@@ -30,10 +28,8 @@ Repo → **Settings** → **Code security** → Dependabot alerts + Dependabot s
 1. **Gitleaks** → un secret est dans l’historique ou le diff → le retirer, le faire tourner (rotation), ne jamais le re-commit.
 2. **npm audit** → `cd frontend && npm audit` puis mettre à jour le package.
 3. **Trivy** → lire le CVE, mettre à jour la dépendance Maven/npm.
-4. **CodeQL** → l’analyse tourne en CI ; les SARIF sont en artifact du workflow.
-   L’onglet **Security → Code scanning** GitHub exige un repo **public** ou
-   **GitHub Advanced Security** (payant en privé). Pour l’activer plus tard :
-   Settings → Code security → Code scanning.
+4. **CodeQL** → alertes dans **Security → Code scanning** (repo public).
+   Corriger chaque alerte signalée, puis re-run le workflow si besoin.
 
 ## Règles club
 
