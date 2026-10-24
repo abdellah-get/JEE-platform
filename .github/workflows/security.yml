@@ -6,13 +6,13 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    # Scan hebdomadaire (lundi 06:00 UTC)
     - cron: "0 6 * * 1"
 
 permissions:
   contents: read
   security-events: write
   actions: read
+  pull-requests: read
 
 jobs:
   secrets:
@@ -24,10 +24,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      # CLI directe (évite l'API PR qui échoue avec le token par défaut)
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
 
   npm-audit:
     name: Frontend npm audit
@@ -77,7 +79,7 @@ jobs:
         run: npm ci
 
       - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -85,6 +87,8 @@ jobs:
           exit-code: "1"
           ignore-unfixed: true
           format: table
+          # node_modules / target already scanned via lockfiles + built jar
+          skip-dirs: "frontend/node_modules,backend/target,.git"
 
   codeql:
     name: CodeQL
