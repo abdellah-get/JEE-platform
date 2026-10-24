@@ -34,14 +34,19 @@ Flyway appliquera `V1__create_users.sql` au premier démarrage.
 
 | Variable | Exemple |
 |----------|---------|
+| `SPRING_PROFILES_ACTIVE` | `prod` (**obligatoire**) |
 | `DATABASE_URL` | jdbc Neon (ci-dessus) |
 | `DATABASE_USERNAME` | … |
 | `DATABASE_PASSWORD` | … |
 | `DATABASE_DRIVER` | `org.postgresql.Driver` |
-| `JWT_SECRET` | chaîne aléatoire **≥ 32 caractères** |
+| `JWT_SECRET` | chaîne aléatoire **≥ 32 caractères** (pas le secret de dev) |
 | `JWT_COOKIE_SECURE` | `true` |
 | `CORS_ORIGINS` | `https://ton-app.vercel.app` |
+| `SEED_ENABLED` | `false` |
 | `PORT` | laissé à Render (Spring lit `server.port` ; si besoin : `SERVER_PORT` / config) |
+
+> Sans `JWT_SECRET` fort + profil `prod`, l’API **refuse de démarrer** (`ProductionSafetyValidator`).  
+> La console H2 n’est **pas** disponible en prod (profil `local` uniquement).
 
 > **Note port :** Render injecte `PORT`. Ajoute si besoin dans `application.properties` :  
 > `server.port=${PORT:8081}`
@@ -69,10 +74,13 @@ NEXT_PUBLIC_API_URL=https://ton-api.onrender.com
 
 ## 4. Checklist post-deploy
 
+- [ ] `SPRING_PROFILES_ACTIVE=prod` et `JWT_SECRET` (≥ 32) définis
 - [ ] `GET /api/v1/health` → `UP`
+- [ ] `/h2-console` inaccessible (404 / non exposé)
 - [ ] Inscription + login depuis le front Vercel
 - [ ] Cookie refresh : HTTPS + `JWT_COOKIE_SECURE=true`
 - [ ] CORS : origine Vercel listée dans `CORS_ORIGINS`
+- [ ] `SEED_ENABLED=false`
 - [ ] Pas de secret (`JWT_SECRET`, mots de passe DB) dans le repo
 
 ---

@@ -5,8 +5,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "app.jwt")
 public class JwtProperties {
 
+	/** Well-known local default — never use in production (see ProductionSafetyValidator). */
+	public static final String DEV_DEFAULT_SECRET = "jee-ensem-dev-secret-change-me-32chars-min";
+
 	/** HS256 key — override with JWT_SECRET in production (min 32 chars). */
-	private String secret = "jee-ensem-dev-secret-change-me-32chars-min";
+	private String secret = DEV_DEFAULT_SECRET;
 
 	private long accessTokenMinutes = 15;
 

@@ -2,6 +2,7 @@ package ma.ensem.jee.platform.auth;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,10 +29,15 @@ public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CorsProperties corsProperties;
+	private final boolean h2ConsoleEnabled;
 
-	public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, CorsProperties corsProperties) {
+	public SecurityConfig(
+			JwtAuthenticationFilter jwtAuthenticationFilter,
+			CorsProperties corsProperties,
+			@Value("${spring.h2.console.enabled:false}") boolean h2ConsoleEnabled) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.corsProperties = corsProperties;
+		this.h2ConsoleEnabled = h2ConsoleEnabled;
 	}
 
 	@Bean
@@ -40,12 +46,15 @@ public class SecurityConfig {
 				.csrf(AbstractHttpConfigurer::disable)
 				.cors(Customizer.withDefaults())
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/api/v1/health").permitAll()
-						.requestMatchers("/api/v1/auth/**").permitAll()
-						.requestMatchers("/h2-console/**").permitAll()
-						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-						.anyRequest().authenticated())
+				.authorizeHttpRequests(auth -> {
+					auth.requestMatchers("/api/v1/health").permitAll()
+							.requestMatchers("/api/v1/auth/**").permitAll()
+							.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+					if (h2ConsoleEnabled) {
+						auth.requestMatchers("/h2-console/**").permitAll();
+					}
+					auth.anyRequest().authenticated();
+				})
 				.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
