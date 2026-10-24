@@ -11,7 +11,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | Phase | Statut        | Progression |
 |-------|---------------|-------------|
-| P0 Fondations | En cours | 5/7 missions |
+| P0 Fondations | En cours | 6/7 missions |
 | P1 Projets & RBAC | À faire | 0/5 |
 | P2 Tâches Kanban | À faire | 0/4 |
 | P3 Annonces & Dashboard | À faire | 0/2 |
@@ -30,7 +30,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 3 | Auth JWT (login, refresh, logout) | **Terminé** |
 | 4 | Pages auth frontend | **Terminé** |
 | 5 | Layout app + middleware routes protégées | **Terminé** |
-| 6 | Profil /me + page /profile | À faire |
+| 6 | Profil /me + page /profile | **Terminé** |
 | 7 | CI GitHub Actions + déploiement | À faire |
 
 ### P1 — Projets & RBAC
@@ -69,6 +69,20 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #6 terminée
+
+**Fait :**
+- API `GET/PATCH /api/v1/me` + `POST /api/v1/me/password`
+- `MeService` / `MeController` + tests
+- Page `/profile` : édition prénom/nom + changement MDP
+- Sync localStorage / sidebar après update
+
+**À retenir :**
+- `/me` lit l’utilisateur depuis le JWT (`SecurityContext`), pas depuis un id dans l’URL
+- Changement MDP vérifie l’ancien hash BCrypt avant d’encoder le nouveau
+
+**Prochaine mission :** #7 — CI GitHub Actions + déploiement Neon/Render/Vercel.
 
 ### 2026-10-24 — Mission #5 terminée
 

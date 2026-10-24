@@ -31,6 +31,8 @@ type AuthContextValue = {
     lastName: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
+  updateLocalUser: (user: AuthUser) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -119,9 +121,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.replace("/login");
   }, [router]);
 
+  const updateLocalUser = useCallback(
+    (next: AuthUser) => {
+      if (!accessToken) return;
+      saveSession(accessToken, next);
+      setUser(next);
+    },
+    [accessToken],
+  );
+
+  const refreshProfile = useCallback(async () => {
+    if (!accessToken) return;
+    const me = await api.getMe(accessToken);
+    updateLocalUser(api.meToAuthUser(me));
+  }, [accessToken, updateLocalUser]);
+
   const value = useMemo(
-    () => ({ user, accessToken, loading, login, register, logout }),
-    [user, accessToken, loading, login, register, logout],
+    () => ({
+      user,
+      accessToken,
+      loading,
+      login,
+      register,
+      logout,
+      refreshProfile,
+      updateLocalUser,
+    }),
+    [
+      user,
+      accessToken,
+      loading,
+      login,
+      register,
+      logout,
+      refreshProfile,
+      updateLocalUser,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
