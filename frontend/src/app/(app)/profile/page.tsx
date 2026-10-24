@@ -32,13 +32,15 @@ export default function ProfilePage() {
     return <p className="text-sm text-zinc-500">Chargement…</p>;
   }
 
+  const token = accessToken;
+
   async function onSaveProfile(e: FormEvent) {
     e.preventDefault();
     setProfileMsg(null);
     setProfileError(null);
     setSavingProfile(true);
     try {
-      const me = await api.updateMe(accessToken, {
+      const me = await api.updateMe(token, {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
       });
@@ -59,7 +61,7 @@ export default function ProfilePage() {
     setPasswordError(null);
     setSavingPassword(true);
     try {
-      await api.changePassword(accessToken, {
+      await api.changePassword(token, {
         currentPassword,
         newPassword,
       });
