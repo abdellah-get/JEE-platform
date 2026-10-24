@@ -44,6 +44,9 @@ Repo → **Settings** → **Code security** → Dependabot alerts + Dependabot s
 | **H2 console** | Désactivée par défaut ; activée seulement avec le profil `local` (`application-local.properties`). Non exposée en `prod`. |
 | **JWT secret** | Le secret de développement est **refusé** si environnement « prod-like » : profil `prod`, `JWT_COOKIE_SECURE=true`, ou driver PostgreSQL. Voir `ProductionSafetyValidator`. |
 | **Profils** | Local : `spring.profiles.default=local`. Render : `SPRING_PROFILES_ACTIVE=prod`. |
+| **Rate-limit auth** | `POST` login / register / forgot-password : 20 req / IP / endpoint / 60 s (configurable). Réponse `429` + `Retry-After`. |
+
+Variables : `AUTH_RATE_LIMIT_ENABLED`, `AUTH_RATE_LIMIT_MAX`, `AUTH_RATE_LIMIT_WINDOW_SECONDS`.
 
 En prod, définir au minimum :
 
