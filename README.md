@@ -16,7 +16,7 @@ JEE-platform/
 
 - **Java 21+** (JDK installé)
 - **Node.js 20+** et npm
-- (optionnel) PostgreSQL / Neon — à partir de la mission P0 #2
+- (optionnel) PostgreSQL / Neon — localement **H2** suffit (mémoire)
 
 ## Démarrage local
 
@@ -37,6 +37,22 @@ cd backend
 Vérifier : [http://localhost:8081/api/v1/health](http://localhost:8081/api/v1/health)
 
 > Note : le port **8080** est souvent occupé par Oracle TNS Listener sous Windows ; l’API utilise **8081** en local.
+
+Console H2 (local) : [http://localhost:8081/h2-console](http://localhost:8081/h2-console)  
+JDBC URL : `jdbc:h2:mem:jee` · user `sa` · password vide.
+
+### Base PostgreSQL (Neon) — optionnel
+
+Variables d’environnement (voir `backend/.env.example`) :
+
+```text
+DATABASE_URL=jdbc:postgresql://.../neondb?sslmode=require
+DATABASE_USERNAME=...
+DATABASE_PASSWORD=...
+DATABASE_DRIVER=org.postgresql.Driver
+```
+
+Flyway applique automatiquement `backend/src/main/resources/db/migration/V1__create_users.sql`.
 
 ### Frontend (port 3000)
 
