@@ -18,6 +18,7 @@ import ma.ensem.jee.platform.project.ProjectAccessService;
 import ma.ensem.jee.platform.project.ProjectMemberRepository;
 import ma.ensem.jee.platform.project.ProjectRepository;
 import ma.ensem.jee.platform.task.dto.CreateTaskRequest;
+import ma.ensem.jee.platform.task.dto.ReorderTasksRequest;
 import ma.ensem.jee.platform.task.dto.TaskResponse;
 import ma.ensem.jee.platform.task.dto.UpdateTaskRequest;
 import ma.ensem.jee.platform.user.User;
@@ -49,7 +50,7 @@ public class TaskService {
 	public List<TaskResponse> listByProject(UUID projectId) {
 		UserPrincipal current = SecurityUtils.currentUser();
 		Project project = accessService.requireVisibleProject(projectId, current);
-		return toResponses(taskRepository.findByProjectIdOrderBySortOrderAscCreatedAtAsc(projectId), project.getName());
+		return toResponses(taskRepository.findByProjectIdOrdered(projectId), project.getName());
 	}
 
 	@Transactional
@@ -64,7 +65,7 @@ public class TaskService {
 
 		TaskStatus status = request.status() != null ? request.status() : TaskStatus.TODO;
 		TaskPriority priority = request.priority() != null ? request.priority() : TaskPriority.MEDIUM;
-		int sortOrder = (int) taskRepository.countByProjectId(projectId);
+		int sortOrder = (int) taskRepository.countByProjectIdAndStatus(projectId, status);
 
 		Task task = new Task(
 				projectId,
@@ -139,6 +140,44 @@ public class TaskService {
 		Project project = accessService.requireVisibleProject(task.getProjectId(), current);
 		taskRepository.delete(task);
 		recalculateProgress(project);
+	}
+
+	/**
+	 * Réordonne les tâches d'une colonne Kanban : applique {@code status} et
+	 * {@code sortOrder = index} pour chaque id dans l'ordre fourni.
+	 */
+	@Transactional
+	public List<TaskResponse> reorder(UUID projectId, ReorderTasksRequest request) {
+		UserPrincipal current = SecurityUtils.currentUser();
+		Project project = accessService.requireVisibleProject(projectId, current);
+
+		List<UUID> taskIds = request.taskIds();
+		long distinct = taskIds.stream().distinct().count();
+		if (distinct != taskIds.size()) {
+			throw new IllegalArgumentException("Liste de tâches invalide (doublons)");
+		}
+
+		Map<UUID, Task> byId = taskRepository.findAllById(taskIds).stream()
+				.collect(Collectors.toMap(Task::getId, Function.identity()));
+		if (byId.size() != taskIds.size()) {
+			throw new ResourceNotFoundException("Tâche introuvable");
+		}
+		for (UUID id : taskIds) {
+			Task task = byId.get(id);
+			if (!task.getProjectId().equals(projectId)) {
+				throw new IllegalArgumentException("Une tâche n'appartient pas à ce projet");
+			}
+		}
+
+		TaskStatus status = request.status();
+		for (int i = 0; i < taskIds.size(); i++) {
+			Task task = byId.get(taskIds.get(i));
+			task.setStatus(status);
+			task.setSortOrder(i);
+		}
+
+		recalculateProgress(project);
+		return listByProject(projectId);
 	}
 
 	@Transactional(readOnly = true)

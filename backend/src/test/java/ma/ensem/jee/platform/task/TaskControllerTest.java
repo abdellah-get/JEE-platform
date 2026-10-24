@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -118,6 +119,109 @@ class TaskControllerTest {
 				.header("Authorization", "Bearer " + chefToken))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.progressPercent").value(0));
+	}
+
+	@Test
+	void reorderTasksPersistsSortOrderAndStatus() throws Exception {
+		String bureauToken = registerAndPromote("bureau.reorder@ensem.jee", "Bureau", "Reorder", ClubRole.BUREAU);
+		String chefToken = register("chef.reorder@ensem.jee", "Chef", "Reorder");
+		String chefId = userId(chefToken);
+
+		String projectId = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects")
+						.header("Authorization", "Bearer " + bureauToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "name": "Reorder board",
+								  "chefUserId": "%s"
+								}
+								""".formatted(chefId)))
+						.andExpect(status().isCreated())
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		String taskA = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects/" + projectId + "/tasks")
+						.header("Authorization", "Bearer " + chefToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{ "title": "A" }
+								"""))
+						.andExpect(status().isCreated())
+						.andExpect(jsonPath("$.sortOrder").value(0))
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		String taskB = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects/" + projectId + "/tasks")
+						.header("Authorization", "Bearer " + chefToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{ "title": "B" }
+								"""))
+						.andExpect(status().isCreated())
+						.andExpect(jsonPath("$.sortOrder").value(1))
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		String taskC = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects/" + projectId + "/tasks")
+						.header("Authorization", "Bearer " + chefToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{ "title": "C" }
+								"""))
+						.andExpect(status().isCreated())
+						.andExpect(jsonPath("$.sortOrder").value(2))
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		// Colonne TODO : B, A, C
+		mockMvc.perform(put("/api/v1/projects/" + projectId + "/tasks/reorder")
+				.header("Authorization", "Bearer " + chefToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "status": "TODO",
+						  "taskIds": ["%s", "%s", "%s"]
+						}
+						""".formatted(taskB, taskA, taskC)))
+				.andExpect(status().isOk());
+
+		// C passe en IN_PROGRESS (fin de sa nouvelle colonne)
+		mockMvc.perform(put("/api/v1/projects/" + projectId + "/tasks/reorder")
+				.header("Authorization", "Bearer " + chefToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "status": "IN_PROGRESS",
+						  "taskIds": ["%s"]
+						}
+						""".formatted(taskC)))
+				.andExpect(status().isOk());
+
+		// Ordre stable après refresh : B, A (TODO) puis C (IN_PROGRESS)
+		mockMvc.perform(get("/api/v1/projects/" + projectId + "/tasks")
+				.header("Authorization", "Bearer " + chefToken))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].id").value(taskB))
+				.andExpect(jsonPath("$[0].sortOrder").value(0))
+				.andExpect(jsonPath("$[0].status").value("TODO"))
+				.andExpect(jsonPath("$[1].id").value(taskA))
+				.andExpect(jsonPath("$[1].sortOrder").value(1))
+				.andExpect(jsonPath("$[1].status").value("TODO"))
+				.andExpect(jsonPath("$[2].id").value(taskC))
+				.andExpect(jsonPath("$[2].status").value("IN_PROGRESS"))
+				.andExpect(jsonPath("$[2].sortOrder").value(0));
 	}
 
 	@Test

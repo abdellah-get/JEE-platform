@@ -30,7 +30,7 @@ Board missions : [JEE Platform — Missions](https://github.com/users/abdellah-g
 |---------|------|----------------|
 | Forgot / reset password | UI factice, pas d’API email | `forgot-password/page.tsx`, `reset-password/page.tsx` |
 | `dueDate` / `description` tâche | OK (#51) — panneau édition + cartes | `TaskEditPanel`, `projects/[id]/tasks` |
-| `sortOrder` Kanban | Créé mais DnD ne réordonne pas | `TaskService`, Kanban |
+| `sortOrder` Kanban | OK (#52) — `PUT …/tasks/reorder` | `TaskService.reorder`, Kanban DnD |
 | Edit annonce title/body | API oui, UI pin/delete seulement | `AnnouncementService`, `announcements/[id]` |
 | EmptyState / Toast / Loading | Présents, adoption partielle | `components/ui/*`, `ToastContext` |
 | Landing | Minimale | `app/page.tsx` |

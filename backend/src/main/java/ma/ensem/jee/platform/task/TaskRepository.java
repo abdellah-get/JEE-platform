@@ -9,7 +9,19 @@ import org.springframework.data.repository.query.Param;
 
 public interface TaskRepository extends JpaRepository<Task, UUID> {
 
-	List<Task> findByProjectIdOrderBySortOrderAscCreatedAtAsc(UUID projectId);
+	@Query("""
+			select t from Task t
+			where t.projectId = :projectId
+			order by
+				case t.status
+					when ma.ensem.jee.platform.task.TaskStatus.TODO then 0
+					when ma.ensem.jee.platform.task.TaskStatus.IN_PROGRESS then 1
+					when ma.ensem.jee.platform.task.TaskStatus.DONE then 2
+				end,
+				t.sortOrder asc,
+				t.createdAt asc
+			""")
+	List<Task> findByProjectIdOrdered(@Param("projectId") UUID projectId);
 
 	long countByProjectId(UUID projectId);
 

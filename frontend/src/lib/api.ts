@@ -384,6 +384,19 @@ export function updateTask(
   );
 }
 
+/** Réordonne une colonne Kanban (status + sortOrder = index). */
+export function reorderProjectTasks(
+  accessToken: string,
+  projectId: string,
+  body: { status: TaskStatus; taskIds: string[] },
+) {
+  return apiFetch<Task[]>(
+    `/api/v1/projects/${projectId}/tasks/reorder`,
+    { method: "PUT", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
 export function deleteTask(accessToken: string, taskId: string) {
   return apiFetch<void>(`/api/v1/tasks/${taskId}`, { method: "DELETE" }, accessToken);
 }

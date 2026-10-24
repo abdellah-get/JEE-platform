@@ -18,7 +18,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
-| P6 Collaboration UX | **En cours** | 1/6 (#51–#56) |
+| P6 Collaboration UX | **En cours** | 2/6 (#51–#56) |
 | P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
 ---
@@ -86,7 +86,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | # | Mission | Statut |
 |---|---------|--------|
 | 51 | Kanban : due dates, description, panneau édition | **Terminé** |
-| 52 | Persister reorder Kanban (`sortOrder`) | **À faire** |
+| 52 | Persister reorder Kanban (`sortOrder`) | **Terminé** |
 | 53 | Edit annonce + badges overdue | **À faire** |
 | 54 | Unifier EmptyState / Loading / toasts | **À faire** |
 | 55 | Commentaires sur tâches | **À faire** |
@@ -106,6 +106,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #52 terminée (persister reorder Kanban)
+
+**Fait :**
+- `PUT /api/v1/projects/{id}/tasks/reorder` : status + `sortOrder = index`
+- Kanban : drop sur carte (insert before) ou colonne (fin) → ordre persisté
+- Création : `sortOrder` = count dans la colonne cible
+- Test API reorder + ordre stable au GET
+
+**Prochaine mission :** [#53](https://github.com/abdellah-get/JEE-platform/issues/53) — edit annonce + badges overdue.
 
 ### 2026-10-24 — Mission #51 terminée (Kanban due dates / panneau édition)
 

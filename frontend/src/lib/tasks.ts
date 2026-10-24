@@ -50,6 +50,26 @@ export function dueDateClassName(
   return "text-zinc-600";
 }
 
+/**
+ * Construit l'ordre d'ids pour une colonne après un drop.
+ * @param beforeTaskId null = fin de colonne
+ */
+export function buildColumnOrder(
+  columnTaskIds: string[],
+  draggedId: string,
+  beforeTaskId: string | null,
+): string[] {
+  const without = columnTaskIds.filter((id) => id !== draggedId);
+  if (!beforeTaskId) {
+    return [...without, draggedId];
+  }
+  const idx = without.indexOf(beforeTaskId);
+  if (idx < 0) {
+    return [...without, draggedId];
+  }
+  return [...without.slice(0, idx), draggedId, ...without.slice(idx)];
+}
+
 function parseLocalDate(isoDate: string): Date | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(isoDate);
   if (!m) return null;
