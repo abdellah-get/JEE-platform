@@ -1,32 +1,46 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { FormEvent, Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { AuthShell } from "@/components/auth/AuthShell";
 import { Field } from "@/components/auth/Field";
+import { ApiError, resetPassword } from "@/lib/api";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const token = searchParams.get("token");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  function onSubmit(e: FormEvent) {
+  async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (password !== confirm) {
-      setMessage("Les mots de passe ne correspondent pas.");
+    setError(null);
+    if (!token) {
+      setError("Lien invalide : token manquant dans l’URL.");
       return;
     }
-    // API reset will use ?token=… when email flow is ready.
-    setMessage(
-      token
-        ? "Écran prêt. L’API de reset sera branchée avec l’envoi d’email."
-        : "Lien invalide : token manquant dans l’URL.",
-    );
+    if (password !== confirm) {
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await resetPassword({ token, password });
+      setSuccess(res.message);
+      setTimeout(() => router.replace("/login"), 1500);
+    } catch (err) {
+      setError(
+        err instanceof ApiError ? err.message : "Réinitialisation impossible",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -56,17 +70,23 @@ function ResetPasswordForm() {
           minLength={8}
         />
 
-        {message ? (
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-            {message}
+        {error ? (
+          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            {error}
+          </p>
+        ) : null}
+        {success ? (
+          <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-900">
+            {success}
           </p>
         ) : null}
 
         <button
           type="submit"
-          className="w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-800"
+          disabled={submitting || !token}
+          className="w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
         >
-          Enregistrer
+          {submitting ? "Enregistrement…" : "Enregistrer"}
         </button>
         <Link
           href="/login"

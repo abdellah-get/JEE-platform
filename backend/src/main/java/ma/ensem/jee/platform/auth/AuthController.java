@@ -11,17 +11,25 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import ma.ensem.jee.platform.auth.dto.AuthResponse;
+import ma.ensem.jee.platform.auth.dto.ForgotPasswordRequest;
 import ma.ensem.jee.platform.auth.dto.LoginRequest;
+import ma.ensem.jee.platform.auth.dto.MessageResponse;
 import ma.ensem.jee.platform.auth.dto.RegisterRequest;
+import ma.ensem.jee.platform.auth.dto.ResetPasswordRequest;
 
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-	private final AuthService authService;
+	private static final String FORGOT_RESPONSE =
+			"Si un compte existe pour cet email, un lien de réinitialisation a été envoyé.";
 
-	public AuthController(AuthService authService) {
+	private final AuthService authService;
+	private final PasswordResetService passwordResetService;
+
+	public AuthController(AuthService authService, PasswordResetService passwordResetService) {
 		this.authService = authService;
+		this.passwordResetService = passwordResetService;
 	}
 
 	@PostMapping("/register")
@@ -54,5 +62,17 @@ public class AuthController {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(HttpHeaders.SET_COOKIE, authService.clearRefreshCookie().toString());
 		return ResponseEntity.noContent().headers(headers).build();
+	}
+
+	@PostMapping("/forgot-password")
+	public ResponseEntity<MessageResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+		passwordResetService.forgotPassword(request);
+		return ResponseEntity.ok(new MessageResponse(FORGOT_RESPONSE));
+	}
+
+	@PostMapping("/reset-password")
+	public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+		passwordResetService.resetPassword(request);
+		return ResponseEntity.ok(new MessageResponse("Mot de passe mis à jour. Tu peux te connecter."));
 	}
 }

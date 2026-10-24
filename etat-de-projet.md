@@ -17,7 +17,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P2 Tâches Kanban | **Terminé** | 4/4 |
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
-| P5 Prod & auth | **En cours** | 1/6 (#45–#50) |
+| P5 Prod & auth | **En cours** | 2/6 (#45–#50) |
 | P6 Collaboration UX | **À faire** | 0/6 (#51–#56) |
 | P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
@@ -75,7 +75,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | # | Mission | Statut |
 |---|---------|--------|
 | 45 | H2 console local-only + fail-fast JWT secret | **Terminé** |
-| 46 | Reset MDP API + email + UI forgot/reset | **À faire** |
+| 46 | Reset MDP API + email + UI forgot/reset | **Terminé** |
 | 47 | Rate-limit endpoints auth | **À faire** |
 | 48 | Refresh silencieux sur 401 | **À faire** |
 | 49 | Restriction inscription (domaine / approbation) | **À faire** |

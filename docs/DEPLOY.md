@@ -43,7 +43,21 @@ Flyway appliquera `V1__create_users.sql` au premier démarrage.
 | `JWT_COOKIE_SECURE` | `true` |
 | `CORS_ORIGINS` | `https://ton-app.vercel.app` |
 | `SEED_ENABLED` | `false` |
+| `FRONTEND_BASE_URL` | `https://ton-app.vercel.app` (liens reset MDP) |
+| `MAIL_FROM` | `noreply@ton-domaine` |
+| `MAIL_HOST` / `MAIL_PORT` / `MAIL_USERNAME` / `MAIL_PASSWORD` | SMTP Brevo (ou autre) — sinon le reset est seulement loggé |
 | `PORT` | laissé à Render (Spring lit `server.port` ; si besoin : `SERVER_PORT` / config) |
+
+Mapper aussi vers Spring :
+
+```text
+spring.mail.host=${MAIL_HOST}
+spring.mail.port=${MAIL_PORT:587}
+spring.mail.username=${MAIL_USERNAME}
+spring.mail.password=${MAIL_PASSWORD}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+```
 
 > Sans `JWT_SECRET` fort + profil `prod`, l’API **refuse de démarrer** (`ProductionSafetyValidator`).  
 > La console H2 n’est **pas** disponible en prod (profil `local` uniquement).

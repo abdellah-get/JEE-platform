@@ -55,6 +55,13 @@ Rôles **projet** (sur l’équipe) : `CHEF_PROJET` / `CONTRIBUTEUR` — le chef
 5. **Désactiver un compte**  
    Admin → Membres → Désactiver (ne peut pas se désactiver soi-même).
 
+## Mot de passe oublié
+
+1. `/forgot-password` → l’API répond toujours le même message (anti-énumération).
+2. En **local** (sans SMTP) : le lien apparaît dans les logs backend (`[mail:log] Password reset…`).
+3. En **prod** : configurer SMTP (Brevo, etc.) via `spring.mail.*` — voir [DEPLOY.md](./DEPLOY.md).
+4. Lien : `{FRONTEND_BASE_URL}/reset-password?token=…` (TTL 60 min).
+
 ## Déploiement
 
 Voir [DEPLOY.md](./DEPLOY.md) (Neon + Render + Vercel) et [SECURITY.md](./SECURITY.md).
