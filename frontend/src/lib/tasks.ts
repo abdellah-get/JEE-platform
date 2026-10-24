@@ -32,13 +32,33 @@ export function formatDueDate(dueDate: string): string {
   });
 }
 
+export type DueUrgency = "none" | "due-soon" | "overdue";
+
+const DUE_SOON_DAYS = 3;
+
 export function isDueOverdue(dueDate: string | null | undefined, status?: TaskStatus): boolean {
-  if (!dueDate || status === "DONE") return false;
+  return dueUrgency(dueDate, status) === "overdue";
+}
+
+export function isDueSoon(dueDate: string | null | undefined, status?: TaskStatus): boolean {
+  return dueUrgency(dueDate, status) === "due-soon";
+}
+
+/** overdue avant aujourd’hui ; due-soon = aujourd’hui jusqu’à +3 jours (hors DONE). */
+export function dueUrgency(
+  dueDate: string | null | undefined,
+  status?: TaskStatus,
+  soonDays = DUE_SOON_DAYS,
+): DueUrgency {
+  if (!dueDate || status === "DONE") return "none";
   const d = parseLocalDate(dueDate);
-  if (!d) return false;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  return d < today;
+  if (!d) return "none";
+  const today = startOfToday();
+  if (d < today) return "overdue";
+  const soonLimit = new Date(today);
+  soonLimit.setDate(soonLimit.getDate() + soonDays);
+  if (d <= soonLimit) return "due-soon";
+  return "none";
 }
 
 export function dueDateClassName(
@@ -46,7 +66,9 @@ export function dueDateClassName(
   status?: TaskStatus,
 ): string {
   if (!dueDate) return "text-zinc-500";
-  if (isDueOverdue(dueDate, status)) return "font-medium text-red-600";
+  const urgency = dueUrgency(dueDate, status);
+  if (urgency === "overdue") return "font-medium text-red-600";
+  if (urgency === "due-soon") return "font-medium text-amber-700";
   return "text-zinc-600";
 }
 
@@ -75,4 +97,10 @@ function parseLocalDate(isoDate: string): Date | null {
   if (!m) return null;
   const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
   return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function startOfToday(): Date {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
 }

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
+import { DueBadge } from "@/components/tasks/DueBadge";
 import {
   TaskEditPanel,
   type TaskEditPayload,
@@ -394,7 +395,10 @@ export default function ProjectTasksPage() {
                     }}
                     className="w-full text-left"
                   >
-                    <p className="text-sm font-medium text-zinc-900">{task.title}</p>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <p className="text-sm font-medium text-zinc-900">{task.title}</p>
+                      <DueBadge dueDate={task.dueDate} status={task.status} />
+                    </div>
                     {task.description && (
                       <p className="mt-1 line-clamp-2 text-xs text-zinc-500">
                         {task.description}

@@ -18,7 +18,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
-| P6 Collaboration UX | **En cours** | 2/6 (#51–#56) |
+| P6 Collaboration UX | **En cours** | 3/6 (#51–#56) |
 | P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
 ---
@@ -87,7 +87,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 |---|---------|--------|
 | 51 | Kanban : due dates, description, panneau édition | **Terminé** |
 | 52 | Persister reorder Kanban (`sortOrder`) | **Terminé** |
-| 53 | Edit annonce + badges overdue | **À faire** |
+| 53 | Edit annonce + badges overdue | **Terminé** |
 | 54 | Unifier EmptyState / Loading / toasts | **À faire** |
 | 55 | Commentaires sur tâches | **À faire** |
 | 56 | Notifications in-app | **À faire** |
@@ -106,6 +106,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #53 terminée (edit annonce + badges overdue)
+
+**Fait :**
+- UI édition titre / corps sur `/announcements/[id]` (PATCH existant)
+- Badges « En retard » / « Bientôt » (≤ 3 j) sur dashboard, `/tasks`, Kanban
+- Helpers `dueUrgency` + composant `DueBadge`
+- Test API PATCH title/body (bureau OK, membre 403)
+
+**Prochaine mission :** [#54](https://github.com/abdellah-get/JEE-platform/issues/54) — unifier EmptyState / Loading / toasts.
 
 ### 2026-10-24 — Mission #52 terminée (persister reorder Kanban)
 
