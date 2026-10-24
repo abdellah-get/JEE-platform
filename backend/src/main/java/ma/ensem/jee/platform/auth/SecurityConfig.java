@@ -24,18 +24,26 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties({ JwtProperties.class, CorsProperties.class, PasswordResetProperties.class })
+@EnableConfigurationProperties({
+		JwtProperties.class,
+		CorsProperties.class,
+		PasswordResetProperties.class,
+		AuthRateLimitProperties.class
+})
 public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final AuthRateLimitFilter authRateLimitFilter;
 	private final CorsProperties corsProperties;
 	private final boolean h2ConsoleEnabled;
 
 	public SecurityConfig(
 			JwtAuthenticationFilter jwtAuthenticationFilter,
+			AuthRateLimitFilter authRateLimitFilter,
 			CorsProperties corsProperties,
 			@Value("${spring.h2.console.enabled:false}") boolean h2ConsoleEnabled) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+		this.authRateLimitFilter = authRateLimitFilter;
 		this.corsProperties = corsProperties;
 		this.h2ConsoleEnabled = h2ConsoleEnabled;
 	}
@@ -56,6 +64,7 @@ public class SecurityConfig {
 					auth.anyRequest().authenticated();
 				})
 				.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+				.addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
