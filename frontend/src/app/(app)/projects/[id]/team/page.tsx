@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canManageProject, roleLabel } from "@/lib/projects";
@@ -16,6 +17,7 @@ export default function ProjectTeamPage() {
   const params = useParams<{ id: string }>();
   const projectId = params.id;
   const { accessToken, user, loading } = useAuth();
+  const toast = useToast();
   const [project, setProject] = useState<Project | null>(null);
   const [users, setUsers] = useState<UserSummary[]>([]);
   const [draft, setDraft] = useState<DraftMember[]>([]);
@@ -115,8 +117,12 @@ export default function ProjectTeamPage() {
       const saved = await api.replaceProjectMembers(accessToken!, projectId, draft);
       setDraft(saved.map((m) => ({ userId: m.userId, role: m.role })));
       setMsg("Équipe enregistrée.");
+      toast.success("Équipe enregistrée.");
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Enregistrement impossible");
+      const message =
+        err instanceof ApiError ? err.message : "Enregistrement impossible";
+      setError(message);
+      toast.error(message);
     } finally {
       setSaving(false);
     }

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
@@ -38,7 +40,7 @@ export default function ProjectsPage() {
   }, [accessToken]);
 
   if (loading || !user || !accessToken) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock />;
   }
 
   const showCreate = canCreateProject(user.clubRole);
@@ -71,11 +73,26 @@ export default function ProjectsPage() {
       )}
 
       {busy ? (
-        <p className="text-sm text-zinc-500">Chargement des projets…</p>
+        <LoadingBlock label="Chargement des projets…" />
       ) : projects.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-zinc-300 bg-white p-8 text-center">
-          <p className="text-sm text-zinc-600">Aucun projet pour le moment.</p>
-        </div>
+        <EmptyState
+          title="Aucun projet"
+          description={
+            showCreate
+              ? "Crée le premier projet du club."
+              : "Tu seras ajouté à une équipe par un chef de projet."
+          }
+          action={
+            showCreate ? (
+              <Link
+                href="/projects/new"
+                className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white"
+              >
+                Nouveau projet
+              </Link>
+            ) : undefined
+          }
+        />
       ) : (
         <ul className="space-y-3">
           {projects.map((project) => (

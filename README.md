@@ -31,10 +31,13 @@ Windows (PowerShell) :
 
 ```powershell
 cd backend
+$env:SEED_ENABLED="true"   # jeux de données demo (optionnel)
 .\mvnw.cmd spring-boot:run
 ```
 
 Vérifier : [http://localhost:8081/api/v1/health](http://localhost:8081/api/v1/health)
+
+Comptes demo (si seed) : voir [`docs/ADMIN.md`](docs/ADMIN.md) (`bureau@ensem.jee` / `Demo123!`).
 
 > Note : le port **8080** est souvent occupé par Oracle TNS Listener sous Windows ; l’API utilise **8081** en local.
 
@@ -101,9 +104,13 @@ App (sidebar) : `/dashboard`, `/projects`, `/tasks`, `/announcements`, `/profile
 
 Détails : **[docs/SECURITY.md](docs/SECURITY.md)**.
 
-## Déploiement (Neon / Render / Vercel)
+## Documentation
 
-Guide pas à pas : **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+| Doc | Contenu |
+|-----|---------|
+| [docs/ADMIN.md](docs/ADMIN.md) | Rôles club, seed demo, parcours bureau |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Neon + Render + Vercel |
+| [docs/SECURITY.md](docs/SECURITY.md) | Pipelines sécurité |
 
 ## Suivi
 

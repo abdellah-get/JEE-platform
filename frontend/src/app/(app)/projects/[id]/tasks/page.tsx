@@ -206,11 +206,11 @@ export default function ProjectTasksPage() {
         </p>
       )}
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="-mx-4 flex gap-3 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:overflow-visible md:px-0 md:pb-0">
         {TASK_COLUMNS.map((col) => (
           <section
             key={col.status}
-            className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-3"
+            className="w-[min(85vw,20rem)] shrink-0 rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 md:w-auto md:shrink"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
