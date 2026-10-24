@@ -29,7 +29,7 @@ type AuthContextValue = {
     password: string;
     firstName: string;
     lastName: string;
-  }) => Promise<void>;
+  }) => Promise<{ pendingApproval: boolean; message: string }>;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateLocalUser: (user: AuthUser) => void;
@@ -120,8 +120,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       lastName: string;
     }) => {
       const res = await api.register(input);
-      applyAuth(res);
+      if (res.pendingApproval || !res.accessToken) {
+        return {
+          pendingApproval: true,
+          message:
+            res.message ||
+            "Compte créé. En attente d'activation par le bureau.",
+        };
+      }
+      applyAuth({
+        accessToken: res.accessToken,
+        tokenType: res.tokenType ?? "Bearer",
+        expiresInMinutes: res.expiresInMinutes,
+        userId: res.userId!,
+        email: res.email!,
+        firstName: res.firstName!,
+        lastName: res.lastName!,
+        clubRole: res.clubRole!,
+      });
       router.replace("/dashboard");
+      return { pendingApproval: false, message: res.message };
     },
     [applyAuth, router],
   );

@@ -64,7 +64,9 @@ export default function AdminMembersPage() {
         </Link>
         <h1 className="mt-2 text-2xl font-semibold tracking-tight">Membres</h1>
         <p className="mt-1 text-sm text-zinc-600">
-          Active ou désactive les comptes du club.
+          Active ou désactive les comptes. Les inscriptions en attente
+          d&apos;approbation apparaissent comme <em>Inactif</em> — clique{" "}
+          <strong>Activer</strong> pour les valider.
         </p>
       </div>
 
@@ -84,8 +86,8 @@ export default function AdminMembersPage() {
               <p className="text-sm font-medium">
                 {u.firstName} {u.lastName}
                 {!u.active && (
-                  <span className="ml-2 rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-700">
-                    Inactif
+                  <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
+                    En attente / inactif
                   </span>
                 )}
               </p>

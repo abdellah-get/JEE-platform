@@ -43,6 +43,8 @@ Flyway appliquera `V1__create_users.sql` au premier démarrage.
 | `JWT_COOKIE_SECURE` | `true` |
 | `CORS_ORIGINS` | `https://ton-app.vercel.app` |
 | `SEED_ENABLED` | `false` |
+| `REGISTRATION_ALLOWED_DOMAINS` | `ensem.ac.ma` (prod club) |
+| `REGISTRATION_REQUIRE_APPROVAL` | `true` recommandé en prod publique |
 | `FRONTEND_BASE_URL` | `https://ton-app.vercel.app` (liens reset MDP) |
 | `MAIL_FROM` | `noreply@ton-domaine` |
 | `MAIL_HOST` / `MAIL_PORT` / `MAIL_USERNAME` / `MAIL_PASSWORD` | SMTP Brevo (ou autre) — sinon le reset est seulement loggé |

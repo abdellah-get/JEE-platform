@@ -58,6 +58,7 @@ class AuthControllerTest {
 						}
 						""".formatted(email, password)))
 				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.pendingApproval").value(false))
 				.andExpect(jsonPath("$.accessToken").isNotEmpty())
 				.andExpect(jsonPath("$.clubRole").value("MEMBRE"));
 

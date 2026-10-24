@@ -149,13 +149,26 @@ export async function apiFetch<T>(
   return (await res.json()) as T;
 }
 
+export type RegisterResponse = {
+  pendingApproval: boolean;
+  message: string;
+  accessToken: string | null;
+  tokenType: string | null;
+  expiresInMinutes: number;
+  userId: string | null;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  clubRole: ClubRole | null;
+};
+
 export function register(body: {
   email: string;
   password: string;
   firstName: string;
   lastName: string;
 }) {
-  return apiFetch<AuthResponse>("/api/v1/auth/register", {
+  return apiFetch<RegisterResponse>("/api/v1/auth/register", {
     method: "POST",
     body: JSON.stringify(body),
   });
