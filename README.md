@@ -89,7 +89,8 @@ npm install
 npm run dev
 ```
 
-Ouvrir : [http://localhost:3000](http://localhost:3000)
+Ouvrir : [http://localhost:3000](http://localhost:3000)  
+Si le port 3000 est déjà pris, Next.js utilise **3001** — ouvre l’URL affichée dans le terminal (`Local:`). Le CORS backend autorise 3000 et 3001 en local.
 
 Pages auth : `/login`, `/register`, `/forgot-password`, `/reset-password`.  
 App (sidebar) : `/dashboard`, `/projects`, `/tasks`, `/announcements`, `/profile`, `/admin` (bureau).
@@ -111,6 +112,7 @@ Détails : **[docs/SECURITY.md](docs/SECURITY.md)**.
 | [docs/ADMIN.md](docs/ADMIN.md) | Rôles club, seed demo, parcours bureau |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Neon + Render + Vercel |
 | [docs/SECURITY.md](docs/SECURITY.md) | Pipelines sécurité |
+| [docs/ETUDE-AMELIORATIONS.md](docs/ETUDE-AMELIORATIONS.md) | Roadmap P5–P7 (post P0–P4) |
 
 ## Suivi
 

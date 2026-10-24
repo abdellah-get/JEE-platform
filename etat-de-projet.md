@@ -3,7 +3,8 @@
 Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement notable.
 
 **Dernière mise à jour :** 2026-10-24  
-**Board GitHub :** [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
+**Board GitHub :** [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)  
+**Étude post-P4 :** [docs/ETUDE-AMELIORATIONS.md](./docs/ETUDE-AMELIORATIONS.md)
 
 ---
 
@@ -16,6 +17,9 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P2 Tâches Kanban | **Terminé** | 4/4 |
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
+| P5 Prod & auth | **À faire** | 0/6 (#45–#50) |
+| P6 Collaboration UX | **À faire** | 0/6 (#51–#56) |
+| P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
 ---
 
@@ -66,9 +70,51 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 19 | UX mobile + polish UI | **Terminé** |
 | 20 | Seed data demo + doc admin | **Terminé** |
 
+### P5 — Production & auth
+
+| # | Mission | Statut |
+|---|---------|--------|
+| 45 | H2 console local-only + fail-fast JWT secret | **À faire** |
+| 46 | Reset MDP API + email + UI forgot/reset | **À faire** |
+| 47 | Rate-limit endpoints auth | **À faire** |
+| 48 | Refresh silencieux sur 401 | **À faire** |
+| 49 | Restriction inscription (domaine / approbation) | **À faire** |
+| 50 | Dockerfile backend + DEPLOY.md (V1–V4) | **À faire** |
+
+### P6 — Collaboration & UX tâches
+
+| # | Mission | Statut |
+|---|---------|--------|
+| 51 | Kanban : due dates, description, panneau édition | **À faire** |
+| 52 | Persister reorder Kanban (`sortOrder`) | **À faire** |
+| 53 | Edit annonce + badges overdue | **À faire** |
+| 54 | Unifier EmptyState / Loading / toasts | **À faire** |
+| 55 | Commentaires sur tâches | **À faire** |
+| 56 | Notifications in-app | **À faire** |
+
+### P7 — Reporting, hardening, qualité
+
+| # | Mission | Statut |
+|---|---------|--------|
+| 57 | Dashboard bureau enrichi + export CSV | **À faire** |
+| 58 | Rotation / révocation refresh tokens | **À faire** |
+| 59 | E2E smoke CI | **À faire** |
+| 60 | Permissions tâches (delete chef/bureau) | **À faire** |
+| 61 | Pass accessibilité | **À faire** |
+| 62 | Stretch : activity feed ou pièces jointes | **À faire** |
+
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Étude d’améliorations + board P5–P7
+
+**Fait :**
+- Étude approfondie : [`docs/ETUDE-AMELIORATIONS.md`](./docs/ETUDE-AMELIORATIONS.md)
+- 18 missions GitHub **#45–#62** (labels `phase:P5`…`P7`) ajoutées au board
+- Priorité : prod/auth → finir UX tâches → collab/reporting
+
+**Prochaine mission :** [#45](https://github.com/abdellah-get/JEE-platform/issues/45) — H2 + JWT fail-fast.
 
 ### 2026-10-24 — Missions #8 #9 #10 terminées (API projets)
 
