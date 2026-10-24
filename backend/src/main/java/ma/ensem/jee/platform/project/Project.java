@@ -29,6 +29,9 @@ public class Project {
 	@Column(nullable = false, length = 32)
 	private ProjectStatus status;
 
+	@Column(name = "progress_percent", nullable = false)
+	private int progressPercent = 0;
+
 	@Column(name = "created_by", nullable = false)
 	private UUID createdBy;
 
@@ -91,6 +94,14 @@ public class Project {
 
 	public void setStatus(ProjectStatus status) {
 		this.status = status;
+	}
+
+	public int getProgressPercent() {
+		return progressPercent;
+	}
+
+	public void setProgressPercent(int progressPercent) {
+		this.progressPercent = progressPercent;
 	}
 
 	public UUID getCreatedBy() {

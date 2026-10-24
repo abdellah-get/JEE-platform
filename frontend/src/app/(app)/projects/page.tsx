@@ -97,9 +97,10 @@ export default function ProjectsPage() {
                     {statusLabel(project.status)}
                   </span>
                 </div>
-                <p className="mt-3 text-xs text-zinc-500">
-                  Ton rôle : {roleLabel(project.myRole)}
-                </p>
+                <div className="mt-3 flex items-center justify-between gap-3 text-xs text-zinc-500">
+                  <span>Ton rôle : {roleLabel(project.myRole)}</span>
+                  <span>{project.progressPercent}% fait</span>
+                </div>
               </Link>
             </li>
           ))}

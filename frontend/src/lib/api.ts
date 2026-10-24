@@ -7,6 +7,9 @@ import type {
   ProjectMember,
   ProjectRole,
   ProjectStatus,
+  Task,
+  TaskPriority,
+  TaskStatus,
   UserSummary,
 } from "./types";
 
@@ -224,6 +227,79 @@ export function updateUserClubRole(
   return apiFetch<AdminUser>(
     `/api/v1/admin/users/${userId}/role`,
     { method: "PATCH", body: JSON.stringify({ clubRole }) },
+    accessToken,
+  );
+}
+
+export function listProjectTasks(accessToken: string, projectId: string) {
+  return apiFetch<Task[]>(
+    `/api/v1/projects/${projectId}/tasks`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function createTask(
+  accessToken: string,
+  projectId: string,
+  body: {
+    title: string;
+    description?: string;
+    status?: TaskStatus;
+    priority?: TaskPriority;
+    assigneeId?: string;
+    dueDate?: string;
+  },
+) {
+  return apiFetch<Task>(
+    `/api/v1/projects/${projectId}/tasks`,
+    { method: "POST", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function updateTask(
+  accessToken: string,
+  taskId: string,
+  body: {
+    title?: string;
+    description?: string;
+    status?: TaskStatus;
+    priority?: TaskPriority;
+    assigneeId?: string;
+    clearAssignee?: boolean;
+    dueDate?: string;
+    clearDueDate?: boolean;
+    sortOrder?: number;
+  },
+) {
+  return apiFetch<Task>(
+    `/api/v1/tasks/${taskId}`,
+    { method: "PATCH", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function deleteTask(accessToken: string, taskId: string) {
+  return apiFetch<void>(`/api/v1/tasks/${taskId}`, { method: "DELETE" }, accessToken);
+}
+
+export function listMyTasks(
+  accessToken: string,
+  filters?: {
+    status?: TaskStatus;
+    priority?: TaskPriority;
+    projectId?: string;
+  },
+) {
+  const params = new URLSearchParams();
+  if (filters?.status) params.set("status", filters.status);
+  if (filters?.priority) params.set("priority", filters.priority);
+  if (filters?.projectId) params.set("projectId", filters.projectId);
+  const qs = params.toString();
+  return apiFetch<Task[]>(
+    `/api/v1/me/tasks${qs ? `?${qs}` : ""}`,
+    { method: "GET" },
     accessToken,
   );
 }
