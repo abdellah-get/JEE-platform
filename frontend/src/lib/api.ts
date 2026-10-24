@@ -1,4 +1,13 @@
-import type { AuthResponse, AuthUser, ClubRole } from "./types";
+import type {
+  AuthResponse,
+  AuthUser,
+  ClubRole,
+  Project,
+  ProjectMember,
+  ProjectRole,
+  ProjectStatus,
+  UserSummary,
+} from "./types";
 
 export type MeResponse = {
   userId: string;
@@ -120,4 +129,72 @@ export function meToAuthUser(me: MeResponse): AuthUser {
     lastName: me.lastName,
     clubRole: me.clubRole,
   };
+}
+
+export function listProjects(accessToken: string) {
+  return apiFetch<Project[]>("/api/v1/projects", { method: "GET" }, accessToken);
+}
+
+export function getProject(accessToken: string, projectId: string) {
+  return apiFetch<Project>(
+    `/api/v1/projects/${projectId}`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function createProject(
+  accessToken: string,
+  body: {
+    name: string;
+    description?: string;
+    status?: ProjectStatus;
+    chefUserId?: string;
+  },
+) {
+  return apiFetch<Project>(
+    "/api/v1/projects",
+    { method: "POST", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function updateProject(
+  accessToken: string,
+  projectId: string,
+  body: {
+    name?: string;
+    description?: string;
+    status?: ProjectStatus;
+  },
+) {
+  return apiFetch<Project>(
+    `/api/v1/projects/${projectId}`,
+    { method: "PATCH", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function listProjectMembers(accessToken: string, projectId: string) {
+  return apiFetch<ProjectMember[]>(
+    `/api/v1/projects/${projectId}/members`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function replaceProjectMembers(
+  accessToken: string,
+  projectId: string,
+  members: { userId: string; role: ProjectRole }[],
+) {
+  return apiFetch<ProjectMember[]>(
+    `/api/v1/projects/${projectId}/members`,
+    { method: "PUT", body: JSON.stringify({ members }) },
+    accessToken,
+  );
+}
+
+export function listUsers(accessToken: string) {
+  return apiFetch<UserSummary[]>("/api/v1/users", { method: "GET" }, accessToken);
 }
