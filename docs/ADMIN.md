@@ -50,7 +50,8 @@ Rôles **projet** (sur l’équipe) : `CHEF_PROJET` / `CONTRIBUTEUR` — le chef
    Le % se calcule automatiquement (tâches DONE / total) sur la fiche projet et le Kanban.
    Sur le Kanban : renseigner description et échéance à la création ; cliquer une carte ouvre le panneau d’édition.  
    Glisser-déposer une carte dans une colonne (ou sur une autre carte) enregistre l’ordre (`sortOrder`).  
-   Badges « En retard » / « Bientôt » (échéance ≤ 3 jours) sur dashboard, Mes tâches et Kanban.
+   Badges « En retard » / « Bientôt » (échéance ≤ 3 jours) sur dashboard, Mes tâches et Kanban.  
+   Commentaires : ouvrir une carte → section en bas du panneau (membres du projet).
 
 4. **Annonce urgente**  
    Annonces → Nouvelle → cocher **Épingler** → visible en tête et sur le dashboard.  

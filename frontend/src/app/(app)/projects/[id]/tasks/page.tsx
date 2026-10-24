@@ -23,12 +23,13 @@ import {
   priorityLabel,
   TASK_COLUMNS,
 } from "@/lib/tasks";
+import { canManageProject } from "@/lib/projects";
 import type { Project, ProjectMember, Task, TaskPriority, TaskStatus } from "@/lib/types";
 
 export default function ProjectTasksPage() {
   const params = useParams<{ id: string }>();
   const projectId = params.id;
-  const { accessToken, loading } = useAuth();
+  const { accessToken, user, loading } = useAuth();
   const toast = useToast();
   const [project, setProject] = useState<Project | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -483,6 +484,9 @@ export default function ProjectTasksPage() {
           members={members}
           saving={panelSaving}
           error={panelError}
+          canModerateComments={
+            !!user && canManageProject(user.clubRole, project.myRole)
+          }
           onClose={() => {
             setSelectedTaskId(null);
             setPanelError(null);

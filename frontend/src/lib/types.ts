@@ -45,6 +45,16 @@ export type Task = {
   updatedAt: string;
 };
 
+export type TaskComment = {
+  id: string;
+  taskId: string;
+  authorId: string;
+  authorName: string;
+  body: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type ProjectMember = {
   userId: string;
   email: string;

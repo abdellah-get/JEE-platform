@@ -16,6 +16,7 @@ Au démarrage, Flyway applique **toutes** les migrations présentes :
 | **V3** | `tasks` + `progress_percent` |
 | **V4** | `announcements` |
 | **V5** | `password_reset_tokens` |
+| **V6** | `task_comments` |
 
 Fichiers : `backend/src/main/resources/db/migration/`.
 
@@ -127,7 +128,7 @@ NEXT_PUBLIC_API_URL=https://ton-api.onrender.com
 ### Checklist
 
 - [ ] `SPRING_PROFILES_ACTIVE=prod` et `JWT_SECRET` (≥ 32)
-- [ ] Flyway V1–V5 appliquées (pas d’erreur au boot)
+- [ ] Flyway V1–V6 appliquées (pas d’erreur au boot)
 - [ ] `GET /api/v1/health` → `UP`
 - [ ] `/h2-console` inaccessible
 - [ ] `SEED_ENABLED=false`
