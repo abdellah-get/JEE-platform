@@ -14,7 +14,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P0 Fondations | **Terminé** | 7/7 missions |
 | P1 Projets & RBAC | **Terminé** | 5/5 |
 | P2 Tâches Kanban | **Terminé** | 4/4 |
-| P3 Annonces & Dashboard | À faire | 0/2 |
+| P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | À faire | 0/2 |
 
 ---
@@ -56,8 +56,8 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | # | Mission | Statut |
 |---|---------|--------|
-| 17 | API + pages Annonces | À faire |
-| 18 | Dashboard membre et bureau | À faire |
+| 17 | API + pages Annonces | **Terminé** |
+| 18 | Dashboard membre et bureau | **Terminé** |
 
 ### P4 — Polish
 
@@ -118,6 +118,17 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 **Phase P2 = complète.**  
 **Prochaine phase :** P3 — Annonces & Dashboard (#17).
+
+### 2026-10-24 — Missions #17 #18 terminées (fin P3)
+
+**Fait :**
+- Flyway V4 : `announcements` (pin urgent)
+- API annonces (lecture tous, écriture bureau) + `GET /dashboard`
+- Pages `/announcements`, `/new`, `/[id]`
+- Dashboard : pins, projets, tâches ; KPI pour bureau/admin
+
+**Phase P3 = complète.**  
+**Prochaine phase :** P4 — Polish (#19 UX, #20 seed/doc).
 
 ### 2026-10-24 — Pipelines sécurité ajoutés
 

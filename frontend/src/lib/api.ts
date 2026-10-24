@@ -1,8 +1,10 @@
 import type {
   AdminUser,
+  Announcement,
   AuthResponse,
   AuthUser,
   ClubRole,
+  Dashboard,
   Project,
   ProjectMember,
   ProjectRole,
@@ -302,4 +304,55 @@ export function listMyTasks(
     { method: "GET" },
     accessToken,
   );
+}
+
+export function listAnnouncements(accessToken: string) {
+  return apiFetch<Announcement[]>(
+    "/api/v1/announcements",
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function getAnnouncement(accessToken: string, id: string) {
+  return apiFetch<Announcement>(
+    `/api/v1/announcements/${id}`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function createAnnouncement(
+  accessToken: string,
+  body: { title: string; body: string; pinned?: boolean },
+) {
+  return apiFetch<Announcement>(
+    "/api/v1/announcements",
+    { method: "POST", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function updateAnnouncement(
+  accessToken: string,
+  id: string,
+  body: { title?: string; body?: string; pinned?: boolean },
+) {
+  return apiFetch<Announcement>(
+    `/api/v1/announcements/${id}`,
+    { method: "PATCH", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function deleteAnnouncement(accessToken: string, id: string) {
+  return apiFetch<void>(
+    `/api/v1/announcements/${id}`,
+    { method: "DELETE" },
+    accessToken,
+  );
+}
+
+export function getDashboard(accessToken: string) {
+  return apiFetch<Dashboard>("/api/v1/dashboard", { method: "GET" }, accessToken);
 }
