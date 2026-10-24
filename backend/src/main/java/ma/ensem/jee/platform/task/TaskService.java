@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
+import ma.ensem.jee.platform.notification.NotificationService;
 import ma.ensem.jee.platform.project.Project;
 import ma.ensem.jee.platform.project.ProjectAccessService;
 import ma.ensem.jee.platform.project.ProjectMemberRepository;
@@ -32,18 +33,21 @@ public class TaskService {
 	private final ProjectMemberRepository projectMemberRepository;
 	private final ProjectAccessService accessService;
 	private final UserRepository userRepository;
+	private final NotificationService notificationService;
 
 	public TaskService(
 			TaskRepository taskRepository,
 			ProjectRepository projectRepository,
 			ProjectMemberRepository projectMemberRepository,
 			ProjectAccessService accessService,
-			UserRepository userRepository) {
+			UserRepository userRepository,
+			NotificationService notificationService) {
 		this.taskRepository = taskRepository;
 		this.projectRepository = projectRepository;
 		this.projectMemberRepository = projectMemberRepository;
 		this.accessService = accessService;
 		this.userRepository = userRepository;
+		this.notificationService = notificationService;
 	}
 
 	@Transactional(readOnly = true)
@@ -79,6 +83,10 @@ public class TaskService {
 				current.getId());
 		taskRepository.save(task);
 		recalculateProgress(project);
+		if (assigneeId != null) {
+			notificationService.notifyTaskAssigned(
+					assigneeId, current.getId(), task.getTitle(), projectId);
+		}
 
 		return toResponse(task, project.getName());
 	}
@@ -111,11 +119,15 @@ public class TaskService {
 		if (request.priority() != null) {
 			task.setPriority(request.priority());
 		}
+		UUID previousAssignee = task.getAssigneeId();
+		boolean assigneeChanged = false;
 		if (Boolean.TRUE.equals(request.clearAssignee())) {
 			task.setAssigneeId(null);
+			assigneeChanged = previousAssignee != null;
 		}
 		else if (request.assigneeId() != null) {
 			requireAssigneeIsMember(task.getProjectId(), request.assigneeId());
+			assigneeChanged = !request.assigneeId().equals(previousAssignee);
 			task.setAssigneeId(request.assigneeId());
 		}
 		if (Boolean.TRUE.equals(request.clearDueDate())) {
@@ -129,6 +141,10 @@ public class TaskService {
 		}
 
 		recalculateProgress(project);
+		if (assigneeChanged && task.getAssigneeId() != null) {
+			notificationService.notifyTaskAssigned(
+					task.getAssigneeId(), current.getId(), task.getTitle(), task.getProjectId());
+		}
 		return toResponse(task, project.getName());
 	}
 

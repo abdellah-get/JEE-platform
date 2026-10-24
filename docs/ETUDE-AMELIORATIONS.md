@@ -20,7 +20,7 @@ Board missions : [JEE Platform — Missions](https://github.com/users/abdellah-g
 | Annonces | CRUD API, pin, dashboard + KPI bureau |
 | Ops | Flyway V1–V4, seed demo, CI + security (Gitleaks, Trivy, CodeQL) |
 
-**Absents confirmés :** notifications, pièces jointes, recherche, export CSV avancé, e2e front, OpenAPI.
+**Absents confirmés :** pièces jointes, recherche, export CSV avancé, e2e front, OpenAPI.
 
 ---
 

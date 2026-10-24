@@ -6,6 +6,7 @@ import {
 import type {
   AdminUser,
   Announcement,
+  AppNotification,
   AuthResponse,
   AuthUser,
   ClubRole,
@@ -503,4 +504,37 @@ export function deleteAnnouncement(accessToken: string, id: string) {
 
 export function getDashboard(accessToken: string) {
   return apiFetch<Dashboard>("/api/v1/dashboard", { method: "GET" }, accessToken);
+}
+
+export function listNotifications(accessToken: string, unreadOnly = false) {
+  const q = unreadOnly ? "?unreadOnly=true" : "";
+  return apiFetch<AppNotification[]>(
+    `/api/v1/notifications${q}`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function getUnreadNotificationCount(accessToken: string) {
+  return apiFetch<{ count: number }>(
+    "/api/v1/notifications/unread-count",
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function markNotificationRead(accessToken: string, id: string) {
+  return apiFetch<AppNotification>(
+    `/api/v1/notifications/${id}/read`,
+    { method: "POST" },
+    accessToken,
+  );
+}
+
+export function markAllNotificationsRead(accessToken: string) {
+  return apiFetch<{ updated: number }>(
+    "/api/v1/notifications/read-all",
+    { method: "POST" },
+    accessToken,
+  );
 }

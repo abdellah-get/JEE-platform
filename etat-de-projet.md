@@ -18,7 +18,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P3 Annonces & Dashboard | **Terminé** | 2/2 |
 | P4 Polish | **Terminé** | 2/2 |
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
-| P6 Collaboration UX | **En cours** | 5/6 (#51–#56) |
+| P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **À faire** | 0/6 (#57–#62) |
 
 ---
@@ -90,7 +90,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 53 | Edit annonce + badges overdue | **Terminé** |
 | 54 | Unifier EmptyState / Loading / toasts | **Terminé** |
 | 55 | Commentaires sur tâches | **Terminé** |
-| 56 | Notifications in-app | **À faire** |
+| 56 | Notifications in-app | **Terminé** |
 
 ### P7 — Reporting, hardening, qualité
 
@@ -106,6 +106,17 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #56 terminée (notifications in-app) — fin P6
+
+**Fait :**
+- Flyway **V7** `notifications` (`TASK_ASSIGNED`, `ANNOUNCEMENT_PINNED`)
+- API liste / unread-count / mark read / read-all
+- Hooks : assignation tâche + annonce épinglée
+- Badge cloche AppShell + page `/notifications`
+- **Phase P6 = complète**
+
+**Prochaine phase :** P7 — Reporting & qualité (#57…).
 
 ### 2026-10-24 — Mission #55 terminée (commentaires tâches)
 
