@@ -81,7 +81,7 @@ export default function ProjectDetailPage() {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">{project.name}</h1>
             <p className="mt-1 text-sm text-zinc-600">
-              Rôle : {roleLabel(project.myRole)}
+              Rôle : {roleLabel(project.myRole)} · Avancement {project.progressPercent}%
             </p>
           </div>
           <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-700">
@@ -100,6 +100,12 @@ export default function ProjectDetailPage() {
       )}
 
       <div className="flex flex-wrap gap-2">
+        <Link
+          href={`/projects/${project.id}/tasks`}
+          className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+        >
+          Kanban
+        </Link>
         <Link
           href={`/projects/${project.id}/team`}
           className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium hover:bg-zinc-50"

@@ -13,7 +13,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 |-------|---------------|-------------|
 | P0 Fondations | **Terminé** | 7/7 missions |
 | P1 Projets & RBAC | **Terminé** | 5/5 |
-| P2 Tâches Kanban | À faire | 0/4 |
+| P2 Tâches Kanban | **Terminé** | 4/4 |
 | P3 Annonces & Dashboard | À faire | 0/2 |
 | P4 Polish | À faire | 0/2 |
 
@@ -47,10 +47,10 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | # | Mission | Statut |
 |---|---------|--------|
-| 13 | API tâches | À faire |
-| 14 | Kanban frontend | À faire |
-| 15 | Calcul % avancement | À faire |
-| 16 | Page Mes tâches `/tasks` | À faire |
+| 13 | API tâches | **Terminé** |
+| 14 | Kanban frontend | **Terminé** |
+| 15 | Calcul % avancement | **Terminé** |
+| 16 | Page Mes tâches `/tasks` | **Terminé** |
 
 ### P3 — Annonces & Dashboard
 
@@ -106,6 +106,18 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 **Phase P1 = complète.**  
 **Prochaine phase :** P2 — Tâches Kanban (mission #13).
+
+### 2026-10-24 — Missions #13–#16 terminées (fin P2)
+
+**Fait :**
+- Flyway V3 : table `tasks` + `projects.progress_percent`
+- API `/projects/{id}/tasks`, `PATCH/DELETE /tasks/{id}`, `GET /me/tasks`
+- Progress auto = DONE / total
+- Kanban `/projects/[id]/tasks` (drag & drop + boutons)
+- Page `/tasks` avec filtres statut / priorité / projet
+
+**Phase P2 = complète.**  
+**Prochaine phase :** P3 — Annonces & Dashboard (#17).
 
 ### 2026-10-24 — Pipelines sécurité ajoutés
 

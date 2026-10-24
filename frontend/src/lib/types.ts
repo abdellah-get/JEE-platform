@@ -12,13 +12,35 @@ export type AuthUser = {
   clubRole: ClubRole;
 };
 
+export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
+
+export type TaskPriority = "LOW" | "MEDIUM" | "HIGH";
+
 export type Project = {
   id: string;
   name: string;
   description: string | null;
   status: ProjectStatus;
+  progressPercent: number;
   createdBy: string;
   myRole: ProjectRole | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Task = {
+  id: string;
+  projectId: string;
+  projectName: string;
+  title: string;
+  description: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  assigneeId: string | null;
+  assigneeName: string | null;
+  dueDate: string | null;
+  sortOrder: number;
+  createdBy: string;
   createdAt: string;
   updatedAt: string;
 };
