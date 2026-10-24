@@ -91,6 +91,17 @@ Ouvrir : [http://localhost:3000](http://localhost:3000)
 Pages auth : `/login`, `/register`, `/forgot-password`, `/reset-password`.  
 App (sidebar) : `/dashboard`, `/projects`, `/tasks`, `/announcements`, `/profile`, `/admin` (bureau).
 
+## CI
+
+Workflow GitHub Actions : [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+
+- Backend : `./mvnw test` (Java 21)
+- Frontend : `npm ci` + `npm run build` (Node 20)
+
+## Déploiement (Neon / Render / Vercel)
+
+Guide pas à pas : **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+
 ## Suivi
 
 Voir [etat-de-projet.md](./etat-de-projet.md) et le board GitHub  
@@ -98,9 +109,9 @@ Voir [etat-de-projet.md](./etat-de-projet.md) et le board GitHub
 
 ## Stack
 
-| Couche   | Techno                          |
-|----------|---------------------------------|
-| API      | Spring Boot 4, Java 21, Maven   |
-| Front    | Next.js 15, TypeScript, Tailwind|
-| DB (prévu)| PostgreSQL (Neon) + Flyway     |
-| Auth (prévu)| JWT + Spring Security        |
+| Couche | Techno |
+|--------|--------|
+| API | Spring Boot 4, Java 21, Maven, JWT |
+| Front | Next.js 15, TypeScript, Tailwind |
+| DB | PostgreSQL (Neon) + Flyway — H2 en local |
+| Hébergement | Vercel (front) + Render (API) |
