@@ -1,4 +1,13 @@
-import type { AuthResponse } from "./types";
+import type { AuthResponse, AuthUser, ClubRole } from "./types";
+
+export type MeResponse = {
+  userId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  clubRole: ClubRole;
+  active: boolean;
+};
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
 
@@ -75,4 +84,40 @@ export function refresh() {
 
 export function logout() {
   return apiFetch<void>("/api/v1/auth/logout", { method: "POST" });
+}
+
+export function getMe(accessToken: string) {
+  return apiFetch<MeResponse>("/api/v1/me", { method: "GET" }, accessToken);
+}
+
+export function updateMe(
+  accessToken: string,
+  body: { firstName: string; lastName: string },
+) {
+  return apiFetch<MeResponse>(
+    "/api/v1/me",
+    { method: "PATCH", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function changePassword(
+  accessToken: string,
+  body: { currentPassword: string; newPassword: string },
+) {
+  return apiFetch<void>(
+    "/api/v1/me/password",
+    { method: "POST", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function meToAuthUser(me: MeResponse): AuthUser {
+  return {
+    userId: me.userId,
+    email: me.email,
+    firstName: me.firstName,
+    lastName: me.lastName,
+    clubRole: me.clubRole,
+  };
 }

@@ -63,6 +63,9 @@ Flyway applique automatiquement `backend/src/main/resources/db/migration/V1__cre
 | POST | `/api/v1/auth/refresh` | Nouveau access via cookie `refresh_token` |
 | POST | `/api/v1/auth/logout` | Supprime le cookie refresh |
 | GET | `/api/v1/health` | Public (sans token) |
+| GET | `/api/v1/me` | Profil courant (JWT) |
+| PATCH | `/api/v1/me` | Modifier prénom / nom |
+| POST | `/api/v1/me/password` | Changer le mot de passe |
 
 Exemple login :
 
