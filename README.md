@@ -91,12 +91,15 @@ Ouvrir : [http://localhost:3000](http://localhost:3000)
 Pages auth : `/login`, `/register`, `/forgot-password`, `/reset-password`.  
 App (sidebar) : `/dashboard`, `/projects`, `/tasks`, `/announcements`, `/profile`, `/admin` (bureau).
 
-## CI
+## CI & sécurité
 
-Workflow GitHub Actions : [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+| Workflow | Rôle |
+|----------|------|
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Tests Maven + build Next.js |
+| [`.github/workflows/security.yml`](.github/workflows/security.yml) | Secrets (Gitleaks), npm audit, Trivy, CodeQL |
+| [`.github/dependabot.yml`](.github/dependabot.yml) | Mises à jour deps automatiques |
 
-- Backend : `./mvnw test` (Java 21)
-- Frontend : `npm ci` + `npm run build` (Node 20)
+Détails : **[docs/SECURITY.md](docs/SECURITY.md)**.
 
 ## Déploiement (Neon / Render / Vercel)
 

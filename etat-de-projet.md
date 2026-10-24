@@ -70,6 +70,13 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 ## Journal des réalisations
 
+### 2026-10-24 — Pipelines sécurité ajoutés
+
+**Fait :**
+- `security.yml` : Gitleaks (secrets), npm audit, Trivy (vulns), CodeQL
+- `dependabot.yml` : npm + Maven + GitHub Actions (hebdo)
+- Doc : `docs/SECURITY.md`
+
 ### 2026-10-24 — Mission #7 terminée (fin P0)
 
 **Fait :**
