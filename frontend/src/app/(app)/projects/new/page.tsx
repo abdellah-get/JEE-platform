@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
+import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
@@ -33,7 +34,7 @@ export default function NewProjectPage() {
   }, [accessToken, user]);
 
   if (loading || !user || !accessToken) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock />;
   }
 
   if (!canCreateProject(user.clubRole)) {

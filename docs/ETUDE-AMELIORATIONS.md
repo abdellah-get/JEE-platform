@@ -32,7 +32,7 @@ Board missions : [JEE Platform — Missions](https://github.com/users/abdellah-g
 | `dueDate` / `description` tâche | OK (#51) — panneau édition + cartes | `TaskEditPanel`, `projects/[id]/tasks` |
 | `sortOrder` Kanban | OK (#52) — `PUT …/tasks/reorder` | `TaskService.reorder`, Kanban DnD |
 | Edit annonce title/body | OK (#53) — formulaire UI + badges overdue | `announcements/[id]`, `DueBadge` |
-| EmptyState / Toast / Loading | Présents, adoption partielle | `components/ui/*`, `ToastContext` |
+| EmptyState / Toast / Loading | OK (#54) — pages app unifiées | `EmptyState`, `LoadingBlock`, toasts |
 | Landing | Minimale | `app/page.tsx` |
 | Suppression projet | Pas d’endpoint (archive via statut) | `ProjectController` |
 | DEPLOY.md | Note Flyway encore « V1 » alors que V2–V4 existent | `docs/DEPLOY.md` |

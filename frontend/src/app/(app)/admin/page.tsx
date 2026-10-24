@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import { canAccessAdmin, canManageClubRoles } from "@/lib/auth-storage";
 
@@ -9,14 +11,20 @@ export default function AdminPage() {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock />;
   }
 
   if (!canAccessAdmin(user?.clubRole)) {
     return (
-      <p className="text-sm text-red-700">
-        Accès réservé au bureau / admin technique.
-      </p>
+      <EmptyState
+        title="Accès refusé"
+        description="Réservé au bureau / admin technique."
+        action={
+          <Link href="/dashboard" className="text-sm font-medium underline">
+            Retour au dashboard
+          </Link>
+        }
+      />
     );
   }
 

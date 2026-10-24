@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
+import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
@@ -50,7 +51,7 @@ export default function ProjectSettingsPage() {
   }, [accessToken, projectId]);
 
   if (loading || !user || !accessToken) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock />;
   }
 
   if (error && !project) {
@@ -67,7 +68,7 @@ export default function ProjectSettingsPage() {
   }
 
   if (!project) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock />;
   }
 
   if (!canManageProject(user.clubRole, project.myRole)) {

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { DueBadge } from "@/components/tasks/DueBadge";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
@@ -32,15 +34,29 @@ export default function DashboardPage() {
   }, [accessToken]);
 
   if (loading || !user || !accessToken) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock />;
   }
 
   if (error && !data) {
-    return <p className="text-sm text-red-700">{error}</p>;
+    return (
+      <EmptyState
+        title="Dashboard indisponible"
+        description={error}
+        action={
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white"
+          >
+            Réessayer
+          </button>
+        }
+      />
+    );
   }
 
   if (!data) {
-    return <p className="text-sm text-zinc-500">Chargement…</p>;
+    return <LoadingBlock label="Chargement du dashboard…" />;
   }
 
   return (
@@ -102,7 +118,16 @@ export default function DashboardPage() {
             </Link>
           </div>
           {data.myProjects.length === 0 ? (
-            <p className="text-sm text-zinc-600">Aucun projet.</p>
+            <EmptyState
+              compact
+              title="Aucun projet"
+              description="Tu apparaîtras ici dès qu’on t’ajoute à une équipe."
+              action={
+                <Link href="/projects" className="text-sm font-medium underline">
+                  Voir les projets
+                </Link>
+              }
+            />
           ) : (
             <ul className="space-y-2">
               {data.myProjects.map((p) => (
@@ -130,7 +155,16 @@ export default function DashboardPage() {
             </Link>
           </div>
           {data.myTasks.length === 0 ? (
-            <p className="text-sm text-zinc-600">Aucune tâche ouverte.</p>
+            <EmptyState
+              compact
+              title="Aucune tâche ouverte"
+              description="Les tâches qui te sont assignées s’affichent ici."
+              action={
+                <Link href="/tasks" className="text-sm font-medium underline">
+                  Mes tâches
+                </Link>
+              }
+            />
           ) : (
             <ul className="space-y-2">
               {data.myTasks.map((t) => (
