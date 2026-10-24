@@ -1,5 +1,7 @@
 package ma.ensem.jee.platform.auth;
 
+import java.time.Instant;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +33,7 @@ public class AuthService {
 			"Compte créé. Il sera activé par le bureau avant ta première connexion.";
 
 	private final UserRepository userRepository;
+	private final RefreshTokenRepository refreshTokenRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
@@ -38,11 +41,13 @@ public class AuthService {
 
 	public AuthService(
 			UserRepository userRepository,
+			RefreshTokenRepository refreshTokenRepository,
 			PasswordEncoder passwordEncoder,
 			JwtService jwtService,
 			AuthenticationManager authenticationManager,
 			RegistrationProperties registrationProperties) {
 		this.userRepository = userRepository;
+		this.refreshTokenRepository = refreshTokenRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtService = jwtService;
 		this.authenticationManager = authenticationManager;
@@ -79,7 +84,7 @@ public class AuthService {
 		return RegisterOutcome.authenticated(buildAuthResult(user));
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public AuthResult login(LoginRequest request) {
 		try {
 			authenticationManager.authenticate(
@@ -104,30 +109,26 @@ public class AuthService {
 		return buildAuthResult(user);
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public AuthResult refresh(String refreshToken) {
-		if (refreshToken == null || refreshToken.isBlank()) {
-			throw new BadCredentialsException("Refresh token manquant");
+		RefreshToken stored = requireActiveRefreshToken(refreshToken);
+		User user = stored.getUser();
+		if (!user.isActive()) {
+			stored.revoke();
+			throw new BadCredentialsException("Compte désactivé");
 		}
 
-		try {
-			Claims claims = jwtService.parseClaims(refreshToken);
-			if (!jwtService.isRefreshToken(claims)) {
-				throw new BadCredentialsException("Refresh token invalide");
-			}
+		stored.revoke();
+		return buildAuthResult(user);
+	}
 
-			User user = userRepository.findById(jwtService.getUserId(claims))
-					.orElseThrow(() -> new BadCredentialsException("Utilisateur introuvable"));
-
-			if (!user.isActive()) {
-				throw new BadCredentialsException("Compte désactivé");
-			}
-
-			return buildAuthResult(user);
+	@Transactional
+	public ResponseCookie logout(String refreshToken) {
+		if (refreshToken != null && !refreshToken.isBlank()) {
+			refreshTokenRepository.findByTokenHashAndRevokedAtIsNull(TokenHashes.sha256(refreshToken))
+					.ifPresent(RefreshToken::revoke);
 		}
-		catch (JwtException | IllegalArgumentException ex) {
-			throw new BadCredentialsException("Refresh token invalide");
-		}
+		return clearRefreshCookie();
 	}
 
 	public ResponseCookie clearRefreshCookie() {
@@ -140,9 +141,38 @@ public class AuthService {
 				.build();
 	}
 
+	private RefreshToken requireActiveRefreshToken(String refreshToken) {
+		if (refreshToken == null || refreshToken.isBlank()) {
+			throw new BadCredentialsException("Refresh token manquant");
+		}
+
+		try {
+			Claims claims = jwtService.parseClaims(refreshToken);
+			if (!jwtService.isRefreshToken(claims)) {
+				throw new BadCredentialsException("Refresh token invalide");
+			}
+		}
+		catch (JwtException | IllegalArgumentException ex) {
+			throw new BadCredentialsException("Refresh token invalide");
+		}
+
+		RefreshToken stored = refreshTokenRepository
+				.findByTokenHashAndRevokedAtIsNull(TokenHashes.sha256(refreshToken))
+				.orElseThrow(() -> new BadCredentialsException("Refresh token invalide ou révoqué"));
+
+		if (stored.isExpired(Instant.now())) {
+			stored.revoke();
+			throw new BadCredentialsException("Refresh token expiré");
+		}
+
+		return stored;
+	}
+
 	private AuthResult buildAuthResult(User user) {
 		String access = jwtService.createAccessToken(user);
 		String refresh = jwtService.createRefreshToken(user);
+		Instant expiresAt = Instant.now().plusSeconds(jwtService.getRefreshTokenDays() * 24 * 60 * 60);
+		refreshTokenRepository.save(new RefreshToken(user, TokenHashes.sha256(refresh), expiresAt));
 
 		ResponseCookie cookie = ResponseCookie.from(REFRESH_COOKIE, refresh)
 				.httpOnly(true)

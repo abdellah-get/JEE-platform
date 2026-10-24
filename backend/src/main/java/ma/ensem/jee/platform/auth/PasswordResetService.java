@@ -1,12 +1,8 @@
 package ma.ensem.jee.platform.auth;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.Base64;
-import java.util.HexFormat;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +58,7 @@ public class PasswordResetService {
 
 			String rawToken = generateRawToken();
 			Instant expiresAt = now.plusSeconds(properties.getTtlMinutes() * 60);
-			tokenRepository.save(new PasswordResetToken(user, sha256(rawToken), expiresAt));
+			tokenRepository.save(new PasswordResetToken(user, TokenHashes.sha256(rawToken), expiresAt));
 
 			String base = properties.getFrontendBaseUrl().replaceAll("/$", "");
 			String resetUrl = base + "/reset-password?token=" + rawToken;
@@ -72,7 +68,7 @@ public class PasswordResetService {
 
 	@Transactional
 	public void resetPassword(ResetPasswordRequest request) {
-		String hash = sha256(request.token().trim());
+		String hash = TokenHashes.sha256(request.token().trim());
 		PasswordResetToken token = tokenRepository.findByTokenHashAndUsedAtIsNull(hash)
 				.orElseThrow(() -> new BadCredentialsException("Lien de réinitialisation invalide ou expiré"));
 
@@ -97,14 +93,4 @@ public class PasswordResetService {
 		return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
 	}
 
-	static String sha256(String value) {
-		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA-256");
-			byte[] hashed = digest.digest(value.getBytes(StandardCharsets.UTF_8));
-			return HexFormat.of().formatHex(hashed);
-		}
-		catch (NoSuchAlgorithmException ex) {
-			throw new IllegalStateException("SHA-256 not available", ex);
-		}
-	}
 }
