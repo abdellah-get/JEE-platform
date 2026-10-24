@@ -19,4 +19,6 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
 	List<Project> findAllVisibleToMember(@Param("userId") UUID userId);
 
 	List<Project> findAllByOrderByUpdatedAtDesc();
+
+	long countByStatus(ProjectStatus status);
 }

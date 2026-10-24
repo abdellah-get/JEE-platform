@@ -72,6 +72,33 @@ export type AdminUser = {
   createdAt: string;
 };
 
+export type Announcement = {
+  id: string;
+  title: string;
+  body: string;
+  pinned: boolean;
+  authorId: string;
+  authorName: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type DashboardKpis = {
+  activeMembers: number;
+  totalProjects: number;
+  activeProjects: number;
+  openTasks: number;
+  pinnedAnnouncements: number;
+};
+
+export type Dashboard = {
+  clubRole: ClubRole;
+  pinnedAnnouncements: Announcement[];
+  myProjects: Project[];
+  myTasks: Task[];
+  kpis?: DashboardKpis | null;
+};
+
 export type AuthResponse = {
   accessToken: string;
   tokenType: string;

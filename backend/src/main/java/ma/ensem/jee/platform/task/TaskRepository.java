@@ -15,6 +15,8 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 
 	long countByProjectIdAndStatus(UUID projectId, TaskStatus status);
 
+	long countByStatusNot(TaskStatus status);
+
 	@Query("""
 			select t from Task t
 			where t.assigneeId = :userId
