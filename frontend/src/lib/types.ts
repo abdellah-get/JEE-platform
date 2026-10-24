@@ -111,6 +111,12 @@ export type DashboardKpis = {
   activeProjects: number;
   openTasks: number;
   pinnedAnnouncements: number;
+  projectsBrouillon: number;
+  projectsActif: number;
+  projectsTermine: number;
+  projectsArchive: number;
+  averageProgressPercent: number;
+  overdueTasks: number;
 };
 
 export type Dashboard = {

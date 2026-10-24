@@ -5,5 +5,11 @@ public record DashboardKpis(
 		long totalProjects,
 		long activeProjects,
 		long openTasks,
-		long pinnedAnnouncements) {
+		long pinnedAnnouncements,
+		long projectsBrouillon,
+		long projectsActif,
+		long projectsTermine,
+		long projectsArchive,
+		double averageProgressPercent,
+		long overdueTasks) {
 }

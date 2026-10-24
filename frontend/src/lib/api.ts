@@ -506,6 +506,27 @@ export function getDashboard(accessToken: string) {
   return apiFetch<Dashboard>("/api/v1/dashboard", { method: "GET" }, accessToken);
 }
 
+/** Télécharge l’export CSV bureau (projets + avancement + tâches ouvertes). */
+export async function downloadDashboardExportCsv(accessToken: string): Promise<void> {
+  const res = await fetch(`${API_URL}/api/v1/dashboard/export.csv`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${accessToken}` },
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new ApiError(res.status, await parseError(res));
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "jee-projects-export.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 export function listNotifications(accessToken: string, unreadOnly = false) {
   const q = unreadOnly ? "?unreadOnly=true" : "";
   return apiFetch<AppNotification[]>(
