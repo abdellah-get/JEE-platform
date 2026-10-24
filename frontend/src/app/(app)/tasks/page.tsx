@@ -6,7 +6,12 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
-import { priorityLabel, taskStatusLabel } from "@/lib/tasks";
+import {
+  dueDateClassName,
+  formatDueDate,
+  priorityLabel,
+  taskStatusLabel,
+} from "@/lib/tasks";
 import type { Project, Task, TaskPriority, TaskStatus } from "@/lib/types";
 
 export default function MyTasksPage() {
@@ -108,11 +113,23 @@ export default function MyTasksPage() {
           {tasks.map((task) => (
             <li key={task.id} className="px-4 py-3">
               <div className="flex flex-wrap items-start justify-between gap-2">
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium text-zinc-900">{task.title}</p>
+                  {task.description && (
+                    <p className="mt-1 line-clamp-2 text-xs text-zinc-500">
+                      {task.description}
+                    </p>
+                  )}
                   <p className="mt-0.5 text-xs text-zinc-500">
                     {taskStatusLabel(task.status)} · {priorityLabel(task.priority)}
-                    {task.dueDate ? ` · échéance ${task.dueDate}` : ""}
+                    {task.dueDate ? (
+                      <>
+                        {" · échéance "}
+                        <span className={dueDateClassName(task.dueDate, task.status)}>
+                          {formatDueDate(task.dueDate)}
+                        </span>
+                      </>
+                    ) : null}
                   </p>
                 </div>
                 <Link

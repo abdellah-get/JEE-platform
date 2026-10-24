@@ -120,6 +120,79 @@ class TaskControllerTest {
 				.andExpect(jsonPath("$.progressPercent").value(0));
 	}
 
+	@Test
+	void createAndUpdateDescriptionAndDueDate() throws Exception {
+		String bureauToken = registerAndPromote("bureau.due@ensem.jee", "Bureau", "Due", ClubRole.BUREAU);
+		String chefToken = register("chef.due@ensem.jee", "Chef", "Due");
+		String chefId = userId(chefToken);
+
+		String projectId = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects")
+						.header("Authorization", "Bearer " + bureauToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "name": "Echeances",
+								  "chefUserId": "%s"
+								}
+								""".formatted(chefId)))
+						.andExpect(status().isCreated())
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		String taskId = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects/" + projectId + "/tasks")
+						.header("Authorization", "Bearer " + chefToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "title": "Livrable midterm",
+								  "description": "Slides + demo",
+								  "dueDate": "2026-11-15",
+								  "priority": "MEDIUM"
+								}
+								"""))
+						.andExpect(status().isCreated())
+						.andExpect(jsonPath("$.description").value("Slides + demo"))
+						.andExpect(jsonPath("$.dueDate").value("2026-11-15"))
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		mockMvc.perform(patch("/api/v1/tasks/" + taskId)
+				.header("Authorization", "Bearer " + chefToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "title": "Livrable final",
+						  "description": "Slides + demo + rapport",
+						  "dueDate": "2026-12-01",
+						  "priority": "HIGH"
+						}
+						"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.title").value("Livrable final"))
+				.andExpect(jsonPath("$.description").value("Slides + demo + rapport"))
+				.andExpect(jsonPath("$.dueDate").value("2026-12-01"))
+				.andExpect(jsonPath("$.priority").value("HIGH"));
+
+		mockMvc.perform(patch("/api/v1/tasks/" + taskId)
+				.header("Authorization", "Bearer " + chefToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "description": "",
+						  "clearDueDate": true
+						}
+						"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.description").doesNotExist())
+				.andExpect(jsonPath("$.dueDate").doesNotExist());
+	}
+
 	private String register(String email, String firstName, String lastName) throws Exception {
 		MvcResult result = mockMvc.perform(post("/api/v1/auth/register")
 				.contentType(MediaType.APPLICATION_JSON)

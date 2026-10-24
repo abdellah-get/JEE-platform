@@ -5,10 +5,19 @@ import { useParams } from "next/navigation";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
+import {
+  TaskEditPanel,
+  type TaskEditPayload,
+} from "@/components/tasks/TaskEditPanel";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
-import { priorityLabel, TASK_COLUMNS } from "@/lib/tasks";
+import {
+  dueDateClassName,
+  formatDueDate,
+  priorityLabel,
+  TASK_COLUMNS,
+} from "@/lib/tasks";
 import type { Project, ProjectMember, Task, TaskPriority, TaskStatus } from "@/lib/types";
 
 export default function ProjectTasksPage() {
@@ -20,9 +29,19 @@ export default function ProjectTasksPage() {
   const [members, setMembers] = useState<ProjectMember[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
   const [assigneeId, setAssigneeId] = useState("");
   const [creating, setCreating] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [panelSaving, setPanelSaving] = useState(false);
+  const [panelError, setPanelError] = useState<string | null>(null);
+
+  const selectedTask = useMemo(
+    () => tasks.find((t) => t.id === selectedTaskId) ?? null,
+    [tasks, selectedTaskId],
+  );
 
   async function reload(token: string) {
     const [p, t, m] = await Promise.all([
@@ -88,10 +107,14 @@ export default function ProjectTasksPage() {
     try {
       await api.createTask(accessToken!, projectId, {
         title: title.trim(),
+        description: description.trim() || undefined,
+        dueDate: dueDate || undefined,
         priority,
         assigneeId: assigneeId || undefined,
       });
       setTitle("");
+      setDescription("");
+      setDueDate("");
       setAssigneeId("");
       await reload(accessToken!);
     } catch (err) {
@@ -118,6 +141,10 @@ export default function ProjectTasksPage() {
     setError(null);
     try {
       await api.deleteTask(accessToken!, taskId);
+      if (selectedTaskId === taskId) {
+        setSelectedTaskId(null);
+        setPanelError(null);
+      }
       await reload(accessToken!);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Suppression impossible");
@@ -140,6 +167,36 @@ export default function ProjectTasksPage() {
     }
   }
 
+  async function onSavePanel(payload: TaskEditPayload) {
+    if (!selectedTask) return;
+    setPanelSaving(true);
+    setPanelError(null);
+    try {
+      const body: Parameters<typeof api.updateTask>[2] = {
+        title: payload.title,
+        description: payload.description,
+        priority: payload.priority,
+      };
+      if (payload.clearDueDate) {
+        body.clearDueDate = true;
+      } else if (payload.dueDate) {
+        body.dueDate = payload.dueDate;
+      }
+      if (payload.clearAssignee) {
+        body.clearAssignee = true;
+      } else if (payload.assigneeId) {
+        body.assigneeId = payload.assigneeId;
+      }
+      const updated = await api.updateTask(accessToken!, selectedTask.id, body);
+      setTasks((prev) => prev.map((t) => (t.id === updated.id ? updated : t)));
+      setSelectedTaskId(null);
+    } catch (err) {
+      setPanelError(err instanceof ApiError ? err.message : "Enregistrement impossible");
+    } finally {
+      setPanelSaving(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -152,52 +209,81 @@ export default function ProjectTasksPage() {
           </Link>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight">Kanban</h1>
           <p className="mt-1 text-sm text-zinc-600">
-            Avancement : {project.progressPercent}%
+            Avancement : {project.progressPercent}% · clique une carte pour éditer
           </p>
         </div>
       </div>
 
       <form
         onSubmit={onCreate}
-        className="flex flex-wrap items-end gap-2 rounded-xl border border-zinc-200 bg-white p-4"
+        className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4"
       >
-        <div className="min-w-[200px] flex-1">
-          <Field id="task-title" label="Nouvelle tâche" value={title} onChange={setTitle} required />
-        </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-zinc-700">Priorité</label>
-          <select
-            value={priority}
-            onChange={(e) => setPriority(e.target.value as TaskPriority)}
-            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="min-w-[200px] flex-1">
+            <Field
+              id="task-title"
+              label="Nouvelle tâche"
+              value={title}
+              onChange={setTitle}
+              required
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-zinc-700">Priorité</label>
+            <select
+              value={priority}
+              onChange={(e) => setPriority(e.target.value as TaskPriority)}
+              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            >
+              <option value="LOW">Basse</option>
+              <option value="MEDIUM">Moyenne</option>
+              <option value="HIGH">Haute</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-zinc-700">Échéance</label>
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-zinc-700">Assigné</label>
+            <select
+              value={assigneeId}
+              onChange={(e) => setAssigneeId(e.target.value)}
+              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+            >
+              <option value="">—</option>
+              {members.map((m) => (
+                <option key={m.userId} value={m.userId}>
+                  {m.firstName} {m.lastName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            disabled={creating || !title.trim()}
+            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
           >
-            <option value="LOW">Basse</option>
-            <option value="MEDIUM">Moyenne</option>
-            <option value="HIGH">Haute</option>
-          </select>
+            {creating ? "…" : "Ajouter"}
+          </button>
         </div>
-        <div>
-          <label className="mb-1 block text-sm font-medium text-zinc-700">Assigné</label>
-          <select
-            value={assigneeId}
-            onChange={(e) => setAssigneeId(e.target.value)}
-            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
-          >
-            <option value="">—</option>
-            {members.map((m) => (
-              <option key={m.userId} value={m.userId}>
-                {m.firstName} {m.lastName}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          type="submit"
-          disabled={creating || !title.trim()}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
-        >
-          {creating ? "…" : "Ajouter"}
-        </button>
+        <label className="block space-y-1.5" htmlFor="task-description">
+          <span className="text-sm font-medium text-zinc-700">Description (optionnel)</span>
+          <textarea
+            id="task-description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={2}
+            maxLength={4000}
+            placeholder="Contexte court…"
+            className="w-full resize-y rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm outline-none ring-zinc-900 focus:ring-2"
+          />
+        </label>
       </form>
 
       {error && (
@@ -236,11 +322,32 @@ export default function ProjectTasksPage() {
                   }}
                   className="cursor-grab rounded-lg border border-zinc-200 bg-white p-3 shadow-sm active:cursor-grabbing"
                 >
-                  <p className="text-sm font-medium text-zinc-900">{task.title}</p>
-                  <p className="mt-1 text-xs text-zinc-500">
-                    {priorityLabel(task.priority)}
-                    {task.dueDate ? ` · ${task.dueDate}` : ""}
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPanelError(null);
+                      setSelectedTaskId(task.id);
+                    }}
+                    className="w-full text-left"
+                  >
+                    <p className="text-sm font-medium text-zinc-900">{task.title}</p>
+                    {task.description && (
+                      <p className="mt-1 line-clamp-2 text-xs text-zinc-500">
+                        {task.description}
+                      </p>
+                    )}
+                    <p className="mt-1 text-xs text-zinc-500">
+                      {priorityLabel(task.priority)}
+                      {task.dueDate ? (
+                        <>
+                          {" · "}
+                          <span className={dueDateClassName(task.dueDate, task.status)}>
+                            {formatDueDate(task.dueDate)}
+                          </span>
+                        </>
+                      ) : null}
+                    </p>
+                  </button>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <select
                       value={task.assigneeId ?? ""}
@@ -280,6 +387,21 @@ export default function ProjectTasksPage() {
           </section>
         ))}
       </div>
+
+      {selectedTask && (
+        <TaskEditPanel
+          task={selectedTask}
+          members={members}
+          saving={panelSaving}
+          error={panelError}
+          onClose={() => {
+            setSelectedTaskId(null);
+            setPanelError(null);
+          }}
+          onSave={onSavePanel}
+          onDelete={() => onDelete(selectedTask.id)}
+        />
+      )}
     </div>
   );
 }

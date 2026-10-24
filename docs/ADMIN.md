@@ -48,6 +48,8 @@ Rôles **projet** (sur l’équipe) : `CHEF_PROJET` / `CONTRIBUTEUR` — le chef
 
 3. **Suivre l’avancement**  
    Le % se calcule automatiquement (tâches DONE / total) sur la fiche projet et le Kanban.
+   Sur le Kanban : renseigner description et échéance à la création ; cliquer une carte ouvre le panneau d’édition.
+   Les échéances dépassées (hors tâches « Fait ») apparaissent en rouge.
 
 4. **Annonce urgente**  
    Annonces → Nouvelle → cocher **Épingler** → visible en tête et sur le dashboard.
