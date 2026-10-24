@@ -11,7 +11,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | Phase | Statut        | Progression |
 |-------|---------------|-------------|
-| P0 Fondations | En cours | 4/7 missions |
+| P0 Fondations | En cours | 5/7 missions |
 | P1 Projets & RBAC | À faire | 0/5 |
 | P2 Tâches Kanban | À faire | 0/4 |
 | P3 Annonces & Dashboard | À faire | 0/2 |
@@ -29,7 +29,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 2 | Schéma PostgreSQL + Flyway (User, roles) | **Terminé** |
 | 3 | Auth JWT (login, refresh, logout) | **Terminé** |
 | 4 | Pages auth frontend | **Terminé** |
-| 5 | Layout app + middleware routes protégées | À faire |
+| 5 | Layout app + middleware routes protégées | **Terminé** |
 | 6 | Profil /me + page /profile | À faire |
 | 7 | CI GitHub Actions + déploiement | À faire |
 
@@ -69,6 +69,21 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #5 terminée
+
+**Fait :**
+- `middleware.ts` : routes protégées → redirect `/login?next=…` ; auth pages → `/dashboard` si session
+- Cookies client `jee_auth` + `jee_role` (pour le middleware ; sécu réelle = JWT API)
+- `AppShell` sidebar (Dashboard, Projets, Tâches, Annonces, Profil, Admin si BUREAU/ADMIN)
+- Route group `(app)/` + placeholders projets / tâches / annonces / admin / profil
+- Menu mobile (collapse)
+
+**À retenir :**
+- Middleware Edge ne doit pas importer du code qui utilise `document` / `localStorage`
+- Admin masqué + bloqué si rôle insuffisant
+
+**Prochaine mission :** #6 — Profil `/me` + page `/profile` (édition + MDP).
 
 ### 2026-10-24 — Mission #4 terminée
 
