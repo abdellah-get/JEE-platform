@@ -15,18 +15,20 @@ function ResetPasswordForm() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [confirmError, setConfirmError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setConfirmError(null);
     if (!token) {
       setError("Lien invalide : token manquant dans l’URL.");
       return;
     }
     if (password !== confirm) {
-      setError("Les mots de passe ne correspondent pas.");
+      setConfirmError("Les mots de passe ne correspondent pas.");
       return;
     }
     setSubmitting(true);
@@ -48,7 +50,7 @@ function ResetPasswordForm() {
       title="Nouveau mot de passe"
       subtitle="Choisis un mot de passe sécurisé (min. 8 caractères)."
     >
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <Field
           id="password"
           label="Nouveau mot de passe"
@@ -58,20 +60,32 @@ function ResetPasswordForm() {
           autoComplete="new-password"
           required
           minLength={8}
+          describedBy={error ? "reset-error" : undefined}
+          invalid={!!error}
         />
         <Field
           id="confirm"
           label="Confirmer"
           type="password"
           value={confirm}
-          onChange={setConfirm}
+          onChange={(v) => {
+            setConfirm(v);
+            setConfirmError(null);
+          }}
           autoComplete="new-password"
           required
           minLength={8}
+          error={confirmError}
+          describedBy={error ? "reset-error" : undefined}
+          invalid={!!error || !!confirmError}
         />
 
         {error ? (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p
+            id="reset-error"
+            role="alert"
+            className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+          >
             {error}
           </p>
         ) : null}

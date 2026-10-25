@@ -50,6 +50,7 @@ Rôles **projet** (sur l’équipe) : `CHEF_PROJET` / `CONTRIBUTEUR` — le chef
    Le % se calcule automatiquement (tâches DONE / total) sur la fiche projet et le Kanban.
    Sur le Kanban : renseigner description et échéance à la création ; cliquer une carte ouvre le panneau d’édition.  
    Glisser-déposer une carte dans une colonne (ou sur une autre carte) enregistre l’ordre (`sortOrder`).  
+   Clavier : focus une carte puis flèches ←/→ (colonne) et ↑/↓ (ordre), ou boutons « → … ».  
    Badges « En retard » / « Bientôt » (échéance ≤ 3 jours) sur dashboard, Mes tâches et Kanban.  
    Commentaires : ouvrir une carte → section en bas du panneau (membres du projet).  
    **Supprimer** une tâche : réservé au chef de projet ou au bureau (le contributeur peut créer / éditer / déplacer).  

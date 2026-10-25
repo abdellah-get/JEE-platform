@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { useAuth } from "@/context/AuthContext";
@@ -21,6 +21,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
+  const navId = useId();
   const showAdmin = canAccessAdmin(user?.clubRole);
 
   const links = showAdmin
@@ -40,7 +41,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-zinc-50 text-zinc-900 md:flex">
+      <a
+        href="#contenu-principal"
+        className="absolute left-4 top-4 z-50 -translate-y-[200%] rounded-lg bg-zinc-900 px-3 py-2 text-sm text-white focus:translate-y-0"
+      >
+        Aller au contenu
+      </a>
+
       <aside
+        id={navId}
         className={`fixed inset-y-0 left-0 z-40 w-[min(18rem,85vw)] border-r border-zinc-200 bg-white pt-[env(safe-area-inset-top)] transition-transform duration-200 md:static md:w-64 md:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
@@ -62,7 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </button>
           </div>
 
-          <nav className="flex flex-1 flex-col gap-1 overflow-y-auto">
+          <nav aria-label="Navigation principale" className="flex flex-1 flex-col gap-1 overflow-y-auto">
             {links.map((item) => {
               const active =
                 pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -70,6 +79,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={active ? "page" : undefined}
                   className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     active
                       ? "bg-zinc-900 text-white"
@@ -117,6 +127,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={() => setOpen(true)}
+            aria-expanded={open}
+            aria-controls={navId}
             className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm"
           >
             Menu
@@ -127,7 +139,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="hidden items-center justify-end border-b border-zinc-200 bg-white px-8 py-3 md:flex">
           <NotificationBell />
         </div>
-        <main className="flex-1 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:px-8">
+        <main
+          id="contenu-principal"
+          className="flex-1 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:px-8"
+        >
           {children}
         </main>
       </div>

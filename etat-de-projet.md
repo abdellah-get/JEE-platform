@@ -19,7 +19,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P4 Polish | **Terminé** | 2/2 |
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
-| P7 Reporting & qualité | **En cours** | 4/6 (#57–#62) |
+| P7 Reporting & qualité | **En cours** | 5/6 (#57–#62) |
 
 ---
 
@@ -100,12 +100,22 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 58 | Rotation / révocation refresh tokens | **Terminé** |
 | 59 | E2E smoke CI | **Terminé** |
 | 60 | Permissions tâches (delete chef/bureau) | **Terminé** |
-| 61 | Pass accessibilité | **À faire** |
+| 61 | Pass accessibilité | **Terminé** |
 | 62 | Stretch : activity feed ou pièces jointes | **À faire** |
 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #61 terminée (pass accessibilité)
+
+**Fait :**
+- `Field` : `error` / `describedBy` / `aria-invalid` + alert liées aux champs
+- Auth + profil : erreurs formulaire liées via `aria-describedby`
+- AppShell : landmarks `nav` / `main`, skip link, `aria-expanded` menu
+- Kanban : flèches clavier (colonne + ordre) + labels ARIA
+
+**Prochaine mission :** [#62](https://github.com/abdellah-get/JEE-platform/issues/62) — stretch activity feed / pièces jointes.
 
 ### 2026-10-25 — Mission #60 terminée (permissions delete tâches)
 
