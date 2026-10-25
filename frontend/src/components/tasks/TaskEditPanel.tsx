@@ -22,6 +22,7 @@ type Props = {
   saving: boolean;
   error: string | null;
   canModerateComments?: boolean;
+  canDelete?: boolean;
   onClose: () => void;
   onSave: (payload: TaskEditPayload) => Promise<void>;
   onDelete: () => Promise<void>;
@@ -33,6 +34,7 @@ export function TaskEditPanel({
   saving,
   error,
   canModerateComments = false,
+  canDelete = false,
   onClose,
   onSave,
   onDelete,
@@ -197,14 +199,18 @@ export function TaskEditPanel({
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-2 border-t border-zinc-100 px-4 py-3">
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => void onDelete()}
-              className="text-sm text-red-600 hover:underline disabled:opacity-50"
-            >
-              Supprimer
-            </button>
+            {canDelete ? (
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => void onDelete()}
+                className="text-sm text-red-600 hover:underline disabled:opacity-50"
+              >
+                Supprimer
+              </button>
+            ) : (
+              <span />
+            )}
             <div className="flex gap-2">
               <button
                 type="button"

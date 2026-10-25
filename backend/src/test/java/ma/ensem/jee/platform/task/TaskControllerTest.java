@@ -297,6 +297,91 @@ class TaskControllerTest {
 				.andExpect(jsonPath("$.dueDate").doesNotExist());
 	}
 
+	@Test
+	void onlyChefOrBureauCanDeleteTask() throws Exception {
+		String bureauToken = registerAndPromote("bureau.del@ensem.jee", "Bureau", "Del", ClubRole.BUREAU);
+		String chefToken = register("chef.del@ensem.jee", "Chef", "Del");
+		String contribToken = register("contrib.del@ensem.jee", "Contrib", "Del");
+		String outsiderToken = register("out.del@ensem.jee", "Out", "Del");
+		String chefId = userId(chefToken);
+		String contribId = userId(contribToken);
+
+		String projectId = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects")
+						.header("Authorization", "Bearer " + bureauToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "name": "Delete perms",
+								  "chefUserId": "%s"
+								}
+								""".formatted(chefId)))
+						.andExpect(status().isCreated())
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		mockMvc.perform(put("/api/v1/projects/" + projectId + "/members")
+				.header("Authorization", "Bearer " + chefToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "members": [
+						    { "userId": "%s", "role": "CHEF_PROJET" },
+						    { "userId": "%s", "role": "CONTRIBUTEUR" }
+						  ]
+						}
+						""".formatted(chefId, contribId)))
+				.andExpect(status().isOk());
+
+		String taskId = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects/" + projectId + "/tasks")
+						.header("Authorization", "Bearer " + contribToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{ "title": "A supprimer" }
+								"""))
+						.andExpect(status().isCreated())
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		mockMvc.perform(delete("/api/v1/tasks/" + taskId)
+				.header("Authorization", "Bearer " + contribToken))
+				.andExpect(status().isForbidden());
+
+		mockMvc.perform(delete("/api/v1/tasks/" + taskId)
+				.header("Authorization", "Bearer " + outsiderToken))
+				.andExpect(status().isNotFound());
+
+		mockMvc.perform(get("/api/v1/tasks/" + taskId)
+				.header("Authorization", "Bearer " + chefToken))
+				.andExpect(status().isOk());
+
+		mockMvc.perform(delete("/api/v1/tasks/" + taskId)
+				.header("Authorization", "Bearer " + chefToken))
+				.andExpect(status().isNoContent());
+
+		String task2 = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects/" + projectId + "/tasks")
+						.header("Authorization", "Bearer " + chefToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{ "title": "Bureau delete" }
+								"""))
+						.andExpect(status().isCreated())
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		mockMvc.perform(delete("/api/v1/tasks/" + task2)
+				.header("Authorization", "Bearer " + bureauToken))
+				.andExpect(status().isNoContent());
+	}
+
 	private String register(String email, String firstName, String lastName) throws Exception {
 		MvcResult result = mockMvc.perform(post("/api/v1/auth/register")
 				.contentType(MediaType.APPLICATION_JSON)

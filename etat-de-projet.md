@@ -19,7 +19,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P4 Polish | **Terminé** | 2/2 |
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
-| P7 Reporting & qualité | **En cours** | 3/6 (#57–#62) |
+| P7 Reporting & qualité | **En cours** | 4/6 (#57–#62) |
 
 ---
 
@@ -99,13 +99,22 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 57 | Dashboard bureau enrichi + export CSV | **Terminé** |
 | 58 | Rotation / révocation refresh tokens | **Terminé** |
 | 59 | E2E smoke CI | **Terminé** |
-| 60 | Permissions tâches (delete chef/bureau) | **À faire** |
+| 60 | Permissions tâches (delete chef/bureau) | **Terminé** |
 | 61 | Pass accessibilité | **À faire** |
 | 62 | Stretch : activity feed ou pièces jointes | **À faire** |
 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #60 terminée (permissions delete tâches)
+
+**Fait :**
+- `DELETE /tasks/{id}` réservé chef projet / BUREAU / ADMIN_TECH (403 contributeur, 404 hors projet)
+- UI Kanban : bouton Supprimer masqué si non autorisé
+- Tests d’isolement mis à jour
+
+**Prochaine mission :** [#61](https://github.com/abdellah-get/JEE-platform/issues/61) — pass accessibilité.
 
 ### 2026-10-24 — Mission #59 terminée (E2E smoke CI)
 

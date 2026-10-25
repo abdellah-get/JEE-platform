@@ -154,6 +154,7 @@ public class TaskService {
 		Task task = taskRepository.findById(taskId)
 				.orElseThrow(() -> new ResourceNotFoundException("Tâche introuvable"));
 		Project project = accessService.requireVisibleProject(task.getProjectId(), current);
+		accessService.requireCanDeleteTask(task.getProjectId(), current);
 		taskRepository.delete(task);
 		recalculateProgress(project);
 	}

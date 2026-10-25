@@ -40,3 +40,11 @@ export function canManageProject(
     myRole === "CHEF_PROJET"
   );
 }
+
+/** Suppression de tâche : même règle que la gestion projet (chef / bureau). */
+export function canDeleteTask(
+  clubRole: ClubRole,
+  myRole: ProjectRole | null | undefined,
+): boolean {
+  return canManageProject(clubRole, myRole);
+}

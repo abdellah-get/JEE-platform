@@ -71,4 +71,17 @@ public class ProjectAccessService {
 			throw new AccessDeniedException("Seul le chef de projet peut gérer l'équipe");
 		}
 	}
+
+	/** Suppression de tâche : chef de projet ou bureau / admin tech. */
+	public void requireCanDeleteTask(UUID projectId, UserPrincipal user) {
+		requireVisibleProject(projectId, user);
+		if (isClubStaff(user)) {
+			return;
+		}
+		ProjectRole role = findRole(projectId, user.getId())
+				.orElseThrow(() -> new ResourceNotFoundException("Projet introuvable"));
+		if (role != ProjectRole.CHEF_PROJET) {
+			throw new AccessDeniedException("Seul le chef de projet ou le bureau peut supprimer une tâche");
+		}
+	}
 }
