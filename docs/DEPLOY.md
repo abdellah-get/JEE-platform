@@ -85,6 +85,7 @@ docker run --rm -p 8081:8081 \
 | `DATABASE_PASSWORD` | … |
 | `DATABASE_DRIVER` | `org.postgresql.Driver` |
 | `JWT_SECRET` | aléatoire **≥ 32** caractères |
+| `JWT_ACCESS_MINUTES` | `30` (défaut ; durée session access) |
 | `JWT_COOKIE_SECURE` | `true` |
 | `CORS_ORIGINS` | `https://ton-app.vercel.app` |
 | `SEED_ENABLED` | `false` |
