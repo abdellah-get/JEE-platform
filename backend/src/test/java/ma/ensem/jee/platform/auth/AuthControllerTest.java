@@ -2,6 +2,7 @@ package ma.ensem.jee.platform.auth;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -47,7 +48,10 @@ class AuthControllerTest {
 	void healthIsPublic() throws Exception {
 		mockMvc.perform(get("/api/v1/health"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.status").value("UP"));
+				.andExpect(jsonPath("$.status").value("UP"))
+				.andExpect(jsonPath("$.db").value("UP"))
+				.andExpect(header().string("Referrer-Policy", "strict-origin-when-cross-origin"))
+				.andExpect(header().string("X-Frame-Options", "DENY"));
 	}
 
 	@Test

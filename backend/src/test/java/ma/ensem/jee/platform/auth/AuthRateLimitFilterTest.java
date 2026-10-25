@@ -93,4 +93,54 @@ class AuthRateLimitFilterTest {
 				}))
 				.andExpect(status().isUnauthorized());
 	}
+
+	@Test
+	void refreshReturns429AfterExceedingLimit() throws Exception {
+		for (int i = 0; i < 3; i++) {
+			mockMvc.perform(post("/api/v1/auth/refresh")
+					.header(AuthCookieCsrfFilter.CSRF_HEADER, AuthCookieCsrfFilter.CSRF_HEADER_VALUE)
+					.with(request -> {
+						request.setRemoteAddr("203.0.113.30");
+						return request;
+					}))
+					.andExpect(status().isUnauthorized());
+		}
+
+		mockMvc.perform(post("/api/v1/auth/refresh")
+				.header(AuthCookieCsrfFilter.CSRF_HEADER, AuthCookieCsrfFilter.CSRF_HEADER_VALUE)
+				.with(request -> {
+					request.setRemoteAddr("203.0.113.30");
+					return request;
+				}))
+				.andExpect(status().isTooManyRequests())
+				.andExpect(header().string("Retry-After", "60"));
+	}
+
+	@Test
+	void resetPasswordReturns429AfterExceedingLimit() throws Exception {
+		String body = """
+				{ "token": "not-a-real-token", "password": "NewPassword456!" }
+				""";
+
+		for (int i = 0; i < 3; i++) {
+			mockMvc.perform(post("/api/v1/auth/reset-password")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(body)
+					.with(request -> {
+						request.setRemoteAddr("203.0.113.40");
+						return request;
+					}))
+					.andExpect(status().isUnauthorized());
+		}
+
+		mockMvc.perform(post("/api/v1/auth/reset-password")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(body)
+				.with(request -> {
+					request.setRemoteAddr("203.0.113.40");
+					return request;
+				}))
+				.andExpect(status().isTooManyRequests())
+				.andExpect(header().string("Retry-After", "60"));
+	}
 }

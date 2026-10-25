@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -40,6 +41,7 @@ public class SecurityConfig {
 	private final AuthRateLimitFilter authRateLimitFilter;
 	private final AuthCookieCsrfFilter authCookieCsrfFilter;
 	private final CorsProperties corsProperties;
+	private final JwtProperties jwtProperties;
 	private final boolean h2ConsoleEnabled;
 
 	public SecurityConfig(
@@ -47,11 +49,13 @@ public class SecurityConfig {
 			AuthRateLimitFilter authRateLimitFilter,
 			AuthCookieCsrfFilter authCookieCsrfFilter,
 			CorsProperties corsProperties,
+			JwtProperties jwtProperties,
 			@Value("${spring.h2.console.enabled:false}") boolean h2ConsoleEnabled) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.authRateLimitFilter = authRateLimitFilter;
 		this.authCookieCsrfFilter = authCookieCsrfFilter;
 		this.corsProperties = corsProperties;
+		this.jwtProperties = jwtProperties;
 		this.h2ConsoleEnabled = h2ConsoleEnabled;
 	}
 
@@ -71,7 +75,25 @@ public class SecurityConfig {
 					}
 					auth.anyRequest().authenticated();
 				})
-				.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+				.headers(headers -> {
+					headers.contentTypeOptions(Customizer.withDefaults());
+					headers.referrerPolicy(policy -> policy.policy(
+							ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN));
+					if (h2ConsoleEnabled) {
+						headers.frameOptions(frame -> frame.sameOrigin());
+					}
+					else {
+						headers.frameOptions(frame -> frame.deny());
+					}
+					if (jwtProperties.isCookieSecure()) {
+						headers.httpStrictTransportSecurity(hsts -> hsts
+								.includeSubDomains(true)
+								.maxAgeInSeconds(31_536_000));
+					}
+					else {
+						headers.httpStrictTransportSecurity(hsts -> hsts.disable());
+					}
+				})
 				.addFilterBefore(authCookieCsrfFilter, UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
