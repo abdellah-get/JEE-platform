@@ -123,11 +123,20 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [96](https://github.com/abdellah-get/JEE-platform/issues/96) | Pièces jointes / livrables | **Terminé** |
 | [97](https://github.com/abdellah-get/JEE-platform/issues/97) | Événements + calendrier | **Terminé** |
 | [98](https://github.com/abdellah-get/JEE-platform/issues/98) | Access token hors localStorage | **Terminé** |
-| [99](https://github.com/abdellah-get/JEE-platform/issues/99) | Pagination + OpenAPI + Actuator | À faire |
+| [99](https://github.com/abdellah-get/JEE-platform/issues/99) | Pagination + OpenAPI + Actuator | **Terminé** |
 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #99 terminée (pagination + OpenAPI + Actuator)
+
+**Fait :**
+- `PageResponse` + `page`/`size` sur projets, annonces, événements, notifications, admin users, mes tâches
+- springdoc OpenAPI 3.2 + Swagger UI (auth JWT) ; Actuator health + probes publics
+- Front `PaginationBar` ; docs SECURITY / DEPLOY
+
+**Prochaine mission :** backlog P8 terminé (#87–#99) — polish / ops selon besoin.
 
 ### 2026-10-25 — Mission #98 terminée (access token hors localStorage)
 

@@ -3,8 +3,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 
+import { useState } from "react";
+
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
+import { PaginationBar } from "@/components/ui/PaginationBar";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
@@ -16,16 +19,18 @@ export default function NotificationsPage() {
   const { accessToken, loading } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const [page, setPage] = useState(0);
 
   const {
-    data: items = [],
+    data: pageData,
     error,
     isPending,
   } = useQuery({
-    queryKey: queryKeys.notifications(false),
-    queryFn: () => api.listNotifications(accessToken!),
+    queryKey: queryKeys.notifications(false, page),
+    queryFn: () => api.listNotifications(accessToken!, false, page),
     enabled: Boolean(accessToken),
   });
+  const items = pageData?.content ?? [];
 
   const invalidateNotifications = () =>
     queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -97,33 +102,41 @@ export default function NotificationsPage() {
           description="Tu seras prévenu lors d’une assignation ou d’une annonce épinglée."
         />
       ) : (
-        <ul className="divide-y divide-line surface-quiet">
-          {items.map((n) => (
-            <li key={n.id}>
-              {n.link ? (
-                <Link
-                  href={n.link}
-                  onClick={() => void openItem(n)}
-                  className={`block px-4 py-3 hover:bg-paper ${
-                    n.read ? "" : "bg-warning-soft/50"
-                  }`}
-                >
-                  <NotificationRow n={n} />
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => void openItem(n)}
-                  className={`block w-full px-4 py-3 text-left hover:bg-paper ${
-                    n.read ? "" : "bg-warning-soft/50"
-                  }`}
-                >
-                  <NotificationRow n={n} />
-                </button>
-              )}
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="divide-y divide-line surface-quiet">
+            {items.map((n) => (
+              <li key={n.id}>
+                {n.link ? (
+                  <Link
+                    href={n.link}
+                    onClick={() => void openItem(n)}
+                    className={`block px-4 py-3 hover:bg-paper ${
+                      n.read ? "" : "bg-warning-soft/50"
+                    }`}
+                  >
+                    <NotificationRow n={n} />
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => void openItem(n)}
+                    className={`block w-full px-4 py-3 text-left hover:bg-paper ${
+                      n.read ? "" : "bg-warning-soft/50"
+                    }`}
+                  >
+                    <NotificationRow n={n} />
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+          <PaginationBar
+            page={pageData?.page ?? page}
+            totalPages={pageData?.totalPages ?? 0}
+            totalElements={pageData?.totalElements ?? 0}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </div>
   );

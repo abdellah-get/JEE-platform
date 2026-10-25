@@ -66,7 +66,7 @@ export default function NewProjectPage() {
         chefUserId: chefUserId || undefined,
       });
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: queryKeys.projects }),
+        queryClient.invalidateQueries({ queryKey: ["projects"] }),
         queryClient.invalidateQueries({ queryKey: queryKeys.dashboard }),
       ]);
       toast.success("Projet créé.");

@@ -76,14 +76,14 @@ class ProjectControllerTest {
 		mockMvc.perform(get("/api/v1/projects")
 				.header("Authorization", "Bearer " + chefToken))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(1))
-				.andExpect(jsonPath("$[0].id").value(projectId))
-				.andExpect(jsonPath("$[0].myRole").value("CHEF_PROJET"));
+				.andExpect(jsonPath("$.totalElements").value(1))
+				.andExpect(jsonPath("$.content[0].id").value(projectId))
+				.andExpect(jsonPath("$.content[0].myRole").value("CHEF_PROJET"));
 
 		mockMvc.perform(get("/api/v1/projects")
 				.header("Authorization", "Bearer " + outsiderToken))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(0));
+				.andExpect(jsonPath("$.totalElements").value(0));
 
 		mockMvc.perform(get("/api/v1/projects/" + projectId)
 				.header("Authorization", "Bearer " + outsiderToken))

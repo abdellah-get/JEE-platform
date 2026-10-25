@@ -5,18 +5,20 @@ import { useEffect, useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
+import { PaginationBar } from "@/components/ui/PaginationBar";
 import { SearchInput, matchesSearch } from "@/components/ui/SearchInput";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canAccessAdmin } from "@/lib/auth-storage";
-import type { AdminUser } from "@/lib/types";
+import type { AdminUser, PageResponse } from "@/lib/types";
 
 export default function AdminMembersPage() {
   const { accessToken, user, loading } = useAuth();
   const toast = useToast();
-  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [pageData, setPageData] = useState<PageResponse<AdminUser> | null>(null);
+  const [page, setPage] = useState(0);
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -26,13 +28,15 @@ export default function AdminMembersPage() {
     if (!accessToken || !canAccessAdmin(user?.clubRole)) return;
     setListBusy(true);
     api
-      .listAdminUsers(accessToken)
-      .then(setUsers)
+      .listAdminUsers(accessToken, page)
+      .then(setPageData)
       .catch((err) =>
         setError(err instanceof ApiError ? err.message : "Chargement impossible"),
       )
       .finally(() => setListBusy(false));
-  }, [accessToken, user?.clubRole]);
+  }, [accessToken, user?.clubRole, page]);
+
+  const users = pageData?.content ?? [];
 
   const filtered = useMemo(
     () =>
@@ -76,8 +80,15 @@ export default function AdminMembersPage() {
         target.userId,
         !target.active,
       );
-      setUsers((prev) =>
-        prev.map((u) => (u.userId === updated.userId ? updated : u)),
+      setPageData((prev) =>
+        prev
+          ? {
+              ...prev,
+              content: prev.content.map((u) =>
+                u.userId === updated.userId ? updated : u,
+              ),
+            }
+          : prev,
       );
       toast.success(updated.active ? "Compte activé." : "Compte désactivé.");
     } catch (err) {
@@ -174,6 +185,15 @@ export default function AdminMembersPage() {
               ))}
             </ul>
           )}
+          <PaginationBar
+            page={pageData?.page ?? page}
+            totalPages={pageData?.totalPages ?? 0}
+            totalElements={pageData?.totalElements ?? 0}
+            onPageChange={(p) => {
+              setPage(p);
+              setQuery("");
+            }}
+          />
         </>
       )}
     </div>

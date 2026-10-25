@@ -26,10 +26,10 @@ export function NotificationBell() {
   const count = countData?.count ?? 0;
 
   const { data: items = [], isFetching } = useQuery({
-    queryKey: queryKeys.notifications(false),
-    queryFn: () => api.listNotifications(accessToken!, false),
+    queryKey: queryKeys.notifications(false, 0),
+    queryFn: () => api.listNotifications(accessToken!, false, 0, 8),
     enabled: Boolean(accessToken) && open,
-    select: (data) => data.slice(0, 8),
+    select: (data) => data.content,
   });
 
   const invalidateNotifications = () =>

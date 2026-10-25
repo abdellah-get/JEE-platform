@@ -6,16 +6,18 @@ import { useEffect, useMemo, useState } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { PaginationBar } from "@/components/ui/PaginationBar";
 import { SearchInput, matchesSearch } from "@/components/ui/SearchInput";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canAccessAdmin } from "@/lib/auth-storage";
-import type { Announcement } from "@/lib/types";
+import type { Announcement, PageResponse } from "@/lib/types";
 
 export default function AnnouncementsPage() {
   const { accessToken, user, loading } = useAuth();
-  const [items, setItems] = useState<Announcement[]>([]);
+  const [pageData, setPageData] = useState<PageResponse<Announcement> | null>(null);
+  const [page, setPage] = useState(0);
   const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(true);
@@ -24,13 +26,15 @@ export default function AnnouncementsPage() {
     if (!accessToken) return;
     setBusy(true);
     api
-      .listAnnouncements(accessToken)
-      .then(setItems)
+      .listAnnouncements(accessToken, page)
+      .then(setPageData)
       .catch((err) =>
         setError(err instanceof ApiError ? err.message : "Chargement impossible"),
       )
       .finally(() => setBusy(false));
-  }, [accessToken]);
+  }, [accessToken, page]);
+
+  const items = pageData?.content ?? [];
 
   const filtered = useMemo(
     () =>
@@ -135,6 +139,15 @@ export default function AnnouncementsPage() {
               ))}
             </ul>
           )}
+          <PaginationBar
+            page={pageData?.page ?? page}
+            totalPages={pageData?.totalPages ?? 0}
+            totalElements={pageData?.totalElements ?? 0}
+            onPageChange={(p) => {
+              setPage(p);
+              setQuery("");
+            }}
+          />
         </>
       )}
     </div>
