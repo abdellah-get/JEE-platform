@@ -1,9 +1,11 @@
 "use client";
 
-import { FormEvent, useEffect, useId, useState } from "react";
+import { FormEvent, useEffect, useId, useRef, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
 import { TaskComments } from "@/components/tasks/TaskComments";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import type { ProjectMember, Task, TaskPriority } from "@/lib/types";
 
 export type TaskEditPayload = {
@@ -40,11 +42,15 @@ export function TaskEditPanel({
   onDelete,
 }: Props) {
   const titleId = useId();
+  const panelRef = useRef<HTMLElement>(null);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description ?? "");
   const [priority, setPriority] = useState<TaskPriority>(task.priority);
   const [dueDate, setDueDate] = useState(task.dueDate ?? "");
   const [assigneeId, setAssigneeId] = useState(task.assigneeId ?? "");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  useFocusTrap(panelRef, true);
 
   useEffect(() => {
     setTitle(task.title);
@@ -56,11 +62,11 @@ export function TaskEditPanel({
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !confirmDelete) onClose();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, confirmDelete]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -85,6 +91,7 @@ export function TaskEditPanel({
         onClick={onClose}
       />
       <aside
+        ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -203,7 +210,7 @@ export function TaskEditPanel({
               <button
                 type="button"
                 disabled={saving}
-                onClick={() => void onDelete()}
+                onClick={() => setConfirmDelete(true)}
                 className="text-sm text-red-600 hover:underline disabled:opacity-50"
               >
                 Supprimer
@@ -231,6 +238,20 @@ export function TaskEditPanel({
           </div>
         </form>
       </aside>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Supprimer cette tâche ?"
+        description="Cette action est définitive."
+        confirmLabel="Supprimer"
+        danger
+        busy={saving}
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={() => {
+          setConfirmDelete(false);
+          void onDelete();
+        }}
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
@@ -24,6 +25,7 @@ export default function AnnouncementDetailPage() {
   const [editing, setEditing] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editBody, setEditBody] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     if (!accessToken || !params.id) return;
@@ -112,14 +114,15 @@ export default function AnnouncementDetailPage() {
   }
 
   async function onDelete() {
-    if (!confirm("Supprimer cette annonce ?")) return;
     setBusy(true);
     try {
       await api.deleteAnnouncement(accessToken!, item!.id);
+      toast.success("Annonce supprimée.");
       router.push("/announcements");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Suppression impossible");
       setBusy(false);
+      setConfirmDelete(false);
     }
   }
 
@@ -222,13 +225,24 @@ export default function AnnouncementDetailPage() {
           <button
             type="button"
             disabled={busy}
-            onClick={onDelete}
+            onClick={() => setConfirmDelete(true)}
             className="rounded-lg border border-red-200 px-3 py-2 text-sm text-danger hover:bg-danger/10 disabled:opacity-50"
           >
             Supprimer
           </button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Supprimer cette annonce ?"
+        description="Cette action est définitive."
+        confirmLabel="Supprimer"
+        danger
+        busy={busy}
+        onCancel={() => setConfirmDelete(false)}
+        onConfirm={() => void onDelete()}
+      />
     </div>
   );
 }

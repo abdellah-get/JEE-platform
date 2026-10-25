@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
@@ -14,6 +14,8 @@ export function NotificationBell() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const panelId = useId();
 
   const { data: countData } = useQuery({
     queryKey: queryKeys.unreadNotificationCount,
@@ -51,10 +53,20 @@ export function NotificationBell() {
         setOpen(false);
       }
     }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
+    }
     if (open) {
       document.addEventListener("mousedown", onDocClick);
+      document.addEventListener("keydown", onKey);
     }
-    return () => document.removeEventListener("mousedown", onDocClick);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   async function onOpenItem(n: AppNotification) {
@@ -73,8 +85,12 @@ export function NotificationBell() {
   return (
     <div ref={rootRef} className="relative">
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        aria-controls={panelId}
         aria-label={count > 0 ? `${count} notifications non lues` : "Notifications"}
         className="btn btn-secondary relative px-2.5 py-1.5"
       >
@@ -87,7 +103,12 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] surface-quiet shadow-lg">
+        <div
+          id={panelId}
+          role="dialog"
+          aria-label="Notifications"
+          className="absolute right-0 z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] surface-quiet shadow-lg"
+        >
           <div className="flex items-center justify-between border-b border-line px-3 py-2">
             <p className="text-sm font-semibold text-ink">Notifications</p>
             {count > 0 && (

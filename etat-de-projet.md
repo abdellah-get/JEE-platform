@@ -21,7 +21,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
-| P8 Sécurité session & UX SaaS | **En cours** | 6/13 (#87–#99) |
+| P8 Sécurité session & UX SaaS | **En cours** | 7/13 (#87–#99) |
 
 Étude : [docs/ETUDE-P8.md](./docs/ETUDE-P8.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
@@ -117,7 +117,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [90](https://github.com/abdellah-get/JEE-platform/issues/90) | Prod safety SEED + approval/domaines | **Terminé** |
 | [91](https://github.com/abdellah-get/JEE-platform/issues/91) | Recherche client (projets, annonces, membres) | **Terminé** |
 | [92](https://github.com/abdellah-get/JEE-platform/issues/92) | TanStack Query autour de `api.ts` | **Terminé** |
-| [93](https://github.com/abdellah-get/JEE-platform/issues/93) | ConfirmDialog + focus trap + a11y cloche | À faire |
+| [93](https://github.com/abdellah-get/JEE-platform/issues/93) | ConfirmDialog + focus trap + a11y cloche | **Terminé** |
 | [94](https://github.com/abdellah-get/JEE-platform/issues/94) | Headers + rate-limit refresh/reset + health DB | À faire |
 | [95](https://github.com/abdellah-get/JEE-platform/issues/95) | Élargir E2E | À faire |
 | [96](https://github.com/abdellah-get/JEE-platform/issues/96) | Pièces jointes / livrables | À faire |
@@ -128,6 +128,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #93 terminée (ConfirmDialog + a11y)
+
+**Fait :**
+- `ConfirmDialog` (alertdialog + focus trap) pour delete annonce / commentaire / tâche
+- `useFocusTrap` sur `TaskEditPanel` (focus initial + restore)
+- `NotificationBell` : `aria-expanded`, `aria-controls`, `role="dialog"`, Escape
+
+**Prochaine mission :** [#94](https://github.com/abdellah-get/JEE-platform/issues/94) — headers + rate-limit refresh/reset + health DB.
 
 ### 2026-10-25 — Mission #92 terminée (TanStack Query)
 

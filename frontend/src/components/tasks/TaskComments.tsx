@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
@@ -24,6 +25,8 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
   const [posting, setPosting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editBody, setEditBody] = useState("");
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!accessToken) return;
@@ -73,14 +76,18 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
     }
   }
 
-  async function onDelete(commentId: string) {
-    if (!accessToken || !confirm("Supprimer ce commentaire ?")) return;
+  async function confirmDelete() {
+    if (!accessToken || !pendingDeleteId) return;
+    setDeleting(true);
     try {
-      await api.deleteTaskComment(accessToken, commentId);
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
+      await api.deleteTaskComment(accessToken, pendingDeleteId);
+      setComments((prev) => prev.filter((c) => c.id !== pendingDeleteId));
+      setPendingDeleteId(null);
       toast.success("Commentaire supprimé.");
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Suppression impossible");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -154,7 +161,7 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
                     {canDelete && (
                       <button
                         type="button"
-                        onClick={() => void onDelete(c.id)}
+                        onClick={() => setPendingDeleteId(c.id)}
                         className="text-[11px] text-red-600 hover:underline"
                       >
                         Supprimer
@@ -189,6 +196,17 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
           {posting ? "Envoi…" : "Publier"}
         </button>
       </form>
+
+      <ConfirmDialog
+        open={pendingDeleteId !== null}
+        title="Supprimer ce commentaire ?"
+        description="Cette action est définitive."
+        confirmLabel="Supprimer"
+        danger
+        busy={deleting}
+        onCancel={() => setPendingDeleteId(null)}
+        onConfirm={() => void confirmDelete()}
+      />
     </section>
   );
 }
