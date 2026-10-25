@@ -26,6 +26,8 @@ test("login → dashboard → Kanban projet", async ({ page }) => {
   await page.getByRole("link", { name: "Kanban", exact: true }).click();
   await expect(page).toHaveURL(/\/projects\/[^/]+\/tasks$/);
   await expect(page.getByRole("heading", { name: "Kanban" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /À faire/ })).toBeVisible();
-  await expect(page.getByText("API auth JWT")).toBeVisible();
+  await expect(page.getByRole("heading", { name: /En cours/ })).toBeVisible();
+  await expect(
+    page.getByRole("listitem", { name: /API auth JWT/ }),
+  ).toBeVisible();
 });

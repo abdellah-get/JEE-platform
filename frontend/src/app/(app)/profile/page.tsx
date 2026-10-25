@@ -91,7 +91,7 @@ export default function ProfilePage() {
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-zinc-500">
           Identité
         </h2>
-        <form onSubmit={onSaveProfile} className="space-y-4">
+        <form onSubmit={onSaveProfile} className="space-y-4" noValidate>
           <div className="grid grid-cols-2 gap-3">
             <Field
               id="firstName"
@@ -99,6 +99,8 @@ export default function ProfilePage() {
               value={firstName}
               onChange={setFirstName}
               required
+              describedBy={profileError ? "profile-error" : undefined}
+              invalid={!!profileError}
             />
             <Field
               id="lastName"
@@ -106,6 +108,8 @@ export default function ProfilePage() {
               value={lastName}
               onChange={setLastName}
               required
+              describedBy={profileError ? "profile-error" : undefined}
+              invalid={!!profileError}
             />
           </div>
           <p className="text-sm text-zinc-600">
@@ -116,7 +120,11 @@ export default function ProfilePage() {
           </p>
 
           {profileError ? (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p
+              id="profile-error"
+              role="alert"
+              className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+            >
               {profileError}
             </p>
           ) : null}
@@ -135,7 +143,7 @@ export default function ProfilePage() {
         <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-zinc-500">
           Mot de passe
         </h2>
-        <form onSubmit={onChangePassword} className="space-y-4">
+        <form onSubmit={onChangePassword} className="space-y-4" noValidate>
           <Field
             id="currentPassword"
             label="Mot de passe actuel"
@@ -144,6 +152,8 @@ export default function ProfilePage() {
             onChange={setCurrentPassword}
             autoComplete="current-password"
             required
+            describedBy={passwordError ? "password-error" : undefined}
+            invalid={!!passwordError}
           />
           <Field
             id="newPassword"
@@ -154,10 +164,16 @@ export default function ProfilePage() {
             autoComplete="new-password"
             required
             minLength={8}
+            describedBy={passwordError ? "password-error" : undefined}
+            invalid={!!passwordError}
           />
 
           {passwordError ? (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p
+              id="password-error"
+              role="alert"
+              className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+            >
               {passwordError}
             </p>
           ) : null}

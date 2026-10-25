@@ -53,7 +53,7 @@ function LoginForm() {
       title="Connexion"
       subtitle="Accède à la plateforme d’avancement JEE."
     >
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <Field
           id="email"
           label="Email"
@@ -62,6 +62,8 @@ function LoginForm() {
           onChange={setEmail}
           autoComplete="email"
           required
+          describedBy={error ? "login-error" : undefined}
+          invalid={!!error}
         />
         <Field
           id="password"
@@ -71,10 +73,16 @@ function LoginForm() {
           onChange={setPassword}
           autoComplete="current-password"
           required
+          describedBy={error ? "login-error" : undefined}
+          invalid={!!error}
         />
 
         {error ? (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p
+            id="login-error"
+            role="alert"
+            className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+          >
             {error}
           </p>
         ) : null}

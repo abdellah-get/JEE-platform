@@ -71,7 +71,7 @@ export default function RegisterPage() {
           </Link>
         </div>
       ) : (
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4" noValidate>
           <div className="grid grid-cols-2 gap-3">
             <Field
               id="firstName"
@@ -80,6 +80,8 @@ export default function RegisterPage() {
               onChange={setFirstName}
               autoComplete="given-name"
               required
+              describedBy={error ? "register-error" : undefined}
+              invalid={!!error}
             />
             <Field
               id="lastName"
@@ -88,6 +90,8 @@ export default function RegisterPage() {
               onChange={setLastName}
               autoComplete="family-name"
               required
+              describedBy={error ? "register-error" : undefined}
+              invalid={!!error}
             />
           </div>
           <Field
@@ -98,6 +102,8 @@ export default function RegisterPage() {
             onChange={setEmail}
             autoComplete="email"
             required
+            describedBy={error ? "register-error" : undefined}
+            invalid={!!error}
           />
           <Field
             id="password"
@@ -108,10 +114,16 @@ export default function RegisterPage() {
             autoComplete="new-password"
             required
             minLength={8}
+            describedBy={error ? "register-error" : undefined}
+            invalid={!!error}
           />
 
           {error ? (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p
+              id="register-error"
+              role="alert"
+              className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+            >
               {error}
             </p>
           ) : null}

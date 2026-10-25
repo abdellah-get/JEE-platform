@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, KeyboardEvent, useEffect, useMemo, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
 import { DueBadge } from "@/components/tasks/DueBadge";
@@ -197,6 +197,44 @@ export default function ProjectTasksPage() {
     await persistColumnOrder(status, next, tasks);
   }
 
+  /** Clavier : flèches gauche/droite = colonne, haut/bas = ordre dans la colonne. */
+  async function onTaskKeyDown(e: KeyboardEvent, task: Task) {
+    const colIndex = TASK_COLUMNS.findIndex((c) => c.status === task.status);
+    if (colIndex < 0) return;
+
+    if (e.key === "ArrowRight" && colIndex < TASK_COLUMNS.length - 1) {
+      e.preventDefault();
+      await moveTaskToColumn(task, TASK_COLUMNS[colIndex + 1].status);
+      return;
+    }
+    if (e.key === "ArrowLeft" && colIndex > 0) {
+      e.preventDefault();
+      await moveTaskToColumn(task, TASK_COLUMNS[colIndex - 1].status);
+      return;
+    }
+
+    const columnIds = byStatus[task.status].map((t) => t.id);
+    const idx = columnIds.indexOf(task.id);
+    if (idx < 0) return;
+
+    if (e.key === "ArrowUp" && idx > 0) {
+      e.preventDefault();
+      const next = [...columnIds];
+      [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
+      await persistColumnOrder(task.status, next, tasks);
+      return;
+    }
+    if (e.key === "ArrowDown" && idx < columnIds.length - 1) {
+      e.preventDefault();
+      const next = [...columnIds];
+      [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
+      await persistColumnOrder(task.status, next, tasks);
+    }
+  }
+
+  const allowDelete =
+    !!user && canDeleteTask(user.clubRole, project.myRole);
+
   async function onDelete(taskId: string) {
     setError(null);
     try {
@@ -277,8 +315,8 @@ export default function ProjectTasksPage() {
           </Link>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight">Kanban</h1>
           <p className="mt-1 text-sm text-zinc-600">
-            Avancement : {project.progressPercent}% · glisser pour réordonner ·
-            cliquer pour éditer
+            Avancement : {project.progressPercent}% · glisser ou flèches clavier
+            pour déplacer · cliquer pour éditer
           </p>
         </div>
       </div>
@@ -372,6 +410,7 @@ export default function ProjectTasksPage() {
         {TASK_COLUMNS.map((col) => (
           <section
             key={col.status}
+            aria-label={`Colonne ${col.label}`}
             className="w-[min(85vw,20rem)] shrink-0 rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 md:w-auto md:shrink"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
@@ -392,6 +431,18 @@ export default function ProjectTasksPage() {
                 <li
                   key={task.id}
                   draggable
+                  tabIndex={0}
+                  aria-label={`${task.title}. ${col.label}. Flèches pour déplacer.`}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "ArrowLeft" ||
+                      e.key === "ArrowRight" ||
+                      e.key === "ArrowUp" ||
+                      e.key === "ArrowDown"
+                    ) {
+                      void onTaskKeyDown(e, task);
+                    }
+                  }}
                   onDragStart={(e) => {
                     e.dataTransfer.setData("text/task-id", task.id);
                     e.dataTransfer.effectAllowed = "move";
@@ -407,7 +458,7 @@ export default function ProjectTasksPage() {
                     const dragged = tasks.find((t) => t.id === taskId);
                     if (dragged) void moveTaskBefore(dragged, task);
                   }}
-                  className="cursor-grab rounded-lg border border-zinc-200 bg-white p-3 shadow-sm active:cursor-grabbing"
+                  className="cursor-grab rounded-lg border border-zinc-200 bg-white p-3 shadow-sm outline-none ring-zinc-900 focus-visible:ring-2 active:cursor-grabbing"
                 >
                   <button
                     type="button"
@@ -439,7 +490,11 @@ export default function ProjectTasksPage() {
                     </p>
                   </button>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <label className="sr-only" htmlFor={`assign-${task.id}`}>
+                      Assigné
+                    </label>
                     <select
+                      id={`assign-${task.id}`}
                       value={task.assigneeId ?? ""}
                       onChange={(e) => onAssign(task, e.target.value)}
                       className="max-w-full flex-1 rounded border border-zinc-200 px-1.5 py-1 text-xs"
@@ -451,13 +506,15 @@ export default function ProjectTasksPage() {
                         </option>
                       ))}
                     </select>
-                    <button
-                      type="button"
-                      onClick={() => onDelete(task.id)}
-                      className="text-xs text-red-600 hover:underline"
-                    >
-                      Suppr.
-                    </button>
+                    {allowDelete ? (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(task.id)}
+                        className="text-xs text-red-600 hover:underline"
+                      >
+                        Suppr.
+                      </button>
+                    ) : null}
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1">
                     {TASK_COLUMNS.filter((c) => c.status !== task.status).map((c) => (
@@ -465,6 +522,7 @@ export default function ProjectTasksPage() {
                         key={c.status}
                         type="button"
                         onClick={() => void moveTaskToColumn(task, c.status)}
+                        aria-label={`Vers ${c.label}`}
                         className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-700 hover:bg-zinc-200"
                       >
                         → {c.label}
@@ -487,7 +545,7 @@ export default function ProjectTasksPage() {
           canModerateComments={
             !!user && canManageProject(user.clubRole, project.myRole)
           }
-          canDelete={!!user && canDeleteTask(user.clubRole, project.myRole)}
+          canDelete={allowDelete}
           onClose={() => {
             setSelectedTaskId(null);
             setPanelError(null);

@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
           </Link>
         </div>
       ) : (
-        <form onSubmit={onSubmit} className="space-y-4">
+        <form onSubmit={onSubmit} className="space-y-4" noValidate>
           <Field
             id="email"
             label="Email"
@@ -53,12 +53,8 @@ export default function ForgotPasswordPage() {
             onChange={setEmail}
             autoComplete="email"
             required
+            error={error}
           />
-          {error ? (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
-              {error}
-            </p>
-          ) : null}
           <button
             type="submit"
             disabled={submitting}
