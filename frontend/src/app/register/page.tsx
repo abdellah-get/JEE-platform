@@ -50,7 +50,7 @@ export default function RegisterPage() {
 
   if (loading || user) {
     return (
-      <main className="min-h-screen flex items-center justify-center text-sm text-zinc-500">
+      <main className="min-h-screen flex items-center justify-center text-sm text-muted">
         Chargement…
       </main>
     );
@@ -62,7 +62,7 @@ export default function RegisterPage() {
       subtitle="Crée ton compte membre JEE ENSEM (email @ensem.ac.ma ou domaine autorisé)."
     >
       {pendingMessage ? (
-        <div className="space-y-4 text-sm text-zinc-700">
+        <div className="space-y-4 text-sm text-ink/80">
           <p className="rounded-lg bg-emerald-50 px-3 py-2 text-emerald-900">
             {pendingMessage}
           </p>
@@ -122,7 +122,7 @@ export default function RegisterPage() {
             <p
               id="register-error"
               role="alert"
-              className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+              className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger"
             >
               {error}
             </p>
@@ -131,7 +131,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
+            className="btn btn-primary w-full"
           >
             {submitting ? "Création…" : "Créer mon compte"}
           </button>
@@ -139,9 +139,9 @@ export default function RegisterPage() {
       )}
 
       {!pendingMessage ? (
-        <p className="mt-4 text-center text-sm text-zinc-600">
+        <p className="mt-4 text-center text-sm text-muted">
           Déjà inscrit ?{" "}
-          <Link href="/login" className="font-medium text-zinc-900 underline">
+          <Link href="/login" className="font-medium text-ink underline">
             Se connecter
           </Link>
         </p>

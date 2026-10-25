@@ -93,25 +93,25 @@ export function NotificationBell() {
         type="button"
         onClick={() => void toggle()}
         aria-label={count > 0 ? `${count} notifications non lues` : "Notifications"}
-        className="relative rounded-lg border border-zinc-300 px-2.5 py-1.5 text-sm hover:bg-zinc-50"
+        className="btn btn-secondary relative px-2.5 py-1.5"
       >
         Notifs
         {count > 0 && (
-          <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold text-white">
+          <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[10px] font-semibold text-white">
             {count > 99 ? "99+" : count}
           </span>
         )}
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] rounded-xl border border-zinc-200 bg-white shadow-lg">
-          <div className="flex items-center justify-between border-b border-zinc-100 px-3 py-2">
-            <p className="text-sm font-semibold text-zinc-900">Notifications</p>
+        <div className="absolute right-0 z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] surface-quiet shadow-lg">
+          <div className="flex items-center justify-between border-b border-line px-3 py-2">
+            <p className="text-sm font-semibold text-ink">Notifications</p>
             {count > 0 && (
               <button
                 type="button"
                 onClick={() => void onMarkAll()}
-                className="text-xs text-zinc-600 hover:underline"
+                className="text-xs text-muted hover:underline"
               >
                 Tout lu
               </button>
@@ -119,26 +119,26 @@ export function NotificationBell() {
           </div>
           <div className="max-h-80 overflow-y-auto">
             {loading ? (
-              <p className="px-3 py-4 text-sm text-zinc-500">Chargement…</p>
+              <p className="px-3 py-4 text-sm text-muted">Chargement…</p>
             ) : items.length === 0 ? (
-              <p className="px-3 py-4 text-sm text-zinc-500">Aucune notification.</p>
+              <p className="px-3 py-4 text-sm text-muted">Aucune notification.</p>
             ) : (
               <ul>
                 {items.map((n) => (
-                  <li key={n.id} className="border-b border-zinc-50 last:border-0">
+                  <li key={n.id} className="border-b border-line last:border-0">
                     {n.link ? (
                       <Link
                         href={n.link}
                         onClick={() => void onOpenItem(n)}
-                        className={`block px-3 py-2.5 hover:bg-zinc-50 ${
-                          n.read ? "" : "bg-amber-50/60"
+                        className={`block px-3 py-2.5 hover:bg-paper ${
+                          n.read ? "" : "bg-warning-soft/60"
                         }`}
                       >
-                        <p className="text-sm font-medium text-zinc-900">{n.title}</p>
+                        <p className="text-sm font-medium text-ink">{n.title}</p>
                         {n.body && (
-                          <p className="mt-0.5 line-clamp-2 text-xs text-zinc-600">{n.body}</p>
+                          <p className="mt-0.5 line-clamp-2 text-xs text-muted">{n.body}</p>
                         )}
-                        <p className="mt-1 text-[11px] text-zinc-400">
+                        <p className="mt-1 text-[11px] text-muted/80">
                           {new Date(n.createdAt).toLocaleString("fr-FR")}
                         </p>
                       </Link>
@@ -146,13 +146,13 @@ export function NotificationBell() {
                       <button
                         type="button"
                         onClick={() => void onOpenItem(n)}
-                        className={`block w-full px-3 py-2.5 text-left hover:bg-zinc-50 ${
-                          n.read ? "" : "bg-amber-50/60"
+                        className={`block w-full px-3 py-2.5 text-left hover:bg-paper ${
+                          n.read ? "" : "bg-warning-soft/60"
                         }`}
                       >
-                        <p className="text-sm font-medium text-zinc-900">{n.title}</p>
+                        <p className="text-sm font-medium text-ink">{n.title}</p>
                         {n.body && (
-                          <p className="mt-0.5 line-clamp-2 text-xs text-zinc-600">{n.body}</p>
+                          <p className="mt-0.5 line-clamp-2 text-xs text-muted">{n.body}</p>
                         )}
                       </button>
                     )}
@@ -161,11 +161,11 @@ export function NotificationBell() {
               </ul>
             )}
           </div>
-          <div className="border-t border-zinc-100 px-3 py-2">
+          <div className="border-t border-line px-3 py-2">
             <Link
               href="/notifications"
               onClick={() => setOpen(false)}
-              className="text-xs font-medium text-zinc-700 underline"
+              className="text-xs font-medium text-ink/80 underline"
             >
               Voir tout
             </Link>

@@ -29,8 +29,8 @@ export default function NewAnnouncementPage() {
   if (!canAccessAdmin(user.clubRole)) {
     return (
       <div className="mx-auto max-w-xl space-y-3">
-        <h1 className="text-2xl font-semibold tracking-tight">Accès refusé</h1>
-        <p className="text-sm text-zinc-600">Seul le bureau peut publier.</p>
+        <h1 className="page-title">Accès refusé</h1>
+        <p className="text-sm text-muted">Seul le bureau peut publier.</p>
         <Link href="/announcements" className="text-sm underline">
           Retour
         </Link>
@@ -63,16 +63,16 @@ export default function NewAnnouncementPage() {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div>
-        <Link href="/announcements" className="text-sm text-zinc-500 hover:text-zinc-800">
+        <Link href="/announcements" className="text-sm text-muted hover:text-ink">
           ← Annonces
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Nouvelle annonce</h1>
+        <h1 className="mt-2 page-title">Nouvelle annonce</h1>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-zinc-200 bg-white p-5">
+      <form onSubmit={onSubmit} className="space-y-4 surface-quiet p-5">
         <Field id="title" label="Titre" value={title} onChange={setTitle} required />
         <div>
-          <label htmlFor="body" className="mb-1 block text-sm font-medium text-zinc-700">
+          <label htmlFor="body" className="mb-1 block text-sm font-medium text-ink/80">
             Contenu
           </label>
           <textarea
@@ -81,10 +81,10 @@ export default function NewAnnouncementPage() {
             rows={6}
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+            className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-line0"
           />
         </div>
-        <label className="flex items-center gap-2 text-sm text-zinc-700">
+        <label className="flex items-center gap-2 text-sm text-ink/80">
           <input
             type="checkbox"
             checked={pinned}
@@ -96,7 +96,7 @@ export default function NewAnnouncementPage() {
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
+          className="btn btn-primary"
         >
           {saving ? "Publication…" : "Publier"}
         </button>

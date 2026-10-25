@@ -76,11 +76,11 @@ export default function AdminMembersPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <Link href="/admin" className="text-sm text-zinc-500 hover:text-zinc-800">
+        <Link href="/admin" className="text-sm text-muted hover:text-ink">
           ← Admin
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Membres</h1>
-        <p className="mt-1 text-sm text-zinc-600">
+        <h1 className="mt-2 page-title">Membres</h1>
+        <p className="mt-1 text-sm text-muted">
           Active ou désactive les comptes. Les inscriptions en attente
           d&apos;approbation apparaissent comme <em>Inactif</em> — clique{" "}
           <strong>Activer</strong> pour les valider.
@@ -88,7 +88,7 @@ export default function AdminMembersPage() {
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -98,7 +98,7 @@ export default function AdminMembersPage() {
       ) : users.length === 0 ? (
         <EmptyState title="Aucun membre" description="Aucun compte enregistré." />
       ) : (
-        <ul className="divide-y divide-zinc-100 rounded-xl border border-zinc-200 bg-white">
+        <ul className="divide-y divide-line surface-quiet">
           {users.map((u) => (
             <li
               key={u.userId}
@@ -108,12 +108,12 @@ export default function AdminMembersPage() {
                 <p className="text-sm font-medium">
                   {u.firstName} {u.lastName}
                   {!u.active && (
-                    <span className="ml-2 rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
+                    <span className="ml-2 rounded-full bg-warning-soft px-2 py-0.5 text-xs text-warning">
                       En attente / inactif
                     </span>
                   )}
                 </p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-xs text-muted">
                   {u.email} · {u.clubRole}
                 </p>
               </div>
@@ -121,7 +121,7 @@ export default function AdminMembersPage() {
                 type="button"
                 disabled={busyId === u.userId || u.userId === user.userId}
                 onClick={() => toggleActive(u)}
-                className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50 disabled:opacity-50"
+                className="rounded-lg border border-line px-3 py-1.5 text-sm hover:bg-paper disabled:opacity-50"
               >
                 {busyId === u.userId
                   ? "…"

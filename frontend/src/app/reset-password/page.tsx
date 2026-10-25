@@ -84,7 +84,7 @@ function ResetPasswordForm() {
           <p
             id="reset-error"
             role="alert"
-            className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+            className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger"
           >
             {error}
           </p>
@@ -98,13 +98,13 @@ function ResetPasswordForm() {
         <button
           type="submit"
           disabled={submitting || !token}
-          className="w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
+          className="btn btn-primary w-full"
         >
           {submitting ? "Enregistrement…" : "Enregistrer"}
         </button>
         <Link
           href="/login"
-          className="block text-center text-sm text-zinc-600 hover:text-zinc-900"
+          className="block text-center text-sm text-muted hover:text-ink"
         >
           Retour à la connexion
         </Link>
@@ -117,7 +117,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen flex items-center justify-center text-sm text-zinc-500">
+        <main className="min-h-screen flex items-center justify-center text-sm text-muted">
           Chargement…
         </main>
       }

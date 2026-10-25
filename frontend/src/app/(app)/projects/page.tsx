@@ -49,8 +49,9 @@ export default function ProjectsPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Projets</h1>
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="section-label">Club</p>
+          <h1 className="page-title mt-1">Projets</h1>
+          <p className="page-subtitle">
             {showCreate
               ? "Tous les projets du club."
               : "Projets auxquels tu es affecté."}
@@ -59,7 +60,7 @@ export default function ProjectsPage() {
         {showCreate && (
           <Link
             href="/projects/new"
-            className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+            className="btn btn-primary"
           >
             Nouveau projet
           </Link>
@@ -67,7 +68,7 @@ export default function ProjectsPage() {
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -86,7 +87,7 @@ export default function ProjectsPage() {
             showCreate ? (
               <Link
                 href="/projects/new"
-                className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white"
+                className="btn btn-primary"
               >
                 Nouveau projet
               </Link>
@@ -99,22 +100,22 @@ export default function ProjectsPage() {
             <li key={project.id}>
               <Link
                 href={`/projects/${project.id}`}
-                className="block rounded-xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm"
+                className="block surface-quiet p-4 transition hover:border-line hover:shadow-sm"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-medium text-zinc-900">{project.name}</p>
+                    <p className="font-medium text-ink">{project.name}</p>
                     {project.description && (
-                      <p className="mt-1 line-clamp-2 text-sm text-zinc-600">
+                      <p className="mt-1 line-clamp-2 text-sm text-muted">
                         {project.description}
                       </p>
                     )}
                   </div>
-                  <span className="shrink-0 rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-700">
+                  <span className="shrink-0 rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-medium text-ink/80">
                     {statusLabel(project.status)}
                   </span>
                 </div>
-                <div className="mt-3 flex items-center justify-between gap-3 text-xs text-zinc-500">
+                <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted">
                   <span>Ton rôle : {roleLabel(project.myRole)}</span>
                   <span>{project.progressPercent}% fait</span>
                 </div>

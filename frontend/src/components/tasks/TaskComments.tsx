@@ -85,26 +85,26 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
   }
 
   return (
-    <section className="space-y-3 border-t border-zinc-100 pt-4">
-      <h3 className="text-sm font-semibold text-zinc-900">
+    <section className="space-y-3 border-t border-line pt-4">
+      <h3 className="text-sm font-semibold text-ink">
         Commentaires{" "}
-        <span className="font-normal text-zinc-500">({comments.length})</span>
+        <span className="font-normal text-muted">({comments.length})</span>
       </h3>
 
       {busy ? (
         <LoadingBlock label="Chargement…" />
       ) : comments.length === 0 ? (
-        <p className="text-xs text-zinc-500">Aucun commentaire pour l’instant.</p>
+        <p className="text-xs text-muted">Aucun commentaire pour l’instant.</p>
       ) : (
         <ul className="space-y-3">
           {comments.map((c) => {
             const isAuthor = user?.userId === c.authorId;
             const canDelete = isAuthor || canModerate;
             return (
-              <li key={c.id} className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2">
+              <li key={c.id} className="rounded-lg border border-line bg-paper/80 px-3 py-2">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <p className="text-xs font-medium text-zinc-800">{c.authorName}</p>
-                  <p className="text-[11px] text-zinc-500">
+                  <p className="text-xs font-medium text-ink">{c.authorName}</p>
+                  <p className="text-[11px] text-muted">
                     {new Date(c.createdAt).toLocaleString("fr-FR")}
                   </p>
                 </div>
@@ -115,27 +115,27 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
                       onChange={(e) => setEditBody(e.target.value)}
                       rows={3}
                       maxLength={4000}
-                      className="w-full rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm"
+                      className="w-full rounded-lg border border-line bg-white px-2 py-1.5 text-sm"
                     />
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => void onSaveEdit(c.id)}
-                        className="rounded bg-zinc-900 px-2 py-1 text-xs text-white"
+                        className="rounded bg-brand px-2 py-1 text-xs text-white"
                       >
                         Enregistrer
                       </button>
                       <button
                         type="button"
                         onClick={() => setEditingId(null)}
-                        className="text-xs text-zinc-600 hover:underline"
+                        className="text-xs text-muted hover:underline"
                       >
                         Annuler
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-800">{c.body}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-ink">{c.body}</p>
                 )}
                 {editingId !== c.id && (isAuthor || canDelete) && (
                   <div className="mt-1.5 flex gap-3">
@@ -146,7 +146,7 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
                           setEditingId(c.id);
                           setEditBody(c.body);
                         }}
-                        className="text-[11px] text-zinc-600 hover:underline"
+                        className="text-[11px] text-muted hover:underline"
                       >
                         Modifier
                       </button>
@@ -170,7 +170,7 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
 
       <form onSubmit={onPost} className="space-y-2">
         <label className="block space-y-1" htmlFor="new-comment">
-          <span className="text-xs font-medium text-zinc-700">Ajouter un commentaire</span>
+          <span className="text-xs font-medium text-ink/80">Ajouter un commentaire</span>
           <textarea
             id="new-comment"
             value={body}
@@ -178,13 +178,13 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
             rows={3}
             maxLength={4000}
             placeholder="Répondre à l’équipe…"
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm outline-none ring-zinc-900 focus:ring-2"
+            className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none ring-brand focus:ring-2"
           />
         </label>
         <button
           type="submit"
           disabled={posting || !body.trim()}
-          className="rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
+          className="btn btn-primary text-xs"
         >
           {posting ? "Envoi…" : "Publier"}
         </button>

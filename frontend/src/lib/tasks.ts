@@ -65,11 +65,11 @@ export function dueDateClassName(
   dueDate: string | null | undefined,
   status?: TaskStatus,
 ): string {
-  if (!dueDate) return "text-zinc-500";
+  if (!dueDate) return "text-muted";
   const urgency = dueUrgency(dueDate, status);
   if (urgency === "overdue") return "font-medium text-red-600";
   if (urgency === "due-soon") return "font-medium text-amber-700";
-  return "text-zinc-600";
+  return "text-muted";
 }
 
 /**

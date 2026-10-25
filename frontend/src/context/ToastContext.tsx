@@ -56,10 +56,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             key={toast.id}
             className={`pointer-events-auto w-full max-w-sm rounded-lg px-4 py-3 text-sm shadow-lg ${
               toast.kind === "success"
-                ? "bg-emerald-800 text-white"
+                ? "bg-success text-white"
                 : toast.kind === "error"
-                  ? "bg-red-700 text-white"
-                  : "bg-zinc-900 text-white"
+                  ? "bg-danger text-white"
+                  : "bg-brand text-white"
             }`}
           >
             {toast.message}

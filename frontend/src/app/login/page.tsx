@@ -42,7 +42,7 @@ function LoginForm() {
 
   if (loading || user) {
     return (
-      <main className="min-h-screen flex items-center justify-center text-sm text-zinc-500">
+      <main className="min-h-screen flex items-center justify-center text-sm text-muted">
         Chargement…
       </main>
     );
@@ -81,7 +81,7 @@ function LoginForm() {
           <p
             id="login-error"
             role="alert"
-            className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+            className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger"
           >
             {error}
           </p>
@@ -90,19 +90,19 @@ function LoginForm() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
+          className="btn btn-primary w-full"
         >
           {submitting ? "Connexion…" : "Se connecter"}
         </button>
       </form>
 
-      <div className="mt-4 flex flex-col gap-2 text-center text-sm text-zinc-600">
-        <Link href="/forgot-password" className="hover:text-zinc-900">
+      <div className="mt-4 flex flex-col gap-2 text-center text-sm text-muted">
+        <Link href="/forgot-password" className="hover:text-ink">
           Mot de passe oublié ?
         </Link>
         <p>
           Pas de compte ?{" "}
-          <Link href="/register" className="font-medium text-zinc-900 underline">
+          <Link href="/register" className="font-medium text-ink underline">
             S’inscrire
           </Link>
         </p>
@@ -115,7 +115,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen flex items-center justify-center text-sm text-zinc-500">
+        <main className="min-h-screen flex items-center justify-center text-sm text-muted">
           Chargement…
         </main>
       }
