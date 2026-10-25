@@ -47,6 +47,7 @@ Repo → **Settings** → **Code security** → Dependabot alerts + Dependabot s
 | **Rate-limit auth** | `POST` login / register / forgot-password : 20 req / IP / endpoint / 60 s (configurable). Réponse `429` + `Retry-After`. |
 | **Refresh silencieux** | Sur `401` API (hors `/auth/**`) : un `POST /auth/refresh` puis retry. Échec → clear session + redirect `/login`. Single-flight (pas de boucle). |
 | **Refresh stocké + rotation** | Chaque refresh JWT est hashé (SHA-256) en base (`refresh_tokens`). Un refresh réussi révoque l’ancien et en émet un nouveau. Logout révoque le cookie courant. |
+| **Change / reset MDP** | `POST /me/password` et `POST /auth/reset-password` révoquent **tous** les refresh tokens de l’utilisateur (sessions restantes coupées). L’access JWT en cours expire naturellement (TTL 30 min). |
 
 Variables : `AUTH_RATE_LIMIT_ENABLED`, `AUTH_RATE_LIMIT_MAX`, `AUTH_RATE_LIMIT_WINDOW_SECONDS`.
 

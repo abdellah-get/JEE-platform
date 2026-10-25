@@ -56,6 +56,9 @@ class MeControllerTest {
 				.andReturn();
 
 		String token = JsonPath.read(register.getResponse().getContentAsString(), "$.accessToken");
+		String refreshCookie = register.getResponse()
+				.getCookie(ma.ensem.jee.platform.auth.AuthService.REFRESH_COOKIE)
+				.getValue();
 
 		mockMvc.perform(get("/api/v1/me").header("Authorization", "Bearer " + token))
 				.andExpect(status().isOk())
@@ -81,6 +84,12 @@ class MeControllerTest {
 						}
 						""".formatted(password)))
 				.andExpect(status().isNoContent());
+
+		// Change password revokes all refresh sessions
+		mockMvc.perform(post("/api/v1/auth/refresh")
+				.cookie(new jakarta.servlet.http.Cookie(
+						ma.ensem.jee.platform.auth.AuthService.REFRESH_COOKIE, refreshCookie)))
+				.andExpect(status().isUnauthorized());
 
 		mockMvc.perform(post("/api/v1/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)

@@ -1,10 +1,13 @@
 package ma.ensem.jee.platform.user;
 
+import java.time.Instant;
+
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ma.ensem.jee.platform.auth.RefreshTokenRepository;
 import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
 import ma.ensem.jee.platform.user.dto.ChangePasswordRequest;
@@ -15,10 +18,15 @@ import ma.ensem.jee.platform.user.dto.UpdateProfileRequest;
 public class MeService {
 
 	private final UserRepository userRepository;
+	private final RefreshTokenRepository refreshTokenRepository;
 	private final PasswordEncoder passwordEncoder;
 
-	public MeService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+	public MeService(
+			UserRepository userRepository,
+			RefreshTokenRepository refreshTokenRepository,
+			PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
+		this.refreshTokenRepository = refreshTokenRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -42,7 +50,8 @@ public class MeService {
 			throw new BadCredentialsException("Mot de passe actuel incorrect");
 		}
 		user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
-		userRepository.save(user);
+		userRepository.saveAndFlush(user);
+		refreshTokenRepository.revokeAllForUser(user.getId(), Instant.now());
 	}
 
 	private User loadCurrentUser() {
