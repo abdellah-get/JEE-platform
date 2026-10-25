@@ -29,12 +29,13 @@ export function Field({
   invalid,
 }: FieldProps) {
   const errorId = error ? `${id}-error` : undefined;
-  const describedByIds = [describedBy, errorId].filter(Boolean).join(" ") || undefined;
+  const describedByIds =
+    [describedBy, errorId].filter(Boolean).join(" ") || undefined;
   const isInvalid = Boolean(invalid || error);
 
   return (
     <label className="block space-y-1.5" htmlFor={id}>
-      <span className="text-sm font-medium text-zinc-700">{label}</span>
+      <span className="text-sm font-semibold text-ink">{label}</span>
       <input
         id={id}
         type={type}
@@ -45,12 +46,10 @@ export function Field({
         minLength={minLength}
         aria-invalid={isInvalid || undefined}
         aria-describedby={describedByIds}
-        className={`w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none ring-zinc-900 focus:ring-2 ${
-          isInvalid ? "border-red-400" : "border-zinc-300"
-        }`}
+        className="input-field"
       />
       {error ? (
-        <span id={errorId} role="alert" className="block text-sm text-red-700">
+        <span id={errorId} role="alert" className="block text-sm text-danger">
           {error}
         </span>
       ) : null}

@@ -72,11 +72,11 @@ export default function ProjectDetailPage() {
   if (error) {
     return (
       <div className="mx-auto max-w-3xl space-y-3">
-        <Link href="/projects" className="text-sm text-zinc-500 hover:text-zinc-800">
+        <Link href="/projects" className="text-sm text-muted hover:text-ink">
           ← Projets
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">Accès impossible</h1>
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <h1 className="page-title">Accès impossible</h1>
+        <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       </div>
@@ -92,26 +92,26 @@ export default function ProjectDetailPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <Link href="/projects" className="text-sm text-zinc-500 hover:text-zinc-800">
+        <Link href="/projects" className="text-sm text-muted hover:text-ink">
           ← Projets
         </Link>
         <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight">{project.name}</h1>
-            <p className="mt-1 text-sm text-zinc-600">
+            <h1 className="page-title">{project.name}</h1>
+            <p className="mt-1 text-sm text-muted">
               Rôle : {roleLabel(project.myRole)} · Avancement {project.progressPercent}%
             </p>
           </div>
-          <span className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-700">
+          <span className="rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-medium text-ink/80">
             {statusLabel(project.status)}
           </span>
         </div>
       </div>
 
       {project.description && (
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
-          <p className="text-sm text-zinc-500">Description</p>
-          <p className="mt-1 whitespace-pre-wrap text-sm text-zinc-800">
+        <div className="surface-quiet p-5">
+          <p className="text-sm text-muted">Description</p>
+          <p className="mt-1 whitespace-pre-wrap text-sm text-ink">
             {project.description}
           </p>
         </div>
@@ -120,47 +120,47 @@ export default function ProjectDetailPage() {
       <div className="flex flex-wrap gap-2">
         <Link
           href={`/projects/${project.id}/tasks`}
-          className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+          className="btn btn-primary"
         >
           Kanban
         </Link>
         <Link
           href={`/projects/${project.id}/team`}
-          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium hover:bg-zinc-50"
+          className="btn btn-secondary"
         >
           Équipe ({members.length})
         </Link>
         {manage && (
           <Link
             href={`/projects/${project.id}/settings`}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium hover:bg-zinc-50"
+            className="btn btn-secondary"
           >
             Paramètres
           </Link>
         )}
       </div>
 
-      <div className="rounded-xl border border-zinc-200 bg-white p-5">
-        <h2 className="text-sm font-semibold text-zinc-900">Membres</h2>
+      <div className="surface-quiet p-5">
+        <h2 className="text-sm font-semibold text-ink">Membres</h2>
         {members.length === 0 ? (
-          <p className="mt-2 text-sm text-zinc-600">Aucun membre pour l’instant.</p>
+          <p className="mt-2 text-sm text-muted">Aucun membre pour l’instant.</p>
         ) : (
-          <ul className="mt-3 divide-y divide-zinc-100">
+          <ul className="mt-3 divide-y divide-line">
             {members.map((m) => (
               <li key={m.userId} className="flex items-center justify-between py-2 text-sm">
                 <span>
                   {m.firstName} {m.lastName}
-                  <span className="ml-2 text-zinc-500">{m.email}</span>
+                  <span className="ml-2 text-muted">{m.email}</span>
                 </span>
-                <span className="text-xs text-zinc-600">{roleLabel(m.role)}</span>
+                <span className="text-xs text-muted">{roleLabel(m.role)}</span>
               </li>
             ))}
           </ul>
         )}
       </div>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-5" aria-label="Fil d’activité">
-        <h2 className="text-sm font-semibold text-zinc-900">Activité récente</h2>
+      <section className="surface-quiet p-5" aria-label="Fil d’activité">
+        <h2 className="text-sm font-semibold text-ink">Activité récente</h2>
         {activity.length === 0 ? (
           <EmptyState
             compact
@@ -170,9 +170,9 @@ export default function ProjectDetailPage() {
         ) : (
           <ul className="mt-3 space-y-3">
             {activity.map((item) => (
-              <li key={item.id} className="border-l-2 border-zinc-200 pl-3 text-sm">
-                <p className="text-zinc-800">{item.message}</p>
-                <p className="mt-0.5 text-xs text-zinc-500">
+              <li key={item.id} className="border-l-2 border-line pl-3 text-sm">
+                <p className="text-ink">{item.message}</p>
+                <p className="mt-0.5 text-xs text-muted">
                   {formatActivityTime(item.createdAt)}
                 </p>
               </li>

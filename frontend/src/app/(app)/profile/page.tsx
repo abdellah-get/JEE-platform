@@ -81,14 +81,14 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-xl space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Profil</h1>
-        <p className="text-sm text-zinc-600">
+        <h1 className="page-title">Profil</h1>
+        <p className="text-sm text-muted">
           Mets à jour tes infos ou ton mot de passe.
         </p>
       </div>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-5">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+      <section className="surface-quiet p-5">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">
           Identité
         </h2>
         <form onSubmit={onSaveProfile} className="space-y-4" noValidate>
@@ -112,18 +112,18 @@ export default function ProfilePage() {
               invalid={!!profileError}
             />
           </div>
-          <p className="text-sm text-zinc-600">
-            <span className="text-zinc-500">Email :</span> {user.email}
+          <p className="text-sm text-muted">
+            <span className="text-muted">Email :</span> {user.email}
           </p>
-          <p className="text-sm text-zinc-600">
-            <span className="text-zinc-500">Rôle :</span> {user.clubRole}
+          <p className="text-sm text-muted">
+            <span className="text-muted">Rôle :</span> {user.clubRole}
           </p>
 
           {profileError ? (
             <p
               id="profile-error"
               role="alert"
-              className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+              className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger"
             >
               {profileError}
             </p>
@@ -132,15 +132,15 @@ export default function ProfilePage() {
           <button
             type="submit"
             disabled={savingProfile}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
+            className="btn btn-primary"
           >
             {savingProfile ? "Enregistrement…" : "Enregistrer"}
           </button>
         </form>
       </section>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-5">
-        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+      <section className="surface-quiet p-5">
+        <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted">
           Mot de passe
         </h2>
         <form onSubmit={onChangePassword} className="space-y-4" noValidate>
@@ -172,7 +172,7 @@ export default function ProfilePage() {
             <p
               id="password-error"
               role="alert"
-              className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700"
+              className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger"
             >
               {passwordError}
             </p>
@@ -181,7 +181,7 @@ export default function ProfilePage() {
           <button
             type="submit"
             disabled={savingPassword}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
+            className="btn btn-primary"
           >
             {savingPassword ? "Modification…" : "Changer le mot de passe"}
           </button>

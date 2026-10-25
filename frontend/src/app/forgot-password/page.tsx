@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
       subtitle="Indique ton email pour recevoir un lien de réinitialisation."
     >
       {sent ? (
-        <div className="space-y-4 text-sm text-zinc-700">
+        <div className="space-y-4 text-sm text-ink/80">
           <p className="rounded-lg bg-emerald-50 px-3 py-2 text-emerald-900">
             Si un compte existe pour <strong>{email}</strong>, un email avec un
             lien de réinitialisation a été envoyé (valide 1 h). En local, le
@@ -58,13 +58,13 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
+            className="btn btn-primary w-full"
           >
             {submitting ? "Envoi…" : "Envoyer le lien"}
           </button>
           <Link
             href="/login"
-            className="block text-center text-sm text-zinc-600 hover:text-zinc-900"
+            className="block text-center text-sm text-muted hover:text-ink"
           >
             Retour
           </Link>

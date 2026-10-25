@@ -62,7 +62,7 @@ export default function DashboardPage() {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white"
+            className="btn btn-primary"
           >
             Réessayer
           </button>
@@ -79,11 +79,12 @@ export default function DashboardPage() {
   const isBureau = user.clubRole === "BUREAU" || user.clubRole === "ADMIN_TECH";
 
   return (
-    <div className="mx-auto max-w-4xl space-y-8">
+    <div className="mx-auto max-w-5xl space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="mt-1 text-sm text-zinc-600">
+          <p className="section-label">Vue d&apos;ensemble</p>
+          <h1 className="page-title mt-1">Dashboard</h1>
+          <p className="page-subtitle">
             Bonjour {user.firstName}. Vue {user.clubRole.toLowerCase()}.
           </p>
         </div>
@@ -92,7 +93,7 @@ export default function DashboardPage() {
             type="button"
             onClick={handleExport}
             disabled={exporting}
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-50 disabled:opacity-60"
+            className="btn btn-secondary"
           >
             {exporting ? "Export…" : "Exporter CSV"}
           </button>
@@ -101,18 +102,16 @@ export default function DashboardPage() {
 
       {data.pinnedAnnouncements.length > 0 && (
         <section className="space-y-3">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-amber-800">
-            Annonces urgentes
-          </h2>
+          <h2 className="section-label">Annonces urgentes</h2>
           <ul className="space-y-2">
             {data.pinnedAnnouncements.map((a) => (
               <li key={a.id}>
                 <Link
                   href={`/announcements/${a.id}`}
-                  className="block rounded-xl border border-amber-300 bg-amber-50 p-4 hover:shadow-sm"
+                  className="block rounded-xl border border-warning/40 bg-warning-soft p-4 hover:shadow-sm"
                 >
-                  <p className="font-medium text-zinc-900">{a.title}</p>
-                  <p className="mt-1 line-clamp-2 text-sm text-zinc-700">{a.body}</p>
+                  <p className="font-medium text-ink">{a.title}</p>
+                  <p className="mt-1 line-clamp-2 text-sm text-ink/80">{a.body}</p>
                 </Link>
               </li>
             ))}
@@ -132,47 +131,49 @@ export default function DashboardPage() {
             ].map(([label, value]) => (
               <div
                 key={String(label)}
-                className="rounded-xl border border-zinc-200 bg-white px-4 py-3"
+                className="surface-quiet px-4 py-3"
               >
-                <p className="text-xs text-zinc-500">{label}</p>
-                <p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p>
+                <p className="text-xs text-muted">{label}</p>
+                <p className="mt-1 text-2xl font-bold tracking-tight text-brand">
+                  {value}
+                </p>
               </div>
             ))}
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3 sm:col-span-2 lg:col-span-1">
-              <p className="text-xs text-zinc-500">Projets par statut</p>
+            <div className="surface-quiet px-4 py-3 sm:col-span-2 lg:col-span-1">
+              <p className="text-xs text-muted">Projets par statut</p>
               <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                 <div className="flex justify-between gap-2">
-                  <dt className="text-zinc-500">Brouillon</dt>
+                  <dt className="text-muted">Brouillon</dt>
                   <dd className="font-medium">{kpis.projectsBrouillon}</dd>
                 </div>
                 <div className="flex justify-between gap-2">
-                  <dt className="text-zinc-500">Actif</dt>
+                  <dt className="text-muted">Actif</dt>
                   <dd className="font-medium">{kpis.projectsActif}</dd>
                 </div>
                 <div className="flex justify-between gap-2">
-                  <dt className="text-zinc-500">Terminé</dt>
+                  <dt className="text-muted">Terminé</dt>
                   <dd className="font-medium">{kpis.projectsTermine}</dd>
                 </div>
                 <div className="flex justify-between gap-2">
-                  <dt className="text-zinc-500">Archivé</dt>
+                  <dt className="text-muted">Archivé</dt>
                   <dd className="font-medium">{kpis.projectsArchive}</dd>
                 </div>
               </dl>
             </div>
-            <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-              <p className="text-xs text-zinc-500">Avancement moyen</p>
-              <p className="mt-1 text-2xl font-semibold tracking-tight">
+            <div className="surface-quiet px-4 py-3">
+              <p className="text-xs text-muted">Avancement moyen</p>
+              <p className="mt-1 page-title">
                 {kpis.averageProgressPercent}%
               </p>
             </div>
-            <div className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-              <p className="text-xs text-zinc-500">Tâches en retard</p>
+            <div className="surface-quiet px-4 py-3">
+              <p className="text-xs text-muted">Tâches en retard</p>
               <p
-                className={`mt-1 text-2xl font-semibold tracking-tight ${
-                  kpis.overdueTasks > 0 ? "text-red-700" : ""
+                className={`mt-1 page-title ${
+                  kpis.overdueTasks > 0 ? "text-danger" : ""
                 }`}
               >
                 {kpis.overdueTasks}
@@ -183,9 +184,9 @@ export default function DashboardPage() {
       )}
 
       <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
+        <div className="surface-quiet p-5">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-zinc-900">Mes projets</h2>
+            <h2 className="text-sm font-semibold text-ink">Mes projets</h2>
             <Link href="/projects" className="text-xs font-medium underline">
               Tout voir
             </Link>
@@ -207,10 +208,10 @@ export default function DashboardPage() {
                 <li key={p.id}>
                   <Link
                     href={`/projects/${p.id}`}
-                    className="flex items-center justify-between rounded-lg px-2 py-2 text-sm hover:bg-zinc-50"
+                    className="flex items-center justify-between rounded-lg px-2 py-2 text-sm hover:bg-paper"
                   >
                     <span className="font-medium">{p.name}</span>
-                    <span className="text-xs text-zinc-500">
+                    <span className="text-xs text-muted">
                       {statusLabel(p.status)} · {p.progressPercent}%
                     </span>
                   </Link>
@@ -220,9 +221,9 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
+        <div className="surface-quiet p-5">
           <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-zinc-900">Mes tâches ouvertes</h2>
+            <h2 className="text-sm font-semibold text-ink">Mes tâches ouvertes</h2>
             <Link href="/tasks" className="text-xs font-medium underline">
               Tout voir
             </Link>
@@ -244,13 +245,13 @@ export default function DashboardPage() {
                 <li key={t.id}>
                   <Link
                     href={`/projects/${t.projectId}/tasks`}
-                    className="block rounded-lg px-2 py-2 text-sm hover:bg-zinc-50"
+                    className="block rounded-lg px-2 py-2 text-sm hover:bg-paper"
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-medium">{t.title}</p>
                       <DueBadge dueDate={t.dueDate} status={t.status} />
                     </div>
-                    <p className="text-xs text-zinc-500">
+                    <p className="text-xs text-muted">
                       {t.projectName} · {taskStatusLabel(t.status)} ·{" "}
                       {priorityLabel(t.priority)}
                       {t.dueDate ? (

@@ -69,10 +69,10 @@ export default function ProjectTeamPage() {
   if (error) {
     return (
       <div className="mx-auto max-w-3xl space-y-3">
-        <Link href="/projects" className="text-sm text-zinc-500 hover:text-zinc-800">
+        <Link href="/projects" className="text-sm text-muted hover:text-ink">
           ← Projets
         </Link>
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       </div>
@@ -134,23 +134,23 @@ export default function ProjectTeamPage() {
       <div>
         <Link
           href={`/projects/${project.id}`}
-          className="text-sm text-zinc-500 hover:text-zinc-800"
+          className="text-sm text-muted hover:text-ink"
         >
           ← {project.name}
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Équipe</h1>
-        <p className="mt-1 text-sm text-zinc-600">
+        <h1 className="mt-2 page-title">Équipe</h1>
+        <p className="mt-1 text-sm text-muted">
           {manage
             ? "Ajoute ou retire des membres, un seul chef de projet."
             : "Lecture seule — seul le chef ou le bureau peut modifier."}
         </p>
       </div>
 
-      <form onSubmit={onSave} className="space-y-4 rounded-xl border border-zinc-200 bg-white p-5">
+      <form onSubmit={onSave} className="space-y-4 surface-quiet p-5">
         {draft.length === 0 ? (
-          <p className="text-sm text-zinc-600">Aucun membre.</p>
+          <p className="text-sm text-muted">Aucun membre.</p>
         ) : (
-          <ul className="divide-y divide-zinc-100">
+          <ul className="divide-y divide-line">
             {draft.map((m) => {
               const u = userMap.get(m.userId);
               return (
@@ -162,7 +162,7 @@ export default function ProjectTeamPage() {
                     <p className="font-medium">
                       {u ? `${u.firstName} ${u.lastName}` : m.userId}
                     </p>
-                    <p className="text-zinc-500">{u?.email}</p>
+                    <p className="text-muted">{u?.email}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {manage ? (
@@ -172,7 +172,7 @@ export default function ProjectTeamPage() {
                           onChange={(e) =>
                             setRole(m.userId, e.target.value as ProjectRole)
                           }
-                          className="rounded-lg border border-zinc-300 px-2 py-1 text-sm"
+                          className="rounded-lg border border-line px-2 py-1 text-sm"
                         >
                           <option value="CHEF_PROJET">Chef de projet</option>
                           <option value="CONTRIBUTEUR">Contributeur</option>
@@ -186,7 +186,7 @@ export default function ProjectTeamPage() {
                         </button>
                       </>
                     ) : (
-                      <span className="text-xs text-zinc-600">{roleLabel(m.role)}</span>
+                      <span className="text-xs text-muted">{roleLabel(m.role)}</span>
                     )}
                   </div>
                 </li>
@@ -196,11 +196,11 @@ export default function ProjectTeamPage() {
         )}
 
         {manage && (
-          <div className="flex flex-wrap gap-2 border-t border-zinc-100 pt-4">
+          <div className="flex flex-wrap gap-2 border-t border-line pt-4">
             <select
               value={addUserId}
               onChange={(e) => setAddUserId(e.target.value)}
-              className="min-w-[220px] flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="min-w-[220px] flex-1 rounded-lg border border-line px-3 py-2 text-sm"
             >
               <option value="">Ajouter un membre…</option>
               {available.map((u) => (
@@ -213,7 +213,7 @@ export default function ProjectTeamPage() {
               type="button"
               onClick={addMember}
               disabled={!addUserId}
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium hover:bg-zinc-50 disabled:opacity-50"
+              className="rounded-lg border border-line px-3 py-2 text-sm font-medium hover:bg-paper disabled:opacity-50"
             >
               Ajouter
             </button>
@@ -227,7 +227,7 @@ export default function ProjectTeamPage() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
+            className="btn btn-primary"
           >
             {saving ? "Enregistrement…" : "Enregistrer l’équipe"}
           </button>

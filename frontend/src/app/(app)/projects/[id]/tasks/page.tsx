@@ -98,7 +98,7 @@ export default function ProjectTasksPage() {
   if (error && !project) {
     return (
       <div className="mx-auto max-w-5xl space-y-3">
-        <Link href="/projects" className="text-sm text-zinc-500 hover:text-zinc-800">
+        <Link href="/projects" className="text-sm text-muted hover:text-ink">
           ← Projets
         </Link>
         <EmptyState title="Kanban indisponible" description={error} />
@@ -309,12 +309,12 @@ export default function ProjectTasksPage() {
         <div>
           <Link
             href={`/projects/${project.id}`}
-            className="text-sm text-zinc-500 hover:text-zinc-800"
+            className="text-sm text-muted hover:text-ink"
           >
             ← {project.name}
           </Link>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight">Kanban</h1>
-          <p className="mt-1 text-sm text-zinc-600">
+          <h1 className="mt-2 page-title">Kanban</h1>
+          <p className="mt-1 text-sm text-muted">
             Avancement : {project.progressPercent}% · glisser ou flèches clavier
             pour déplacer · cliquer pour éditer
           </p>
@@ -323,7 +323,7 @@ export default function ProjectTasksPage() {
 
       <form
         onSubmit={onCreate}
-        className="space-y-3 rounded-xl border border-zinc-200 bg-white p-4"
+        className="space-y-3 surface-quiet p-4"
       >
         <div className="flex flex-wrap items-end gap-2">
           <div className="min-w-[200px] flex-1">
@@ -336,11 +336,11 @@ export default function ProjectTasksPage() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-700">Priorité</label>
+            <label className="mb-1 block text-sm font-medium text-ink/80">Priorité</label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as TaskPriority)}
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="rounded-lg border border-line px-3 py-2 text-sm"
             >
               <option value="LOW">Basse</option>
               <option value="MEDIUM">Moyenne</option>
@@ -348,20 +348,20 @@ export default function ProjectTasksPage() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-700">Échéance</label>
+            <label className="mb-1 block text-sm font-medium text-ink/80">Échéance</label>
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="rounded-lg border border-line px-3 py-2 text-sm"
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-zinc-700">Assigné</label>
+            <label className="mb-1 block text-sm font-medium text-ink/80">Assigné</label>
             <select
               value={assigneeId}
               onChange={(e) => setAssigneeId(e.target.value)}
-              className="rounded-lg border border-zinc-300 px-3 py-2 text-sm"
+              className="rounded-lg border border-line px-3 py-2 text-sm"
             >
               <option value="">—</option>
               {members.map((m) => (
@@ -374,13 +374,13 @@ export default function ProjectTasksPage() {
           <button
             type="submit"
             disabled={creating || !title.trim()}
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
+            className="btn btn-primary"
           >
             {creating ? "…" : "Ajouter"}
           </button>
         </div>
         <label className="block space-y-1.5" htmlFor="task-description">
-          <span className="text-sm font-medium text-zinc-700">Description (optionnel)</span>
+          <span className="text-sm font-medium text-ink/80">Description (optionnel)</span>
           <textarea
             id="task-description"
             value={description}
@@ -388,13 +388,13 @@ export default function ProjectTasksPage() {
             rows={2}
             maxLength={4000}
             placeholder="Contexte court…"
-            className="w-full resize-y rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm outline-none ring-zinc-900 focus:ring-2"
+            className="w-full resize-y rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none ring-brand focus:ring-2"
           />
         </label>
       </form>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -411,7 +411,7 @@ export default function ProjectTasksPage() {
           <section
             key={col.status}
             aria-label={`Colonne ${col.label}`}
-            className="w-[min(85vw,20rem)] shrink-0 rounded-xl border border-zinc-200 bg-zinc-50/80 p-3 md:w-auto md:shrink"
+            className="w-[min(85vw,20rem)] shrink-0 rounded-xl border border-line bg-brand-mist/80 p-3 md:w-auto md:shrink"
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
@@ -420,9 +420,9 @@ export default function ProjectTasksPage() {
               if (task) void moveTaskToColumn(task, col.status);
             }}
           >
-            <h2 className="mb-3 px-1 text-sm font-semibold text-zinc-800">
+            <h2 className="mb-3 px-1 text-sm font-semibold text-ink">
               {col.label}{" "}
-              <span className="font-normal text-zinc-500">
+              <span className="font-normal text-muted">
                 ({byStatus[col.status].length})
               </span>
             </h2>
@@ -458,7 +458,7 @@ export default function ProjectTasksPage() {
                     const dragged = tasks.find((t) => t.id === taskId);
                     if (dragged) void moveTaskBefore(dragged, task);
                   }}
-                  className="cursor-grab rounded-lg border border-zinc-200 bg-white p-3 shadow-sm outline-none ring-zinc-900 focus-visible:ring-2 active:cursor-grabbing"
+                  className="cursor-grab rounded-lg border border-line bg-white p-3 shadow-sm outline-none ring-brand focus-visible:ring-2 active:cursor-grabbing"
                 >
                   <button
                     type="button"
@@ -469,15 +469,15 @@ export default function ProjectTasksPage() {
                     className="w-full text-left"
                   >
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <p className="text-sm font-medium text-zinc-900">{task.title}</p>
+                      <p className="text-sm font-medium text-ink">{task.title}</p>
                       <DueBadge dueDate={task.dueDate} status={task.status} />
                     </div>
                     {task.description && (
-                      <p className="mt-1 line-clamp-2 text-xs text-zinc-500">
+                      <p className="mt-1 line-clamp-2 text-xs text-muted">
                         {task.description}
                       </p>
                     )}
-                    <p className="mt-1 text-xs text-zinc-500">
+                    <p className="mt-1 text-xs text-muted">
                       {priorityLabel(task.priority)}
                       {task.dueDate ? (
                         <>
@@ -497,7 +497,7 @@ export default function ProjectTasksPage() {
                       id={`assign-${task.id}`}
                       value={task.assigneeId ?? ""}
                       onChange={(e) => onAssign(task, e.target.value)}
-                      className="max-w-full flex-1 rounded border border-zinc-200 px-1.5 py-1 text-xs"
+                      className="max-w-full flex-1 rounded border border-line px-1.5 py-1 text-xs"
                     >
                       <option value="">Non assigné</option>
                       {members.map((m) => (
@@ -523,7 +523,7 @@ export default function ProjectTasksPage() {
                         type="button"
                         onClick={() => void moveTaskToColumn(task, c.status)}
                         aria-label={`Vers ${c.label}`}
-                        className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-700 hover:bg-zinc-200"
+                        className="rounded bg-brand-soft px-1.5 py-0.5 text-[11px] text-ink/80 hover:bg-brand-soft"
                       >
                         → {c.label}
                       </button>

@@ -1,22 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "JEE Platform — ENSEM",
+  title: "ESEM Platform — Junior-Entreprise",
   description:
-    "Plateforme d'avancement de projets de la Junior Entreprise ENSEM",
+    "Plateforme d'avancement de projets de ESEM Engineering Junior-Entreprise",
 };
 
 export default function RootLayout({
@@ -26,9 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${manrope.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

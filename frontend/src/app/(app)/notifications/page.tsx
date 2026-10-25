@@ -61,8 +61,8 @@ export default function NotificationsPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Notifications</h1>
-          <p className="mt-1 text-sm text-zinc-600">
+          <h1 className="page-title">Notifications</h1>
+          <p className="mt-1 text-sm text-muted">
             Assignations et annonces urgentes.
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function NotificationsPage() {
           <button
             type="button"
             onClick={() => void markAll()}
-            className="rounded-lg border border-zinc-300 px-3 py-1.5 text-sm hover:bg-zinc-50"
+            className="rounded-lg border border-line px-3 py-1.5 text-sm hover:bg-paper"
           >
             Tout marquer lu
           </button>
@@ -78,7 +78,7 @@ export default function NotificationsPage() {
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -91,15 +91,15 @@ export default function NotificationsPage() {
           description="Tu seras prévenu lors d’une assignation ou d’une annonce épinglée."
         />
       ) : (
-        <ul className="divide-y divide-zinc-100 rounded-xl border border-zinc-200 bg-white">
+        <ul className="divide-y divide-line surface-quiet">
           {items.map((n) => (
             <li key={n.id}>
               {n.link ? (
                 <Link
                   href={n.link}
                   onClick={() => void openItem(n)}
-                  className={`block px-4 py-3 hover:bg-zinc-50 ${
-                    n.read ? "" : "bg-amber-50/50"
+                  className={`block px-4 py-3 hover:bg-paper ${
+                    n.read ? "" : "bg-warning-soft/50"
                   }`}
                 >
                   <NotificationRow n={n} />
@@ -108,8 +108,8 @@ export default function NotificationsPage() {
                 <button
                   type="button"
                   onClick={() => void openItem(n)}
-                  className={`block w-full px-4 py-3 text-left hover:bg-zinc-50 ${
-                    n.read ? "" : "bg-amber-50/50"
+                  className={`block w-full px-4 py-3 text-left hover:bg-paper ${
+                    n.read ? "" : "bg-warning-soft/50"
                   }`}
                 >
                   <NotificationRow n={n} />
@@ -127,15 +127,15 @@ function NotificationRow({ n }: { n: AppNotification }) {
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        <p className="text-sm font-medium text-zinc-900">{n.title}</p>
+        <p className="text-sm font-medium text-ink">{n.title}</p>
         {!n.read && (
           <span className="rounded-full bg-amber-200 px-2 py-0.5 text-[10px] font-medium text-amber-900">
             Nouveau
           </span>
         )}
       </div>
-      {n.body && <p className="mt-1 text-sm text-zinc-600">{n.body}</p>}
-      <p className="mt-1 text-xs text-zinc-400">
+      {n.body && <p className="mt-1 text-sm text-muted">{n.body}</p>}
+      <p className="mt-1 text-xs text-muted/80">
         {new Date(n.createdAt).toLocaleString("fr-FR")}
       </p>
     </>

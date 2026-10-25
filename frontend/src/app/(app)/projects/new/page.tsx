@@ -40,11 +40,11 @@ export default function NewProjectPage() {
   if (!canCreateProject(user.clubRole)) {
     return (
       <div className="mx-auto max-w-xl space-y-3">
-        <h1 className="text-2xl font-semibold tracking-tight">Accès refusé</h1>
-        <p className="text-sm text-zinc-600">
+        <h1 className="page-title">Accès refusé</h1>
+        <p className="text-sm text-muted">
           Seul le bureau peut créer un projet.
         </p>
-        <Link href="/projects" className="text-sm font-medium text-zinc-900 underline">
+        <Link href="/projects" className="text-sm font-medium text-ink underline">
           Retour aux projets
         </Link>
       </div>
@@ -77,13 +77,13 @@ export default function NewProjectPage() {
   return (
     <div className="mx-auto max-w-xl space-y-6">
       <div>
-        <Link href="/projects" className="text-sm text-zinc-500 hover:text-zinc-800">
+        <Link href="/projects" className="text-sm text-muted hover:text-ink">
           ← Projets
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Nouveau projet</h1>
+        <h1 className="mt-2 page-title">Nouveau projet</h1>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-zinc-200 bg-white p-5">
+      <form onSubmit={onSubmit} className="space-y-4 surface-quiet p-5">
         <Field
           id="name"
           label="Nom"
@@ -92,7 +92,7 @@ export default function NewProjectPage() {
           required
         />
         <div>
-          <label htmlFor="description" className="mb-1 block text-sm font-medium text-zinc-700">
+          <label htmlFor="description" className="mb-1 block text-sm font-medium text-ink/80">
             Description
           </label>
           <textarea
@@ -100,18 +100,18 @@ export default function NewProjectPage() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+            className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-line0"
           />
         </div>
         <div>
-          <label htmlFor="status" className="mb-1 block text-sm font-medium text-zinc-700">
+          <label htmlFor="status" className="mb-1 block text-sm font-medium text-ink/80">
             Statut
           </label>
           <select
             id="status"
             value={status}
             onChange={(e) => setStatus(e.target.value as ProjectStatus)}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+            className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-line0"
           >
             {PROJECT_STATUSES.map((s) => (
               <option key={s} value={s}>
@@ -121,14 +121,14 @@ export default function NewProjectPage() {
           </select>
         </div>
         <div>
-          <label htmlFor="chef" className="mb-1 block text-sm font-medium text-zinc-700">
+          <label htmlFor="chef" className="mb-1 block text-sm font-medium text-ink/80">
             Chef de projet (optionnel)
           </label>
           <select
             id="chef"
             value={chefUserId}
             onChange={(e) => setChefUserId(e.target.value)}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+            className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-line0"
           >
             <option value="">— À désigner plus tard —</option>
             {users.map((u) => (
@@ -144,7 +144,7 @@ export default function NewProjectPage() {
         <button
           type="submit"
           disabled={saving || !name.trim()}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
+          className="btn btn-primary"
         >
           {saving ? "Création…" : "Créer le projet"}
         </button>

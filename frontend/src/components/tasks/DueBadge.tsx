@@ -15,8 +15,8 @@ export function DueBadge({ dueDate, status, showDate = false }: Props) {
   const label = urgency === "overdue" ? "En retard" : "Bientôt";
   const className =
     urgency === "overdue"
-      ? "bg-red-100 text-red-800"
-      : "bg-amber-100 text-amber-900";
+      ? "bg-danger/10 text-danger"
+      : "bg-warning-soft text-warning";
 
   return (
     <span

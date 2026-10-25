@@ -57,10 +57,10 @@ export default function ProjectSettingsPage() {
   if (error && !project) {
     return (
       <div className="mx-auto max-w-xl space-y-3">
-        <Link href="/projects" className="text-sm text-zinc-500 hover:text-zinc-800">
+        <Link href="/projects" className="text-sm text-muted hover:text-ink">
           ← Projets
         </Link>
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       </div>
@@ -76,12 +76,12 @@ export default function ProjectSettingsPage() {
       <div className="mx-auto max-w-xl space-y-3">
         <Link
           href={`/projects/${project.id}`}
-          className="text-sm text-zinc-500 hover:text-zinc-800"
+          className="text-sm text-muted hover:text-ink"
         >
           ← {project.name}
         </Link>
-        <h1 className="text-2xl font-semibold tracking-tight">Accès refusé</h1>
-        <p className="text-sm text-zinc-600">
+        <h1 className="page-title">Accès refusé</h1>
+        <p className="text-sm text-muted">
           Seul le chef de projet ou le bureau peut modifier les paramètres.
         </p>
       </div>
@@ -114,14 +114,14 @@ export default function ProjectSettingsPage() {
       <div>
         <Link
           href={`/projects/${project.id}`}
-          className="text-sm text-zinc-500 hover:text-zinc-800"
+          className="text-sm text-muted hover:text-ink"
         >
           ← {project.name}
         </Link>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight">Paramètres</h1>
+        <h1 className="mt-2 page-title">Paramètres</h1>
       </div>
 
-      <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-zinc-200 bg-white p-5">
+      <form onSubmit={onSubmit} className="space-y-4 surface-quiet p-5">
         <Field
           id="name"
           label="Nom"
@@ -130,7 +130,7 @@ export default function ProjectSettingsPage() {
           required
         />
         <div>
-          <label htmlFor="description" className="mb-1 block text-sm font-medium text-zinc-700">
+          <label htmlFor="description" className="mb-1 block text-sm font-medium text-ink/80">
             Description
           </label>
           <textarea
@@ -138,18 +138,18 @@ export default function ProjectSettingsPage() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+            className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-line0"
           />
         </div>
         <div>
-          <label htmlFor="status" className="mb-1 block text-sm font-medium text-zinc-700">
+          <label htmlFor="status" className="mb-1 block text-sm font-medium text-ink/80">
             Statut
           </label>
           <select
             id="status"
             value={status}
             onChange={(e) => setStatus(e.target.value as ProjectStatus)}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+            className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-line0"
           >
             {PROJECT_STATUSES.map((s) => (
               <option key={s} value={s}>
@@ -165,7 +165,7 @@ export default function ProjectSettingsPage() {
         <button
           type="submit"
           disabled={saving || !name.trim()}
-          className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
+          className="btn btn-primary"
         >
           {saving ? "Enregistrement…" : "Enregistrer"}
         </button>

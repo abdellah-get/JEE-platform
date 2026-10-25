@@ -66,17 +66,17 @@ export default function MyTasksPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Mes tâches</h1>
-        <p className="mt-1 text-sm text-zinc-600">
+        <h1 className="page-title">Mes tâches</h1>
+        <p className="mt-1 text-sm text-muted">
           Tâches qui te sont assignées, tous projets confondus.
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2 rounded-xl border border-zinc-200 bg-white p-3">
+      <div className="flex flex-wrap gap-2 surface-quiet p-3">
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as TaskStatus | "")}
-          className="rounded-lg border border-zinc-300 px-2 py-1.5 text-sm"
+          className="rounded-lg border border-line px-2 py-1.5 text-sm"
         >
           <option value="">Tous statuts</option>
           <option value="TODO">À faire</option>
@@ -86,7 +86,7 @@ export default function MyTasksPage() {
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value as TaskPriority | "")}
-          className="rounded-lg border border-zinc-300 px-2 py-1.5 text-sm"
+          className="rounded-lg border border-line px-2 py-1.5 text-sm"
         >
           <option value="">Toutes priorités</option>
           <option value="LOW">Basse</option>
@@ -96,7 +96,7 @@ export default function MyTasksPage() {
         <select
           value={projectId}
           onChange={(e) => setProjectId(e.target.value)}
-          className="min-w-[160px] flex-1 rounded-lg border border-zinc-300 px-2 py-1.5 text-sm"
+          className="min-w-[160px] flex-1 rounded-lg border border-line px-2 py-1.5 text-sm"
         >
           <option value="">Tous projets</option>
           {projects.map((p) => (
@@ -108,7 +108,7 @@ export default function MyTasksPage() {
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
         </p>
       )}
@@ -122,28 +122,28 @@ export default function MyTasksPage() {
           action={
             <Link
               href="/projects"
-              className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white"
+              className="btn btn-primary"
             >
               Voir les projets
             </Link>
           }
         />
       ) : (
-        <ul className="divide-y divide-zinc-100 rounded-xl border border-zinc-200 bg-white">
+        <ul className="divide-y divide-line surface-quiet">
           {tasks.map((task) => (
             <li key={task.id} className="px-4 py-3">
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-medium text-zinc-900">{task.title}</p>
+                    <p className="text-sm font-medium text-ink">{task.title}</p>
                     <DueBadge dueDate={task.dueDate} status={task.status} />
                   </div>
                   {task.description && (
-                    <p className="mt-1 line-clamp-2 text-xs text-zinc-500">
+                    <p className="mt-1 line-clamp-2 text-xs text-muted">
                       {task.description}
                     </p>
                   )}
-                  <p className="mt-0.5 text-xs text-zinc-500">
+                  <p className="mt-0.5 text-xs text-muted">
                     {taskStatusLabel(task.status)} · {priorityLabel(task.priority)}
                     {task.dueDate ? (
                       <>
@@ -157,7 +157,7 @@ export default function MyTasksPage() {
                 </div>
                 <Link
                   href={`/projects/${task.projectId}/tasks`}
-                  className="text-xs font-medium text-zinc-700 underline"
+                  className="text-xs font-medium text-ink/80 underline"
                 >
                   {task.projectName}
                 </Link>
