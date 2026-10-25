@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import ma.ensem.jee.platform.project.dto.CreateProjectRequest;
+import ma.ensem.jee.platform.project.dto.ProjectActivityResponse;
 import ma.ensem.jee.platform.project.dto.ProjectMemberResponse;
 import ma.ensem.jee.platform.project.dto.ProjectResponse;
 import ma.ensem.jee.platform.project.dto.ReplaceMembersRequest;
@@ -62,5 +63,10 @@ public class ProjectController {
 			@PathVariable UUID projectId,
 			@Valid @RequestBody ReplaceMembersRequest request) {
 		return projectService.replaceMembers(projectId, request);
+	}
+
+	@GetMapping("/{projectId}/activity")
+	public List<ProjectActivityResponse> listActivity(@PathVariable UUID projectId) {
+		return projectService.listActivity(projectId);
 	}
 }

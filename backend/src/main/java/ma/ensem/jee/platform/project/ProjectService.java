@@ -16,6 +16,7 @@ import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
 import ma.ensem.jee.platform.project.dto.CreateProjectRequest;
+import ma.ensem.jee.platform.project.dto.ProjectActivityResponse;
 import ma.ensem.jee.platform.project.dto.ProjectMemberRequest;
 import ma.ensem.jee.platform.project.dto.ProjectMemberResponse;
 import ma.ensem.jee.platform.project.dto.ProjectResponse;
@@ -30,16 +31,19 @@ public class ProjectService {
 	private final ProjectRepository projectRepository;
 	private final ProjectMemberRepository projectMemberRepository;
 	private final ProjectAccessService accessService;
+	private final ProjectActivityService activityService;
 	private final UserRepository userRepository;
 
 	public ProjectService(
 			ProjectRepository projectRepository,
 			ProjectMemberRepository projectMemberRepository,
 			ProjectAccessService accessService,
+			ProjectActivityService activityService,
 			UserRepository userRepository) {
 		this.projectRepository = projectRepository;
 		this.projectMemberRepository = projectMemberRepository;
 		this.accessService = accessService;
+		this.activityService = activityService;
 		this.userRepository = userRepository;
 	}
 
@@ -124,6 +128,10 @@ public class ProjectService {
 		List<ProjectMemberRequest> members = request.members() != null ? request.members() : List.of();
 		validateMembers(members);
 
+		List<ProjectMember> previous = projectMemberRepository.findByProjectIdOrderByJoinedAtAsc(projectId);
+		Set<UUID> previousIds = previous.stream().map(ProjectMember::getUserId).collect(Collectors.toSet());
+		Set<UUID> nextIds = members.stream().map(ProjectMemberRequest::userId).collect(Collectors.toSet());
+
 		projectMemberRepository.deleteByProjectId(projectId);
 		projectMemberRepository.flush();
 
@@ -132,7 +140,32 @@ public class ProjectService {
 			saved.add(projectMemberRepository.save(
 					new ProjectMember(projectId, member.userId(), member.role())));
 		}
+
+		for (ProjectMemberRequest member : members) {
+			if (!previousIds.contains(member.userId())) {
+				User added = userRepository.findById(member.userId()).orElse(null);
+				String name = added != null
+						? added.getFirstName() + " " + added.getLastName()
+						: "membre";
+				activityService.recordMemberAdded(projectId, current.getId(), name, member.role());
+			}
+		}
+		for (ProjectMember old : previous) {
+			if (!nextIds.contains(old.getUserId())) {
+				User removed = userRepository.findById(old.getUserId()).orElse(null);
+				String name = removed != null
+						? removed.getFirstName() + " " + removed.getLastName()
+						: "membre";
+				activityService.recordMemberRemoved(projectId, current.getId(), name);
+			}
+		}
+
 		return toMemberResponses(saved);
+	}
+
+	@Transactional(readOnly = true)
+	public List<ProjectActivityResponse> listActivity(UUID projectId) {
+		return activityService.list(projectId);
 	}
 
 	private void validateMembers(List<ProjectMemberRequest> members) {

@@ -76,6 +76,24 @@ export type ProjectMember = {
   joinedAt: string;
 };
 
+export type ProjectActivityType =
+  | "TASK_CREATED"
+  | "TASK_STATUS_CHANGED"
+  | "TASK_DELETED"
+  | "MEMBER_ADDED"
+  | "MEMBER_REMOVED";
+
+export type ProjectActivity = {
+  id: string;
+  projectId: string;
+  actorUserId: string;
+  actorName: string;
+  type: ProjectActivityType;
+  message: string;
+  taskId: string | null;
+  createdAt: string;
+};
+
 export type UserSummary = {
   userId: string;
   email: string;

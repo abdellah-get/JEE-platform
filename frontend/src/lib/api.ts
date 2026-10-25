@@ -12,6 +12,7 @@ import type {
   ClubRole,
   Dashboard,
   Project,
+  ProjectActivity,
   ProjectMember,
   ProjectRole,
   ProjectStatus,
@@ -301,6 +302,14 @@ export function replaceProjectMembers(
   return apiFetch<ProjectMember[]>(
     `/api/v1/projects/${projectId}/members`,
     { method: "PUT", body: JSON.stringify({ members }) },
+    accessToken,
+  );
+}
+
+export function listProjectActivity(accessToken: string, projectId: string) {
+  return apiFetch<ProjectActivity[]>(
+    `/api/v1/projects/${projectId}/activity`,
+    { method: "GET" },
     accessToken,
   );
 }

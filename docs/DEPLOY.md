@@ -19,6 +19,7 @@ Au démarrage, Flyway applique **toutes** les migrations présentes :
 | **V6** | `task_comments` |
 | **V7** | `notifications` |
 | **V8** | `refresh_tokens` |
+| **V9** | `project_activities` |
 
 Fichiers : `backend/src/main/resources/db/migration/`.
 

@@ -54,6 +54,7 @@ Rôles **projet** (sur l’équipe) : `CHEF_PROJET` / `CONTRIBUTEUR` — le chef
    Badges « En retard » / « Bientôt » (échéance ≤ 3 jours) sur dashboard, Mes tâches et Kanban.  
    Commentaires : ouvrir une carte → section en bas du panneau (membres du projet).  
    **Supprimer** une tâche : réservé au chef de projet ou au bureau (le contributeur peut créer / éditer / déplacer).  
+   **Fil d’activité** sur la fiche projet : créations / déplacements / suppressions de tâches et ajouts / retraits d’équipe.  
    Dashboard bureau : projets par statut, avancement moyen, tâches en retard ; bouton **Exporter CSV** pour un suivi AG / hebdo.
 
 4. **Annonce urgente**  
