@@ -53,8 +53,20 @@ Repo → **Settings** → **Code security** → Dependabot alerts + Dependabot s
 | **Security headers** | `X-Content-Type-Options`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY` (sauf H2 local → `SAMEORIGIN`). HSTS 1 an si `JWT_COOKIE_SECURE=true`. |
 | **Health DB** | `GET /api/v1/health` renvoie `db=UP|DOWN` ; HTTP 503 si la base est inaccessible. |
 | **Rate-limit auth étendu** | Aussi `POST /auth/refresh` et `/auth/reset-password` (même fenêtre / IP). |
+| **Access JWT hors `localStorage`** | Access token en **mémoire** (React + module). Reprise de session uniquement via cookie HttpOnly `refresh_token`. Profil `jee_user` peut rester en `localStorage` (pas un secret). Cookie client `jee_auth` = hint middleware non secret. |
 
 Variables : `AUTH_RATE_LIMIT_ENABLED`, `AUTH_RATE_LIMIT_MAX`, `AUTH_RATE_LIMIT_WINDOW_SECONDS`.
+
+### Posture XSS — access token (checklist manuelle)
+
+Objectif : un script injecté ne doit **pas** pouvoir lire l’access JWT depuis le stockage persistant.
+
+1. Login → DevTools → Application → Local Storage → **pas** de clé `jee_access_token` (ni autre JWT).
+2. Recharger la page authentifiée → session reprend (refresh cookie) ; toujours **pas** de JWT en Local Storage.
+3. Session Storage / cookies lisibles par JS : `jee_auth=1` et `jee_user` OK ; le cookie `refresh_token` doit rester **HttpOnly** (invisible dans `document.cookie`).
+4. Logout → mémoire vidée, cookies client effacés, refresh révoqué côté API.
+
+E2E automatisé : `frontend/e2e/auth-token-storage.spec.ts`.
 
 En prod, définir au minimum :
 

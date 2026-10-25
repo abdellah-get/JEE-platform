@@ -86,7 +86,7 @@ function toUser(res: AuthResponse): AuthUser {
 }
 
 /**
- * Single-flight refresh via HttpOnly cookie. Updates localStorage + AuthProvider.
+ * Single-flight refresh via HttpOnly cookie. Puts access JWT in memory + AuthProvider.
  * Returns the new access token, or null if the session is dead.
  */
 async function silentRefresh(): Promise<string | null> {

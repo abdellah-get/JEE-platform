@@ -64,7 +64,7 @@ Canvas associé (IDE) : `audit-platforme-p8.canvas.tsx`.
 |--------|--------|------|
 | Sessions vivantes après reset MDP | Compte compromis reste connecté | `MeService`, `PasswordResetService` |
 | CSRF refresh cross-site | Rotation / invalidation forcée | `SecurityConfig`, cookie refresh |
-| Access JWT en `localStorage` | XSS = prise de session | `auth-storage.ts` |
+| ~~Access JWT en `localStorage`~~ | **Mitigé (#98)** : token en mémoire ; refresh HttpOnly | `auth-storage.ts` |
 | `SEED_ENABLED=true` en prod | Comptes `Demo123!` | Render env |
 | Route `/notifications` edge non gated | Incohérence UX (API reste protégée) | `middleware.ts` |
 

@@ -122,12 +122,21 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [95](https://github.com/abdellah-get/JEE-platform/issues/95) | Élargir E2E | **Terminé** |
 | [96](https://github.com/abdellah-get/JEE-platform/issues/96) | Pièces jointes / livrables | **Terminé** |
 | [97](https://github.com/abdellah-get/JEE-platform/issues/97) | Événements + calendrier | **Terminé** |
-| [98](https://github.com/abdellah-get/JEE-platform/issues/98) | Access token hors localStorage | À faire |
+| [98](https://github.com/abdellah-get/JEE-platform/issues/98) | Access token hors localStorage | **Terminé** |
 | [99](https://github.com/abdellah-get/JEE-platform/issues/99) | Pagination + OpenAPI + Actuator | À faire |
 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #98 terminée (access token hors localStorage)
+
+**Fait :**
+- Access JWT en mémoire uniquement ; purge legacy `jee_access_token`
+- Boot / 401 : reprise via cookie HttpOnly `refresh` ; `jee_auth` hint ~7j
+- SECURITY.md (checklist XSS) + E2E `auth-token-storage.spec.ts`
+
+**Prochaine mission :** [#99](https://github.com/abdellah-get/JEE-platform/issues/99) — pagination + OpenAPI + Actuator.
 
 ### 2026-10-25 — Mission #97 terminée (événements + calendrier)
 
