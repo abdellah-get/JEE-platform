@@ -12,9 +12,7 @@ test("filtres Mes tâches", async ({ page }) => {
 
   await page.getByLabel("Filtrer par statut").selectOption("IN_PROGRESS");
   await expect(page.getByText("Maquette homepage")).toHaveCount(0);
-  await expect(
-    page.getByRole("heading", { name: "Aucune tâche" }),
-  ).toBeVisible();
+  await expect(page.getByText("Aucune tâche")).toBeVisible();
 
   await page.getByLabel("Filtrer par statut").selectOption("DONE");
   await expect(page.getByText("Maquette homepage")).toBeVisible();
@@ -24,4 +22,5 @@ test("filtres Mes tâches", async ({ page }) => {
 
   await page.getByLabel("Filtrer par priorité").selectOption("LOW");
   await expect(page.getByText("Maquette homepage")).toHaveCount(0);
+  await expect(page.getByText("Aucune tâche")).toBeVisible();
 });
