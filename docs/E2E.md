@@ -1,6 +1,13 @@
 # E2E smoke (Playwright)
 
-Smoke CI : **login → dashboard → ouvrir Kanban** d’un projet seed.
+Specs CI (API seed `SEED_ENABLED=true`) :
+
+| Spec | Flux |
+|------|------|
+| `smoke.spec.ts` | login chef → dashboard → Kanban projet |
+| `logout.spec.ts` | logout → `/login` (+ garde middleware) |
+| `tasks-filters.spec.ts` | filtres statut / priorité sur Mes tâches |
+| `announcements.spec.ts` | lecture + création annonce (compte bureau) |
 
 ## Prérequis
 
