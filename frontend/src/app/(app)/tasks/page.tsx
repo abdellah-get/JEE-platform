@@ -66,9 +66,10 @@ export default function MyTasksPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="page-title">Mes tâches</h1>
-        <p className="mt-1 text-sm text-muted">
-          Tâches qui te sont assignées, tous projets confondus.
+        <p className="section-label">Travail personnel</p>
+        <h1 className="page-title mt-1">Mes tâches</h1>
+        <p className="page-subtitle">
+          Tout ce qui t’est assigné, tous projets confondus.
         </p>
       </div>
 

@@ -30,7 +30,7 @@ export default function ForgotPasswordPage() {
   return (
     <AuthShell
       title="Mot de passe oublié"
-      subtitle="Indique ton email pour recevoir un lien de réinitialisation."
+      subtitle="On t’envoie un lien sécurisé pour choisir un nouveau mot de passe."
     >
       {sent ? (
         <div className="space-y-4 text-sm text-ink/80">

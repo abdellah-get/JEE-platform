@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
@@ -47,25 +49,22 @@ export default function ProjectsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="section-label">Club</p>
-          <h1 className="page-title mt-1">Projets</h1>
-          <p className="page-subtitle">
-            {showCreate
-              ? "Tous les projets du club."
-              : "Projets auxquels tu es affecté."}
-          </p>
-        </div>
-        {showCreate && (
-          <Link
-            href="/projects/new"
-            className="btn btn-primary"
-          >
-            Nouveau projet
-          </Link>
-        )}
-      </div>
+      <PageHeader
+        eyebrow="Portefeuille"
+        title="Projets"
+        description={
+          showCreate
+            ? "Pilote l’ensemble des missions du club."
+            : "Tes missions en cours et ton rôle dans chaque équipe."
+        }
+        actions={
+          showCreate ? (
+            <Link href="/projects/new" className="btn btn-primary">
+              Nouveau projet
+            </Link>
+          ) : undefined
+        }
+      />
 
       {error && (
         <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
@@ -95,7 +94,7 @@ export default function ProjectsPage() {
           }
         />
       ) : (
-        <ul className="space-y-3">
+        <ul className="stagger-list space-y-3">
           {projects.map((project) => (
             <li key={project.id}>
               <Link
@@ -104,20 +103,23 @@ export default function ProjectsPage() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-medium text-ink">{project.name}</p>
+                    <p className="font-[family-name:var(--font-syne)] text-base font-semibold tracking-tight text-ink">
+                      {project.name}
+                    </p>
                     {project.description && (
                       <p className="mt-1 line-clamp-2 text-sm text-muted">
                         {project.description}
                       </p>
                     )}
                   </div>
-                  <span className="shrink-0 rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-medium text-ink/80">
-                    {statusLabel(project.status)}
-                  </span>
+                  <span className="chip shrink-0">{statusLabel(project.status)}</span>
                 </div>
-                <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted">
-                  <span>Ton rôle : {roleLabel(project.myRole)}</span>
-                  <span>{project.progressPercent}% fait</span>
+                <div className="mt-4 space-y-2">
+                  <ProgressBar value={project.progressPercent} />
+                  <div className="flex items-center justify-between gap-3 text-xs text-muted">
+                    <span>{roleLabel(project.myRole)}</span>
+                    <span>{project.progressPercent}% complété</span>
+                  </div>
                 </div>
               </Link>
             </li>

@@ -18,9 +18,13 @@ export function EmptyState({
           : "surface px-6 py-10 text-center"
       }
     >
-      <p className="text-sm font-semibold text-ink">{title}</p>
+      <p className="font-[family-name:var(--font-syne)] text-base font-semibold tracking-tight text-ink">
+        {title}
+      </p>
       {description && (
-        <p className="mx-auto mt-1 max-w-sm text-sm text-muted">{description}</p>
+        <p className="mx-auto mt-1.5 max-w-sm text-sm leading-relaxed text-muted">
+          {description}
+        </p>
       )}
       {action && <div className="mt-4 flex justify-center">{action}</div>}
     </div>

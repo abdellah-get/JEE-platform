@@ -59,7 +59,7 @@ export default function RegisterPage() {
   return (
     <AuthShell
       title="Inscription"
-      subtitle="Crée ton compte membre JEE ENSEM (email @ensem.ac.ma ou domaine autorisé)."
+      subtitle="Rejoins l’espace membres — email école ou domaine autorisé."
     >
       {pendingMessage ? (
         <div className="space-y-4 text-sm text-ink/80">

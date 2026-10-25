@@ -32,10 +32,10 @@ export function ClubLogo({
       />
       {showWordmark ? (
         <div className="min-w-0">
-          <p className="truncate text-sm font-bold tracking-tight text-ink">
-            ESEM Engineering
+          <p className="truncate font-[family-name:var(--font-syne)] text-[0.95rem] font-bold tracking-tight text-ink">
+            ESEM Platform
           </p>
-          <p className="truncate text-xs text-muted">Junior-Entreprise</p>
+          <p className="truncate text-[0.7rem] text-muted">Junior-Entreprise</p>
         </div>
       ) : null}
     </div>

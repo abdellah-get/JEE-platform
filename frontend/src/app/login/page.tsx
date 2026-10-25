@@ -50,8 +50,8 @@ function LoginForm() {
 
   return (
     <AuthShell
-      title="Connexion"
-      subtitle="Accède à la plateforme d’avancement JEE."
+      title="Bon retour"
+      subtitle="Connecte-toi pour reprendre projets, tâches et annonces."
     >
       <form onSubmit={onSubmit} className="space-y-4" noValidate>
         <Field
@@ -92,18 +92,18 @@ function LoginForm() {
           disabled={submitting}
           className="btn btn-primary w-full"
         >
-          {submitting ? "Connexion…" : "Se connecter"}
+          {submitting ? "Connexion…" : "Continuer"}
         </button>
       </form>
 
-      <div className="mt-4 flex flex-col gap-2 text-center text-sm text-muted">
-        <Link href="/forgot-password" className="hover:text-ink">
+      <div className="mt-5 flex flex-col gap-2.5 text-center text-sm text-muted">
+        <Link href="/forgot-password" className="hover:text-brand">
           Mot de passe oublié ?
         </Link>
         <p>
-          Pas de compte ?{" "}
-          <Link href="/register" className="font-medium text-ink underline">
-            S’inscrire
+          Nouveau membre ?{" "}
+          <Link href="/register" className="font-semibold text-brand underline-offset-2 hover:underline">
+            Créer un compte
           </Link>
         </p>
       </div>
