@@ -19,7 +19,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P4 Polish | **Terminé** | 2/2 |
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
-| P7 Reporting & qualité | **En cours** | 2/6 (#57–#62) |
+| P7 Reporting & qualité | **En cours** | 3/6 (#57–#62) |
 
 ---
 
@@ -98,7 +98,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 |---|---------|--------|
 | 57 | Dashboard bureau enrichi + export CSV | **Terminé** |
 | 58 | Rotation / révocation refresh tokens | **Terminé** |
-| 59 | E2E smoke CI | **À faire** |
+| 59 | E2E smoke CI | **Terminé** |
 | 60 | Permissions tâches (delete chef/bureau) | **À faire** |
 | 61 | Pass accessibilité | **À faire** |
 | 62 | Stretch : activity feed ou pièces jointes | **À faire** |
@@ -106,6 +106,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-24 — Mission #59 terminée (E2E smoke CI)
+
+**Fait :**
+- Playwright smoke : login → dashboard → projet seed → Kanban
+- Job CI `e2e` : API seedée (H2) + Next build + Chromium
+- Doc [`docs/E2E.md`](./docs/E2E.md)
+
+**Prochaine mission :** [#60](https://github.com/abdellah-get/JEE-platform/issues/60) — permissions tâches (delete chef/bureau).
 
 ### 2026-10-24 — Mission #58 terminée (rotation / révocation refresh tokens)
 
