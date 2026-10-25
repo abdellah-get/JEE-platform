@@ -43,6 +43,7 @@ Repo → **Settings** → **Code security** → Dependabot alerts + Dependabot s
 |----------|----------------|
 | **H2 console** | Désactivée par défaut ; activée seulement avec le profil `local` (`application-local.properties`). Non exposée en `prod`. |
 | **JWT secret** | Le secret de développement est **refusé** si environnement « prod-like » : profil `prod`, `JWT_COOKIE_SECURE=true`, ou driver PostgreSQL. Voir `ProductionSafetyValidator`. |
+| **Seed / inscription** | En prod-like : `SEED_ENABLED` doit rester `false` ; `REGISTRATION_ALLOWED_DOMAINS` non vide ; `REGISTRATION_REQUIRE_APPROVAL=true`. Sinon l’API refuse de démarrer. |
 | **Profils** | Local : `spring.profiles.default=local`. Render : `SPRING_PROFILES_ACTIVE=prod`. |
 | **Rate-limit auth** | `POST` login / register / forgot-password : 20 req / IP / endpoint / 60 s (configurable). Réponse `429` + `Retry-After`. |
 | **Refresh silencieux** | Sur `401` API (hors `/auth/**`) : un `POST /auth/refresh` puis retry. Échec → clear session + redirect `/login`. Single-flight (pas de boucle). |
@@ -59,4 +60,6 @@ SPRING_PROFILES_ACTIVE=prod
 JWT_SECRET=<aléatoire ≥ 32 caractères>
 JWT_COOKIE_SECURE=true
 SEED_ENABLED=false
+REGISTRATION_ALLOWED_DOMAINS=ensem.ac.ma,ensem.jee
+REGISTRATION_REQUIRE_APPROVAL=true
 ```

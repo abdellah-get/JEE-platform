@@ -21,7 +21,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
-| P8 Sécurité session & UX SaaS | **En cours** | 3/13 (#87–#99) |
+| P8 Sécurité session & UX SaaS | **En cours** | 4/13 (#87–#99) |
 
 Étude : [docs/ETUDE-P8.md](./docs/ETUDE-P8.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
@@ -114,7 +114,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [87](https://github.com/abdellah-get/JEE-platform/issues/87) | Révoquer refresh tokens au change/reset MDP | **Terminé** |
 | [88](https://github.com/abdellah-get/JEE-platform/issues/88) | Anti-CSRF refresh / logout | **Terminé** |
 | [89](https://github.com/abdellah-get/JEE-platform/issues/89) | Middleware `/notifications` + a11y filtres | **Terminé** |
-| [90](https://github.com/abdellah-get/JEE-platform/issues/90) | Prod safety SEED + approval/domaines | À faire |
+| [90](https://github.com/abdellah-get/JEE-platform/issues/90) | Prod safety SEED + approval/domaines | **Terminé** |
 | [91](https://github.com/abdellah-get/JEE-platform/issues/91) | Recherche client (projets, annonces, membres) | À faire |
 | [92](https://github.com/abdellah-get/JEE-platform/issues/92) | TanStack Query autour de `api.ts` | À faire |
 | [93](https://github.com/abdellah-get/JEE-platform/issues/93) | ConfirmDialog + focus trap + a11y cloche | À faire |
@@ -128,6 +128,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #90 terminée (prod safety SEED + inscription)
+
+**Fait :**
+- `ProductionSafetyValidator` refuse `SEED_ENABLED=true`, domaines vides, `REGISTRATION_REQUIRE_APPROVAL≠true` en prod-like
+- `application-prod.properties` : approval `true` + domaines ENSEM par défaut
+- Tests unitaires + `DEPLOY.md` / `SECURITY.md`
+
+**Prochaine mission :** [#91](https://github.com/abdellah-get/JEE-platform/issues/91) — recherche client (projets, annonces, membres).
 
 ### 2026-10-25 — Mission #88 terminée (anti-CSRF refresh / logout)
 

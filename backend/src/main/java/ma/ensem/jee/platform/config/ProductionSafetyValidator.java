@@ -9,10 +9,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import ma.ensem.jee.platform.auth.JwtProperties;
+import ma.ensem.jee.platform.auth.RegistrationProperties;
 
 /**
- * Fails fast in production-like environments when JWT is misconfigured,
- * and keeps the H2 console out of non-local deployments.
+ * Fails fast in production-like environments when JWT / seed / registration
+ * are misconfigured, and keeps the H2 console out of non-local deployments.
  */
 @Component
 @Order(0)
@@ -22,10 +23,15 @@ public class ProductionSafetyValidator implements ApplicationRunner {
 
 	private final Environment environment;
 	private final JwtProperties jwtProperties;
+	private final RegistrationProperties registrationProperties;
 
-	public ProductionSafetyValidator(Environment environment, JwtProperties jwtProperties) {
+	public ProductionSafetyValidator(
+			Environment environment,
+			JwtProperties jwtProperties,
+			RegistrationProperties registrationProperties) {
 		this.environment = environment;
 		this.jwtProperties = jwtProperties;
+		this.registrationProperties = registrationProperties;
 	}
 
 	@Override
@@ -51,7 +57,21 @@ public class ProductionSafetyValidator implements ApplicationRunner {
 				throw new IllegalStateException(
 						"H2 console must be disabled in production (spring.h2.console.enabled=false).");
 			}
-			log.info("Production safety checks passed (JWT secret + H2 console).");
+			if (isSeedEnabled()) {
+				throw new IllegalStateException(
+						"SEED_ENABLED must be false in production (demo accounts Demo123! must not ship).");
+			}
+			if (registrationProperties.allowedDomainList().isEmpty()) {
+				throw new IllegalStateException(
+						"REGISTRATION_ALLOWED_DOMAINS must be non-empty in production "
+								+ "(e.g. ensem.ac.ma). Open registration is refused.");
+			}
+			if (!registrationProperties.isRequireApproval()) {
+				throw new IllegalStateException(
+						"REGISTRATION_REQUIRE_APPROVAL must be true in production "
+								+ "(new accounts stay inactive until bureau activation).");
+			}
+			log.info("Production safety checks passed (JWT, H2, seed, registration).");
 		}
 		else if (isH2ConsoleEnabled()) {
 			log.info("H2 console enabled (local/dev). URL path: /h2-console");
@@ -73,5 +93,9 @@ public class ProductionSafetyValidator implements ApplicationRunner {
 
 	private boolean isH2ConsoleEnabled() {
 		return environment.getProperty("spring.h2.console.enabled", Boolean.class, false);
+	}
+
+	private boolean isSeedEnabled() {
+		return environment.getProperty("app.seed.enabled", Boolean.class, false);
 	}
 }
