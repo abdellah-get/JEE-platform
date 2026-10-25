@@ -20,6 +20,7 @@ Au démarrage, Flyway applique **toutes** les migrations présentes :
 | **V7** | `notifications` |
 | **V8** | `refresh_tokens` |
 | **V9** | `project_activities` |
+| **V10** | `project_attachments` |
 
 Fichiers : `backend/src/main/resources/db/migration/`.
 
@@ -94,6 +95,7 @@ docker run --rm -p 8081:8081 \
 | `REGISTRATION_ALLOWED_DOMAINS` | `ensem.ac.ma` |
 | `REGISTRATION_REQUIRE_APPROVAL` | `true` (prod publique) |
 | `FRONTEND_BASE_URL` | `https://ton-app.vercel.app` |
+| `ATTACHMENTS_PATH` | chemin local livrables (ex. `/var/data/attachments`) |
 | `MAIL_FROM` / `MAIL_HOST` / … | SMTP Brevo (optionnel) |
 | `PORT` | laissé à Render |
 
@@ -141,7 +143,8 @@ NEXT_PUBLIC_API_URL=https://ton-api.onrender.com
 ### Checklist
 
 - [ ] `SPRING_PROFILES_ACTIVE=prod` et `JWT_SECRET` (≥ 32)
-- [ ] Flyway **V1–V9** appliquées (pas d’erreur au boot)
+- [ ] Flyway **V1–V10** appliquées (pas d’erreur au boot)
+- [ ] (Optionnel) volume persistant / `ATTACHMENTS_PATH` pour les livrables
 - [ ] `GET /api/v1/health` → `status=UP` et `db=UP`
 - [ ] `/h2-console` inaccessible
 - [ ] `SEED_ENABLED=false`

@@ -33,7 +33,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 		CorsProperties.class,
 		PasswordResetProperties.class,
 		AuthRateLimitProperties.class,
-		RegistrationProperties.class
+		RegistrationProperties.class,
+		ma.ensem.jee.platform.attachment.AttachmentProperties.class
 })
 public class SecurityConfig {
 

@@ -94,6 +94,18 @@ export type ProjectActivity = {
   createdAt: string;
 };
 
+export type ProjectAttachment = {
+  id: string;
+  projectId: string;
+  taskId: string | null;
+  uploadedById: string;
+  uploadedByName: string;
+  originalName: string;
+  contentType: string;
+  sizeBytes: number;
+  createdAt: string;
+};
+
 export type UserSummary = {
   userId: string;
   email: string;

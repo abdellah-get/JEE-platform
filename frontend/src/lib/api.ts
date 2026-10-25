@@ -13,6 +13,7 @@ import type {
   Dashboard,
   Project,
   ProjectActivity,
+  ProjectAttachment,
   ProjectMember,
   ProjectRole,
   ProjectStatus,
@@ -321,6 +322,79 @@ export function listProjectActivity(accessToken: string, projectId: string) {
   return apiFetch<ProjectActivity[]>(
     `/api/v1/projects/${projectId}/activity`,
     { method: "GET" },
+    accessToken,
+  );
+}
+
+export function listProjectAttachments(accessToken: string, projectId: string) {
+  return apiFetch<ProjectAttachment[]>(
+    `/api/v1/projects/${projectId}/attachments`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export async function uploadProjectAttachment(
+  accessToken: string,
+  projectId: string,
+  file: File,
+  taskId?: string,
+) {
+  const form = new FormData();
+  form.append("file", file);
+  if (taskId) form.append("taskId", taskId);
+
+  const res = await fetch(
+    `${API_URL}/api/v1/projects/${projectId}/attachments`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
+      credentials: "include",
+      body: form,
+    },
+  );
+  if (!res.ok) {
+    throw new ApiError(res.status, await parseError(res));
+  }
+  return (await res.json()) as ProjectAttachment;
+}
+
+export async function downloadProjectAttachment(
+  accessToken: string,
+  projectId: string,
+  attachmentId: string,
+  fileName: string,
+) {
+  const res = await fetch(
+    `${API_URL}/api/v1/projects/${projectId}/attachments/${attachmentId}/download`,
+    {
+      method: "GET",
+      headers: { Authorization: `Bearer ${accessToken}` },
+      credentials: "include",
+    },
+  );
+  if (!res.ok) {
+    throw new ApiError(res.status, await parseError(res));
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export function deleteProjectAttachment(
+  accessToken: string,
+  projectId: string,
+  attachmentId: string,
+) {
+  return apiFetch<void>(
+    `/api/v1/projects/${projectId}/attachments/${attachmentId}`,
+    { method: "DELETE" },
     accessToken,
   );
 }

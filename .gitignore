@@ -26,5 +26,8 @@ yarn-error.log*
 !.env.example
 !**/.env.example
 
+# Local attachment storage
+data/attachments/
+
 # Logs
 *.log
