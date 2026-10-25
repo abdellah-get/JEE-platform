@@ -21,7 +21,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
-| P8 Sécurité session & UX SaaS | **En cours** | 7/13 (#87–#99) |
+| P8 Sécurité session & UX SaaS | **En cours** | 8/13 (#87–#99) |
 
 Étude : [docs/ETUDE-P8.md](./docs/ETUDE-P8.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
@@ -118,7 +118,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [91](https://github.com/abdellah-get/JEE-platform/issues/91) | Recherche client (projets, annonces, membres) | **Terminé** |
 | [92](https://github.com/abdellah-get/JEE-platform/issues/92) | TanStack Query autour de `api.ts` | **Terminé** |
 | [93](https://github.com/abdellah-get/JEE-platform/issues/93) | ConfirmDialog + focus trap + a11y cloche | **Terminé** |
-| [94](https://github.com/abdellah-get/JEE-platform/issues/94) | Headers + rate-limit refresh/reset + health DB | À faire |
+| [94](https://github.com/abdellah-get/JEE-platform/issues/94) | Headers + rate-limit refresh/reset + health DB | **Terminé** |
 | [95](https://github.com/abdellah-get/JEE-platform/issues/95) | Élargir E2E | À faire |
 | [96](https://github.com/abdellah-get/JEE-platform/issues/96) | Pièces jointes / livrables | À faire |
 | [97](https://github.com/abdellah-get/JEE-platform/issues/97) | Événements + calendrier | À faire |
@@ -128,6 +128,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #94 terminée (headers + rate-limit + health DB)
+
+**Fait :**
+- Headers : Referrer-Policy, X-Frame-Options DENY (SAMEORIGIN si H2), HSTS si cookie secure
+- Rate-limit : `/auth/refresh` + `/auth/reset-password`
+- Health : probe JDBC `db=UP|DOWN` (503 si DOWN)
+- DEPLOY checklist Flyway V1–V9
+
+**Prochaine mission :** [#95](https://github.com/abdellah-get/JEE-platform/issues/95) — élargir E2E.
 
 ### 2026-10-25 — Mission #93 terminée (ConfirmDialog + a11y)
 

@@ -141,8 +141,8 @@ NEXT_PUBLIC_API_URL=https://ton-api.onrender.com
 ### Checklist
 
 - [ ] `SPRING_PROFILES_ACTIVE=prod` et `JWT_SECRET` (≥ 32)
-- [ ] Flyway V1–V7 appliquées (pas d’erreur au boot)
-- [ ] `GET /api/v1/health` → `UP`
+- [ ] Flyway **V1–V9** appliquées (pas d’erreur au boot)
+- [ ] `GET /api/v1/health` → `status=UP` et `db=UP`
 - [ ] `/h2-console` inaccessible
 - [ ] `SEED_ENABLED=false`
 - [ ] `REGISTRATION_REQUIRE_APPROVAL=true` + domaines non vides

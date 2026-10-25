@@ -45,11 +45,14 @@ Repo → **Settings** → **Code security** → Dependabot alerts + Dependabot s
 | **JWT secret** | Le secret de développement est **refusé** si environnement « prod-like » : profil `prod`, `JWT_COOKIE_SECURE=true`, ou driver PostgreSQL. Voir `ProductionSafetyValidator`. |
 | **Seed / inscription** | En prod-like : `SEED_ENABLED` doit rester `false` ; `REGISTRATION_ALLOWED_DOMAINS` non vide ; `REGISTRATION_REQUIRE_APPROVAL=true`. Sinon l’API refuse de démarrer. |
 | **Profils** | Local : `spring.profiles.default=local`. Render : `SPRING_PROFILES_ACTIVE=prod`. |
-| **Rate-limit auth** | `POST` login / register / forgot-password : 20 req / IP / endpoint / 60 s (configurable). Réponse `429` + `Retry-After`. |
+| **Rate-limit auth** | `POST` login / register / forgot-password / refresh / reset-password : 20 req / IP / endpoint / 60 s (configurable). Réponse `429` + `Retry-After`. |
 | **Refresh silencieux** | Sur `401` API (hors `/auth/**`) : un `POST /auth/refresh` puis retry. Échec → clear session + redirect `/login`. Single-flight (pas de boucle). |
 | **Refresh stocké + rotation** | Chaque refresh JWT est hashé (SHA-256) en base (`refresh_tokens`). Un refresh réussi révoque l’ancien et en émet un nouveau. Logout révoque le cookie courant. |
 | **Change / reset MDP** | `POST /me/password` et `POST /auth/reset-password` révoquent **tous** les refresh tokens de l’utilisateur (sessions restantes coupées). L’access JWT en cours expire naturellement (TTL 30 min). |
 | **Anti-CSRF refresh/logout** | `POST /auth/refresh` et `/auth/logout` exigent le header `X-Requested-With: XMLHttpRequest` (preflight CORS). Si `Origin` est présent, il doit être dans `CORS_ORIGINS`. Bloque les forgeries cross-site malgré `SameSite=None`. |
+| **Security headers** | `X-Content-Type-Options`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY` (sauf H2 local → `SAMEORIGIN`). HSTS 1 an si `JWT_COOKIE_SECURE=true`. |
+| **Health DB** | `GET /api/v1/health` renvoie `db=UP|DOWN` ; HTTP 503 si la base est inaccessible. |
+| **Rate-limit auth étendu** | Aussi `POST /auth/refresh` et `/auth/reset-password` (même fenêtre / IP). |
 
 Variables : `AUTH_RATE_LIMIT_ENABLED`, `AUTH_RATE_LIMIT_MAX`, `AUTH_RATE_LIMIT_WINDOW_SECONDS`.
 
