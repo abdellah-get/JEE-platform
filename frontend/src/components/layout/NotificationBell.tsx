@@ -1,33 +1,49 @@
 "use client";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
+import { queryKeys } from "@/lib/query-keys";
 import type { AppNotification } from "@/lib/types";
 
 export function NotificationBell() {
   const { accessToken } = useAuth();
-  const [count, setCount] = useState(0);
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [items, setItems] = useState<AppNotification[]>([]);
-  const [loading, setLoading] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  const refreshCount = useCallback(() => {
-    if (!accessToken) return;
-    api
-      .getUnreadNotificationCount(accessToken)
-      .then((r) => setCount(r.count))
-      .catch(() => setCount(0));
-  }, [accessToken]);
+  const { data: countData } = useQuery({
+    queryKey: queryKeys.unreadNotificationCount,
+    queryFn: () => api.getUnreadNotificationCount(accessToken!),
+    enabled: Boolean(accessToken),
+    refetchInterval: 60_000,
+  });
+  const count = countData?.count ?? 0;
 
-  useEffect(() => {
-    refreshCount();
-    const id = window.setInterval(refreshCount, 60_000);
-    return () => window.clearInterval(id);
-  }, [refreshCount]);
+  const { data: items = [], isFetching } = useQuery({
+    queryKey: queryKeys.notifications(false),
+    queryFn: () => api.listNotifications(accessToken!, false),
+    enabled: Boolean(accessToken) && open,
+    select: (data) => data.slice(0, 8),
+  });
+
+  const invalidateNotifications = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["notifications"] }),
+    ]);
+
+  const markRead = useMutation({
+    mutationFn: (id: string) => api.markNotificationRead(accessToken!, id),
+    onSuccess: () => invalidateNotifications(),
+  });
+
+  const markAll = useMutation({
+    mutationFn: () => api.markAllNotificationsRead(accessToken!),
+    onSuccess: () => invalidateNotifications(),
+  });
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -41,48 +57,15 @@ export function NotificationBell() {
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [open]);
 
-  async function toggle() {
-    if (!accessToken) return;
-    const next = !open;
-    setOpen(next);
-    if (next) {
-      setLoading(true);
-      try {
-        const data = await api.listNotifications(accessToken, false);
-        setItems(data.slice(0, 8));
-      } catch {
-        setItems([]);
-      } finally {
-        setLoading(false);
-      }
-    }
-  }
-
   async function onOpenItem(n: AppNotification) {
-    if (!accessToken) return;
     if (!n.read) {
       try {
-        await api.markNotificationRead(accessToken, n.id);
-        setCount((c) => Math.max(0, c - 1));
-        setItems((prev) =>
-          prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)),
-        );
+        await markRead.mutateAsync(n.id);
       } catch {
         /* ignore */
       }
     }
     setOpen(false);
-  }
-
-  async function onMarkAll() {
-    if (!accessToken) return;
-    try {
-      await api.markAllNotificationsRead(accessToken);
-      setCount(0);
-      setItems((prev) => prev.map((x) => ({ ...x, read: true })));
-    } catch {
-      /* ignore */
-    }
   }
 
   if (!accessToken) return null;
@@ -91,7 +74,7 @@ export function NotificationBell() {
     <div ref={rootRef} className="relative">
       <button
         type="button"
-        onClick={() => void toggle()}
+        onClick={() => setOpen((v) => !v)}
         aria-label={count > 0 ? `${count} notifications non lues` : "Notifications"}
         className="btn btn-secondary relative px-2.5 py-1.5"
       >
@@ -110,7 +93,7 @@ export function NotificationBell() {
             {count > 0 && (
               <button
                 type="button"
-                onClick={() => void onMarkAll()}
+                onClick={() => void markAll.mutateAsync()}
                 className="text-xs text-muted hover:underline"
               >
                 Tout lu
@@ -118,7 +101,7 @@ export function NotificationBell() {
             )}
           </div>
           <div className="max-h-80 overflow-y-auto">
-            {loading ? (
+            {isFetching && items.length === 0 ? (
               <p className="px-3 py-4 text-sm text-muted">Chargement…</p>
             ) : items.length === 0 ? (
               <p className="px-3 py-4 text-sm text-muted">Aucune notification.</p>

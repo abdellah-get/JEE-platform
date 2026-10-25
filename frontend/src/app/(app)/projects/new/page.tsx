@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
@@ -11,12 +12,14 @@ import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { PROJECT_STATUSES, canCreateProject, statusLabel } from "@/lib/projects";
+import { queryKeys } from "@/lib/query-keys";
 import type { ProjectStatus, UserSummary } from "@/lib/types";
 
 export default function NewProjectPage() {
   const { accessToken, user, loading } = useAuth();
   const toast = useToast();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [users, setUsers] = useState<UserSummary[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -62,6 +65,10 @@ export default function NewProjectPage() {
         status,
         chefUserId: chefUserId || undefined,
       });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.projects }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.dashboard }),
+      ]);
       toast.success("Projet créé.");
       router.push(`/projects/${project.id}`);
     } catch (err) {

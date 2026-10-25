@@ -21,7 +21,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
-| P8 Sécurité session & UX SaaS | **En cours** | 5/13 (#87–#99) |
+| P8 Sécurité session & UX SaaS | **En cours** | 6/13 (#87–#99) |
 
 Étude : [docs/ETUDE-P8.md](./docs/ETUDE-P8.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
@@ -116,7 +116,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [89](https://github.com/abdellah-get/JEE-platform/issues/89) | Middleware `/notifications` + a11y filtres | **Terminé** |
 | [90](https://github.com/abdellah-get/JEE-platform/issues/90) | Prod safety SEED + approval/domaines | **Terminé** |
 | [91](https://github.com/abdellah-get/JEE-platform/issues/91) | Recherche client (projets, annonces, membres) | **Terminé** |
-| [92](https://github.com/abdellah-get/JEE-platform/issues/92) | TanStack Query autour de `api.ts` | À faire |
+| [92](https://github.com/abdellah-get/JEE-platform/issues/92) | TanStack Query autour de `api.ts` | **Terminé** |
 | [93](https://github.com/abdellah-get/JEE-platform/issues/93) | ConfirmDialog + focus trap + a11y cloche | À faire |
 | [94](https://github.com/abdellah-get/JEE-platform/issues/94) | Headers + rate-limit refresh/reset + health DB | À faire |
 | [95](https://github.com/abdellah-get/JEE-platform/issues/95) | Élargir E2E | À faire |
@@ -128,6 +128,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #92 terminée (TanStack Query)
+
+**Fait :**
+- `@tanstack/react-query` + `QueryClientProvider`
+- Queries : dashboard, projects, my-tasks, notifications (+ unread count polling 60s)
+- Invalidation après mark read / mark all / create project
+- `query-keys.ts`
+
+**Prochaine mission :** [#93](https://github.com/abdellah-get/JEE-platform/issues/93) — ConfirmDialog + focus trap + a11y cloche.
 
 ### 2026-10-25 — Mission #91 terminée (recherche client)
 

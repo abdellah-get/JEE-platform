@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { DueBadge } from "@/components/tasks/DueBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -12,30 +13,29 @@ import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { statusLabel } from "@/lib/projects";
+import { queryKeys } from "@/lib/query-keys";
 import {
   dueDateClassName,
   formatDueDate,
   priorityLabel,
   taskStatusLabel,
 } from "@/lib/tasks";
-import type { Dashboard } from "@/lib/types";
 
 export default function DashboardPage() {
   const { user, loading, accessToken } = useAuth();
   const toast = useToast();
-  const [data, setData] = useState<Dashboard | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
 
-  useEffect(() => {
-    if (!accessToken) return;
-    api
-      .getDashboard(accessToken)
-      .then(setData)
-      .catch((err) =>
-        setError(err instanceof ApiError ? err.message : "Chargement impossible"),
-      );
-  }, [accessToken]);
+  const {
+    data,
+    error,
+    isPending,
+    refetch,
+  } = useQuery({
+    queryKey: queryKeys.dashboard,
+    queryFn: () => api.getDashboard(accessToken!),
+    enabled: Boolean(accessToken),
+  });
 
   async function handleExport() {
     if (!accessToken || exporting) return;
@@ -58,11 +58,13 @@ export default function DashboardPage() {
     return (
       <EmptyState
         title="Dashboard indisponible"
-        description={error}
+        description={
+          error instanceof ApiError ? error.message : "Chargement impossible"
+        }
         action={
           <button
             type="button"
-            onClick={() => window.location.reload()}
+            onClick={() => void refetch()}
             className="btn btn-primary"
           >
             Réessayer
@@ -72,7 +74,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!data) {
+  if (isPending || !data) {
     return <LoadingBlock label="Chargement du dashboard…" />;
   }
 
