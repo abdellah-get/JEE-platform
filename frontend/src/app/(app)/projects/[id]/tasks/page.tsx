@@ -23,7 +23,7 @@ import {
   priorityLabel,
   TASK_COLUMNS,
 } from "@/lib/tasks";
-import { canManageProject } from "@/lib/projects";
+import { canDeleteTask, canManageProject } from "@/lib/projects";
 import type { Project, ProjectMember, Task, TaskPriority, TaskStatus } from "@/lib/types";
 
 export default function ProjectTasksPage() {
@@ -487,6 +487,7 @@ export default function ProjectTasksPage() {
           canModerateComments={
             !!user && canManageProject(user.clubRole, project.myRole)
           }
+          canDelete={!!user && canDeleteTask(user.clubRole, project.myRole)}
           onClose={() => {
             setSelectedTaskId(null);
             setPanelError(null);
