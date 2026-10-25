@@ -15,6 +15,7 @@ const PROTECTED_PREFIXES = [
   "/projects",
   "/tasks",
   "/announcements",
+  "/notifications",
   "/profile",
   "/admin",
 ];
@@ -63,6 +64,7 @@ export const config = {
     "/projects/:path*",
     "/tasks/:path*",
     "/announcements/:path*",
+    "/notifications/:path*",
     "/profile/:path*",
     "/admin/:path*",
   ],
