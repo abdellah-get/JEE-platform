@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { PaginationBar } from "@/components/ui/PaginationBar";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { SearchInput, matchesSearch } from "@/components/ui/SearchInput";
 import { useAuth } from "@/context/AuthContext";
@@ -18,16 +19,19 @@ import { queryKeys } from "@/lib/query-keys";
 export default function ProjectsPage() {
   const { accessToken, user, loading } = useAuth();
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(0);
 
   const {
-    data: projects = [],
+    data,
     error,
     isPending,
   } = useQuery({
-    queryKey: queryKeys.projects,
-    queryFn: () => api.listProjects(accessToken!),
+    queryKey: queryKeys.projects(page),
+    queryFn: () => api.listProjects(accessToken!, page),
     enabled: Boolean(accessToken),
   });
+
+  const projects = data?.content ?? [];
 
   const filtered = useMemo(
     () =>
@@ -147,6 +151,15 @@ export default function ProjectsPage() {
               ))}
             </ul>
           )}
+          <PaginationBar
+            page={data?.page ?? page}
+            totalPages={data?.totalPages ?? 0}
+            totalElements={data?.totalElements ?? 0}
+            onPageChange={(p) => {
+              setPage(p);
+              setQuery("");
+            }}
+          />
         </>
       )}
     </div>

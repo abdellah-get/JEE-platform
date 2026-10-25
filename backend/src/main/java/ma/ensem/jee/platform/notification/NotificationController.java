@@ -1,6 +1,5 @@
 package ma.ensem.jee.platform.notification;
 
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.notification.dto.NotificationResponse;
 
 @RestController
@@ -24,9 +24,11 @@ public class NotificationController {
 	}
 
 	@GetMapping
-	public List<NotificationResponse> list(
-			@RequestParam(defaultValue = "false") boolean unreadOnly) {
-		return notificationService.listMine(unreadOnly);
+	public PageResponse<NotificationResponse> list(
+			@RequestParam(defaultValue = "false") boolean unreadOnly,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size) {
+		return PageResponse.slice(notificationService.listMine(unreadOnly), page, size);
 	}
 
 	@GetMapping("/unread-count")

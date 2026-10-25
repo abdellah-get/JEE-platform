@@ -1,6 +1,5 @@
 package ma.ensem.jee.platform.event;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -11,10 +10,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.event.dto.ClubEventResponse;
 import ma.ensem.jee.platform.event.dto.CreateClubEventRequest;
 import ma.ensem.jee.platform.event.dto.UpdateClubEventRequest;
@@ -30,8 +31,10 @@ public class ClubEventController {
 	}
 
 	@GetMapping
-	public List<ClubEventResponse> list() {
-		return eventService.list();
+	public PageResponse<ClubEventResponse> list(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size) {
+		return PageResponse.slice(eventService.list(), page, size);
 	}
 
 	@GetMapping("/{id}")

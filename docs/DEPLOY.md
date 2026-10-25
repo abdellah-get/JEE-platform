@@ -148,6 +148,8 @@ NEXT_PUBLIC_API_URL=https://ton-api.onrender.com
 - [ ] Flyway **V1–V12** appliquées (pas d’erreur au boot)
 - [ ] (Optionnel) volume persistant / `ATTACHMENTS_PATH` pour les livrables
 - [ ] `GET /api/v1/health` → `status=UP` et `db=UP`
+- [ ] `GET /actuator/health` (et probes) → `UP` (public) ; Swagger UI nécessite un JWT
+- [ ] (Prod) `SPRINGDOC_ENABLED=false` si tu ne veux pas exposer l’OpenAPI
 - [ ] `/h2-console` inaccessible
 - [ ] `SEED_ENABLED=false`
 - [ ] `REGISTRATION_REQUIRE_APPROVAL=true` + domaines non vides

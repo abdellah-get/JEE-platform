@@ -109,8 +109,8 @@ class ClubEventControllerTest {
 		mockMvc.perform(get("/api/v1/events")
 				.header("Authorization", "Bearer " + memberToken))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$[0].title").value("AG Formation"))
-				.andExpect(jsonPath("$[0].pinned").value(true));
+				.andExpect(jsonPath("$.content[0].title").value("AG Formation"))
+				.andExpect(jsonPath("$.content[0].pinned").value(true));
 
 		mockMvc.perform(get("/api/v1/events/" + eventId)
 				.header("Authorization", "Bearer " + memberToken))
@@ -120,7 +120,7 @@ class ClubEventControllerTest {
 		mockMvc.perform(get("/api/v1/notifications")
 				.header("Authorization", "Bearer " + memberToken))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$[0].type").value("EVENT_PINNED"));
+				.andExpect(jsonPath("$.content[0].type").value("EVENT_PINNED"));
 
 		User member = userRepository.findByEmailIgnoreCase("member.events@ensem.jee").orElseThrow();
 		Project project = projectRepository.save(new Project(

@@ -13,6 +13,7 @@ import type {
   ClubEvent,
   ClubRole,
   Dashboard,
+  PageResponse,
   Project,
   ProjectActivity,
   ProjectAttachment,
@@ -256,8 +257,20 @@ export function meToAuthUser(me: MeResponse): AuthUser {
   };
 }
 
-export function listProjects(accessToken: string) {
-  return apiFetch<Project[]>("/api/v1/projects", { method: "GET" }, accessToken);
+export function listProjects(
+  accessToken: string,
+  page = 0,
+  size = 20,
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
+  return apiFetch<PageResponse<Project>>(
+    `/api/v1/projects?${params}`,
+    { method: "GET" },
+    accessToken,
+  );
 }
 
 export function getProject(accessToken: string, projectId: string) {
@@ -405,8 +418,20 @@ export function listUsers(accessToken: string) {
   return apiFetch<UserSummary[]>("/api/v1/users", { method: "GET" }, accessToken);
 }
 
-export function listAdminUsers(accessToken: string) {
-  return apiFetch<AdminUser[]>("/api/v1/admin/users", { method: "GET" }, accessToken);
+export function listAdminUsers(
+  accessToken: string,
+  page = 0,
+  size = 20,
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
+  return apiFetch<PageResponse<AdminUser>>(
+    `/api/v1/admin/users?${params}`,
+    { method: "GET" },
+    accessToken,
+  );
 }
 
 export function updateUserActive(
@@ -537,23 +562,34 @@ export function listMyTasks(
     status?: TaskStatus;
     priority?: TaskPriority;
     projectId?: string;
+    page?: number;
+    size?: number;
   },
 ) {
   const params = new URLSearchParams();
   if (filters?.status) params.set("status", filters.status);
   if (filters?.priority) params.set("priority", filters.priority);
   if (filters?.projectId) params.set("projectId", filters.projectId);
-  const qs = params.toString();
-  return apiFetch<Task[]>(
-    `/api/v1/me/tasks${qs ? `?${qs}` : ""}`,
+  params.set("page", String(filters?.page ?? 0));
+  params.set("size", String(filters?.size ?? 20));
+  return apiFetch<PageResponse<Task>>(
+    `/api/v1/me/tasks?${params}`,
     { method: "GET" },
     accessToken,
   );
 }
 
-export function listAnnouncements(accessToken: string) {
-  return apiFetch<Announcement[]>(
-    "/api/v1/announcements",
+export function listAnnouncements(
+  accessToken: string,
+  page = 0,
+  size = 20,
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
+  return apiFetch<PageResponse<Announcement>>(
+    `/api/v1/announcements?${params}`,
     { method: "GET" },
     accessToken,
   );
@@ -598,8 +634,20 @@ export function deleteAnnouncement(accessToken: string, id: string) {
   );
 }
 
-export function listEvents(accessToken: string) {
-  return apiFetch<ClubEvent[]>("/api/v1/events", { method: "GET" }, accessToken);
+export function listEvents(
+  accessToken: string,
+  page = 0,
+  size = 20,
+) {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+  });
+  return apiFetch<PageResponse<ClubEvent>>(
+    `/api/v1/events?${params}`,
+    { method: "GET" },
+    accessToken,
+  );
 }
 
 export function getEvent(accessToken: string, id: string) {
@@ -694,10 +742,19 @@ export async function downloadDashboardExportCsv(accessToken: string): Promise<v
   URL.revokeObjectURL(url);
 }
 
-export function listNotifications(accessToken: string, unreadOnly = false) {
-  const q = unreadOnly ? "?unreadOnly=true" : "";
-  return apiFetch<AppNotification[]>(
-    `/api/v1/notifications${q}`,
+export function listNotifications(
+  accessToken: string,
+  unreadOnly = false,
+  page = 0,
+  size = 20,
+) {
+  const params = new URLSearchParams({
+    unreadOnly: String(unreadOnly),
+    page: String(page),
+    size: String(size),
+  });
+  return apiFetch<PageResponse<AppNotification>>(
+    `/api/v1/notifications?${params}`,
     { method: "GET" },
     accessToken,
   );

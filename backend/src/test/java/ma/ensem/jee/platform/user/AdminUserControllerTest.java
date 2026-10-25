@@ -50,7 +50,7 @@ class AdminUserControllerTest {
 		mockMvc.perform(get("/api/v1/admin/users")
 				.header("Authorization", "Bearer " + bureauToken))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$[?(@.email=='member.admin@ensem.jee')]").exists());
+				.andExpect(jsonPath("$.content[?(@.email=='member.admin@ensem.jee')]").exists());
 
 		mockMvc.perform(patch("/api/v1/admin/users/" + memberId + "/active")
 				.header("Authorization", "Bearer " + bureauToken)

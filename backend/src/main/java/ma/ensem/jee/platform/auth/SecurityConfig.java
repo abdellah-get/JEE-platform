@@ -70,6 +70,14 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> {
 					auth.requestMatchers("/api/v1/health").permitAll()
 							.requestMatchers("/api/v1/auth/**").permitAll()
+							.requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+							.requestMatchers("/actuator/**").authenticated()
+							.requestMatchers(
+									"/v3/api-docs",
+									"/v3/api-docs/**",
+									"/swagger-ui.html",
+									"/swagger-ui/**")
+							.authenticated()
 							.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
 					if (h2ConsoleEnabled) {
 						auth.requestMatchers("/h2-console/**").permitAll();

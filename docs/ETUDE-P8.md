@@ -53,7 +53,7 @@ Canvas associé (IDE) : `audit-platforme-p8.canvas.tsx`.
 3. Rate-limit **in-memory**, `X-Forwarded-For` 1er hop ; `/refresh` et `/reset-password` non limités.
 4. Politique MDP = longueur 8 seulement.
 5. `GET /api/v1/users` expose emails à tout membre authentifié.
-6. Health **statique** (pas de check DB) ; pas d’Actuator ; pas de pagination listes.
+6. ~~Health statique / pas Actuator / pas pagination~~ → mitigé (#94 health DB, #99 pagination + Actuator + OpenAPI).
 7. Domaines JE absents : pièces jointes, événements, cotisations, recrutement.
 
 ---

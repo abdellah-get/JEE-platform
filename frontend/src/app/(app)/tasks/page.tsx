@@ -7,6 +7,7 @@ import { useState } from "react";
 import { DueBadge } from "@/components/tasks/DueBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
+import { PaginationBar } from "@/components/ui/PaginationBar";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
@@ -24,21 +25,24 @@ export default function MyTasksPage() {
   const [status, setStatus] = useState<TaskStatus | "">("");
   const [priority, setPriority] = useState<TaskPriority | "">("");
   const [projectId, setProjectId] = useState("");
+  const [page, setPage] = useState(0);
 
   const filters = {
     status: status || undefined,
     priority: priority || undefined,
     projectId: projectId || undefined,
+    page,
   };
 
-  const { data: projects = [] } = useQuery({
-    queryKey: queryKeys.projects,
-    queryFn: () => api.listProjects(accessToken!),
+  const { data: projectsPage } = useQuery({
+    queryKey: queryKeys.projects(0),
+    queryFn: () => api.listProjects(accessToken!, 0, 100),
     enabled: Boolean(accessToken),
   });
+  const projects = projectsPage?.content ?? [];
 
   const {
-    data: tasks = [],
+    data: tasksPage,
     error,
     isPending,
   } = useQuery({
@@ -46,6 +50,7 @@ export default function MyTasksPage() {
     queryFn: () => api.listMyTasks(accessToken!, filters),
     enabled: Boolean(accessToken),
   });
+  const tasks = tasksPage?.content ?? [];
 
   if (loading || !accessToken) {
     return <LoadingBlock />;
@@ -71,7 +76,10 @@ export default function MyTasksPage() {
         <select
           id="filter-status"
           value={status}
-          onChange={(e) => setStatus(e.target.value as TaskStatus | "")}
+          onChange={(e) => {
+            setStatus(e.target.value as TaskStatus | "");
+            setPage(0);
+          }}
           aria-label="Filtrer par statut"
           className="rounded-lg border border-line px-2 py-1.5 text-sm"
         >
@@ -86,7 +94,10 @@ export default function MyTasksPage() {
         <select
           id="filter-priority"
           value={priority}
-          onChange={(e) => setPriority(e.target.value as TaskPriority | "")}
+          onChange={(e) => {
+            setPriority(e.target.value as TaskPriority | "");
+            setPage(0);
+          }}
           aria-label="Filtrer par priorité"
           className="rounded-lg border border-line px-2 py-1.5 text-sm"
         >
@@ -101,7 +112,10 @@ export default function MyTasksPage() {
         <select
           id="filter-project"
           value={projectId}
-          onChange={(e) => setProjectId(e.target.value)}
+          onChange={(e) => {
+            setProjectId(e.target.value);
+            setPage(0);
+          }}
           aria-label="Filtrer par projet"
           className="min-w-[160px] flex-1 rounded-lg border border-line px-2 py-1.5 text-sm"
         >
@@ -133,42 +147,50 @@ export default function MyTasksPage() {
           }
         />
       ) : (
-        <ul className="divide-y divide-line surface-quiet">
-          {tasks.map((task) => (
-            <li key={task.id} className="px-4 py-3">
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-medium text-ink">{task.title}</p>
-                    <DueBadge dueDate={task.dueDate} status={task.status} />
-                  </div>
-                  {task.description && (
-                    <p className="mt-1 line-clamp-2 text-xs text-muted">
-                      {task.description}
+        <>
+          <ul className="divide-y divide-line surface-quiet">
+            {tasks.map((task) => (
+              <li key={task.id} className="px-4 py-3">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-medium text-ink">{task.title}</p>
+                      <DueBadge dueDate={task.dueDate} status={task.status} />
+                    </div>
+                    {task.description && (
+                      <p className="mt-1 line-clamp-2 text-xs text-muted">
+                        {task.description}
+                      </p>
+                    )}
+                    <p className="mt-0.5 text-xs text-muted">
+                      {taskStatusLabel(task.status)} · {priorityLabel(task.priority)}
+                      {task.dueDate ? (
+                        <>
+                          {" · échéance "}
+                          <span className={dueDateClassName(task.dueDate, task.status)}>
+                            {formatDueDate(task.dueDate)}
+                          </span>
+                        </>
+                      ) : null}
                     </p>
-                  )}
-                  <p className="mt-0.5 text-xs text-muted">
-                    {taskStatusLabel(task.status)} · {priorityLabel(task.priority)}
-                    {task.dueDate ? (
-                      <>
-                        {" · échéance "}
-                        <span className={dueDateClassName(task.dueDate, task.status)}>
-                          {formatDueDate(task.dueDate)}
-                        </span>
-                      </>
-                    ) : null}
-                  </p>
+                  </div>
+                  <Link
+                    href={`/projects/${task.projectId}/tasks`}
+                    className="text-xs font-medium text-ink/80 underline"
+                  >
+                    {task.projectName}
+                  </Link>
                 </div>
-                <Link
-                  href={`/projects/${task.projectId}/tasks`}
-                  className="text-xs font-medium text-ink/80 underline"
-                >
-                  {task.projectName}
-                </Link>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+          <PaginationBar
+            page={tasksPage?.page ?? page}
+            totalPages={tasksPage?.totalPages ?? 0}
+            totalElements={tasksPage?.totalElements ?? 0}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </div>
   );

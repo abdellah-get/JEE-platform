@@ -54,6 +54,8 @@ Repo → **Settings** → **Code security** → Dependabot alerts + Dependabot s
 | **Health DB** | `GET /api/v1/health` renvoie `db=UP|DOWN` ; HTTP 503 si la base est inaccessible. |
 | **Rate-limit auth étendu** | Aussi `POST /auth/refresh` et `/auth/reset-password` (même fenêtre / IP). |
 | **Access JWT hors `localStorage`** | Access token en **mémoire** (React + module). Reprise de session uniquement via cookie HttpOnly `refresh_token`. Profil `jee_user` peut rester en `localStorage` (pas un secret). Cookie client `jee_auth` = hint middleware non secret. |
+| **Actuator** | Exposé : `/actuator/health` (+ `liveness` / `readiness` probes) public. Autres endpoints Actuator : authentifiés. Détails health : `never`. |
+| **OpenAPI / Swagger** | `/v3/api-docs` + `/swagger-ui.html` **authentifiés** (JWT). Désactivable : `SPRINGDOC_ENABLED=false`. |
 
 Variables : `AUTH_RATE_LIMIT_ENABLED`, `AUTH_RATE_LIMIT_MAX`, `AUTH_RATE_LIMIT_WINDOW_SECONDS`.
 

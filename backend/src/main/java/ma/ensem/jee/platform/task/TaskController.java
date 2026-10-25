@@ -1,6 +1,5 @@
 package ma.ensem.jee.platform.task;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.task.dto.TaskResponse;
 import ma.ensem.jee.platform.task.dto.UpdateTaskRequest;
 
@@ -29,11 +29,13 @@ public class TaskController {
 	}
 
 	@GetMapping("/me/tasks")
-	public List<TaskResponse> myTasks(
+	public PageResponse<TaskResponse> myTasks(
 			@RequestParam(required = false) TaskStatus status,
 			@RequestParam(required = false) TaskPriority priority,
-			@RequestParam(required = false) UUID projectId) {
-		return taskService.listMine(status, priority, projectId);
+			@RequestParam(required = false) UUID projectId,
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size) {
+		return PageResponse.slice(taskService.listMine(status, priority, projectId), page, size);
 	}
 
 	@GetMapping("/tasks/{taskId}")

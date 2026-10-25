@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.project.dto.CreateProjectRequest;
 import ma.ensem.jee.platform.project.dto.ProjectActivityResponse;
 import ma.ensem.jee.platform.project.dto.ProjectMemberResponse;
@@ -39,8 +41,10 @@ public class ProjectController {
 	}
 
 	@GetMapping
-	public List<ProjectResponse> list() {
-		return projectService.list();
+	public PageResponse<ProjectResponse> list(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size) {
+		return PageResponse.slice(projectService.list(), page, size);
 	}
 
 	@GetMapping("/{projectId}")

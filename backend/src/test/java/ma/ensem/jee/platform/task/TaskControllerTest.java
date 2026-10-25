@@ -104,8 +104,8 @@ class TaskControllerTest {
 		mockMvc.perform(get("/api/v1/me/tasks")
 				.header("Authorization", "Bearer " + chefToken))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(1))
-				.andExpect(jsonPath("$[0].projectName").value("Kanban JE"));
+				.andExpect(jsonPath("$.totalElements").value(1))
+				.andExpect(jsonPath("$.content[0].projectName").value("Kanban JE"));
 
 		mockMvc.perform(get("/api/v1/projects/" + projectId + "/tasks")
 				.header("Authorization", "Bearer " + outsiderToken))

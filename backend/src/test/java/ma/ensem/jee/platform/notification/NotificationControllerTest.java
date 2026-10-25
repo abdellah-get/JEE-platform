@@ -97,13 +97,13 @@ class NotificationControllerTest {
 				mockMvc.perform(get("/api/v1/notifications")
 						.header("Authorization", "Bearer " + memberToken))
 						.andExpect(status().isOk())
-						.andExpect(jsonPath("$.length()").value(1))
-						.andExpect(jsonPath("$[0].type").value("TASK_ASSIGNED"))
-						.andExpect(jsonPath("$[0].read").value(false))
+						.andExpect(jsonPath("$.totalElements").value(1))
+						.andExpect(jsonPath("$.content[0].type").value("TASK_ASSIGNED"))
+						.andExpect(jsonPath("$.content[0].read").value(false))
 						.andReturn()
 						.getResponse()
 						.getContentAsString(),
-				"$[0].id");
+				"$.content[0].id");
 
 		mockMvc.perform(post("/api/v1/notifications/" + notifId + "/read")
 				.header("Authorization", "Bearer " + memberToken))
@@ -126,8 +126,8 @@ class NotificationControllerTest {
 				.header("Authorization", "Bearer " + memberToken)
 				.param("unreadOnly", "true"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.length()").value(1))
-				.andExpect(jsonPath("$[0].type").value("ANNOUNCEMENT_PINNED"));
+				.andExpect(jsonPath("$.totalElements").value(1))
+				.andExpect(jsonPath("$.content[0].type").value("ANNOUNCEMENT_PINNED"));
 
 		mockMvc.perform(post("/api/v1/notifications/read-all")
 				.header("Authorization", "Bearer " + memberToken))

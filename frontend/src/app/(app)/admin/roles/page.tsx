@@ -5,36 +5,39 @@ import { useEffect, useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
+import { PaginationBar } from "@/components/ui/PaginationBar";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canAccessAdmin, canManageClubRoles } from "@/lib/auth-storage";
-import type { AdminUser, ClubRole } from "@/lib/types";
+import type { AdminUser, ClubRole, PageResponse } from "@/lib/types";
 
 const ROLES: ClubRole[] = ["MEMBRE", "BUREAU", "ADMIN_TECH"];
 
 export default function AdminRolesPage() {
   const { accessToken, user, loading } = useAuth();
   const toast = useToast();
-  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [pageData, setPageData] = useState<PageResponse<AdminUser> | null>(null);
+  const [page, setPage] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [listBusy, setListBusy] = useState(true);
 
   const canEdit = canManageClubRoles(user?.clubRole);
+  const users = pageData?.content ?? [];
 
   useEffect(() => {
     if (!accessToken || !canAccessAdmin(user?.clubRole)) return;
     setListBusy(true);
     api
-      .listAdminUsers(accessToken)
-      .then(setUsers)
+      .listAdminUsers(accessToken, page)
+      .then(setPageData)
       .catch((err) =>
         setError(err instanceof ApiError ? err.message : "Chargement impossible"),
       )
       .finally(() => setListBusy(false));
-  }, [accessToken, user?.clubRole]);
+  }, [accessToken, user?.clubRole, page]);
 
   if (loading || !user || !accessToken) {
     return <LoadingBlock />;
@@ -64,8 +67,15 @@ export default function AdminRolesPage() {
         target.userId,
         clubRole,
       );
-      setUsers((prev) =>
-        prev.map((u) => (u.userId === updated.userId ? updated : u)),
+      setPageData((prev) =>
+        prev
+          ? {
+              ...prev,
+              content: prev.content.map((u) =>
+                u.userId === updated.userId ? updated : u,
+              ),
+            }
+          : prev,
       );
       toast.success(`Rôle mis à jour : ${clubRole}.`);
     } catch (err) {
@@ -103,42 +113,50 @@ export default function AdminRolesPage() {
       ) : users.length === 0 ? (
         <EmptyState title="Aucun membre" description="Aucun compte enregistré." />
       ) : (
-        <ul className="divide-y divide-line surface-quiet">
-          {users.map((u) => (
-            <li
-              key={u.userId}
-              className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
-            >
-              <div>
-                <p className="text-sm font-medium">
-                  {u.firstName} {u.lastName}
-                  {!u.active && (
-                    <span className="ml-2 text-xs text-muted">(inactif)</span>
-                  )}
-                </p>
-                <p className="text-xs text-muted">{u.email}</p>
-              </div>
-              {canEdit ? (
-                <select
-                  value={u.clubRole}
-                  disabled={busyId === u.userId}
-                  onChange={(e) => onRoleChange(u, e.target.value as ClubRole)}
-                  className="rounded-lg border border-line px-2 py-1.5 text-sm disabled:opacity-50"
-                >
-                  {ROLES.map((role) => (
-                    <option key={role} value={role}>
-                      {role}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <span className="rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-medium">
-                  {u.clubRole}
-                </span>
-              )}
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="divide-y divide-line surface-quiet">
+            {users.map((u) => (
+              <li
+                key={u.userId}
+                className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+              >
+                <div>
+                  <p className="text-sm font-medium">
+                    {u.firstName} {u.lastName}
+                    {!u.active && (
+                      <span className="ml-2 text-xs text-muted">(inactif)</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted">{u.email}</p>
+                </div>
+                {canEdit ? (
+                  <select
+                    value={u.clubRole}
+                    disabled={busyId === u.userId}
+                    onChange={(e) => onRoleChange(u, e.target.value as ClubRole)}
+                    className="rounded-lg border border-line px-2 py-1.5 text-sm disabled:opacity-50"
+                  >
+                    {ROLES.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <span className="rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-medium">
+                    {u.clubRole}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+          <PaginationBar
+            page={pageData?.page ?? page}
+            totalPages={pageData?.totalPages ?? 0}
+            totalElements={pageData?.totalElements ?? 0}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </div>
   );

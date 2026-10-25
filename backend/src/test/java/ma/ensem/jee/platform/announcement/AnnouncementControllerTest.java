@@ -69,8 +69,8 @@ class AnnouncementControllerTest {
 		mockMvc.perform(get("/api/v1/announcements")
 				.header("Authorization", "Bearer " + memberToken))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$[0].title").value("AG demain"))
-				.andExpect(jsonPath("$[0].pinned").value(true));
+				.andExpect(jsonPath("$.content[0].title").value("AG demain"))
+				.andExpect(jsonPath("$.content[0].pinned").value(true));
 
 		mockMvc.perform(get("/api/v1/dashboard")
 				.header("Authorization", "Bearer " + bureauToken))

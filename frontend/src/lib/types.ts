@@ -138,6 +138,16 @@ export type Announcement = {
   updatedAt: string;
 };
 
+export type PageResponse<T> = {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+};
+
 export type ClubEvent = {
   id: string;
   title: string;
