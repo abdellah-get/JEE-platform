@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
@@ -37,23 +38,18 @@ export default function AnnouncementsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="section-label">Communication</p>
-          <h1 className="page-title mt-1">Annonces</h1>
-          <p className="page-subtitle">
-            Les annonces urgentes (épinglées) apparaissent en tête.
-          </p>
-        </div>
-        {canWrite && (
-          <Link
-            href="/announcements/new"
-            className="btn btn-primary"
-          >
-            Nouvelle
-          </Link>
-        )}
-      </div>
+      <PageHeader
+        eyebrow="Club"
+        title="Annonces"
+        description="Infos du bureau — les urgentes restent en tête de liste."
+        actions={
+          canWrite ? (
+            <Link href="/announcements/new" className="btn btn-primary">
+              Publier
+            </Link>
+          ) : undefined
+        }
+      />
 
       {error && (
         <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
@@ -79,7 +75,7 @@ export default function AnnouncementsPage() {
           }
         />
       ) : (
-        <ul className="space-y-3">
+        <ul className="stagger-list space-y-3">
           {items.map((a) => (
             <li key={a.id}>
               <Link
@@ -89,7 +85,9 @@ export default function AnnouncementsPage() {
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
-                  <p className="font-medium text-ink">{a.title}</p>
+                  <p className="font-[family-name:var(--font-syne)] font-semibold tracking-tight text-ink">
+                    {a.title}
+                  </p>
                   {a.pinned && (
                     <span className="shrink-0 rounded-full bg-warning/20 px-2 py-0.5 text-xs font-semibold text-warning">
                       Urgent

@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
-  ESEM Engineering Junior-Entreprise
+  ENSEM Engineering Junior-Entreprise
   Bordeaux #8B2E3B · charcoal · motion sobre (pas de “SaaS glow”)
 */
 :root {
@@ -42,7 +42,7 @@
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
   --font-sans: var(--font-manrope);
-  --font-display: var(--font-manrope);
+  --font-display: var(--font-syne);
 }
 
 html {
@@ -57,8 +57,13 @@ body {
   background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-manrope), "Segoe UI", sans-serif;
+  font-feature-settings: "ss01" on, "cv11" on;
+  font-size: 15.5px;
+  line-height: 1.55;
+  letter-spacing: -0.011em;
   min-height: 100dvh;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
@@ -225,26 +230,105 @@ body {
   }
 
   .page-title {
-    font-size: clamp(1.45rem, 1.2rem + 1vw, 1.85rem);
-    font-weight: 750;
-    letter-spacing: -0.035em;
+    font-family: var(--font-syne), var(--font-manrope), sans-serif;
+    font-size: clamp(1.55rem, 1.25rem + 1.1vw, 2.05rem);
+    font-weight: 700;
+    letter-spacing: -0.045em;
     color: var(--ink);
-    line-height: 1.15;
+    line-height: 1.08;
   }
 
   .page-subtitle {
-    margin-top: 0.4rem;
-    font-size: 0.925rem;
+    margin-top: 0.45rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
     color: var(--muted);
-    max-width: 42rem;
+    max-width: 38rem;
+    letter-spacing: -0.01em;
   }
 
   .section-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-family: var(--font-syne), sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     color: var(--brand);
+  }
+
+  .display-hero {
+    font-family: var(--font-syne), sans-serif;
+    font-weight: 750;
+    letter-spacing: -0.05em;
+    line-height: 0.98;
+  }
+
+  .prose-ui {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+
+  .prose-ui p + p {
+    margin-top: 0.75rem;
+  }
+
+  .stagger-list > * {
+    animation: reveal-up 480ms var(--ease-out) both;
+  }
+
+  .stagger-list > *:nth-child(1) {
+    animation-delay: 40ms;
+  }
+  .stagger-list > *:nth-child(2) {
+    animation-delay: 80ms;
+  }
+  .stagger-list > *:nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .stagger-list > *:nth-child(4) {
+    animation-delay: 160ms;
+  }
+  .stagger-list > *:nth-child(5) {
+    animation-delay: 200ms;
+  }
+  .stagger-list > *:nth-child(6) {
+    animation-delay: 240ms;
+  }
+  .stagger-list > *:nth-child(7) {
+    animation-delay: 280ms;
+  }
+  .stagger-list > *:nth-child(8) {
+    animation-delay: 320ms;
+  }
+  .stagger-list > *:nth-child(n + 9) {
+    animation-delay: 360ms;
+  }
+
+  .progress-track {
+    height: 0.4rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--brand-soft);
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--brand), #b04a58);
+    transform-origin: left center;
+    animation: progress-grow 700ms var(--ease-out) both;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    background: var(--brand-soft);
+    padding: 0.2rem 0.65rem;
+    font-size: 0.72rem;
+    font-weight: 650;
+    color: var(--brand-dark);
+    letter-spacing: -0.01em;
   }
 
   .input-field {
@@ -383,6 +467,17 @@ body {
   }
 }
 
+@keyframes progress-grow {
+  from {
+    transform: scaleX(0.15);
+    opacity: 0.55;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -392,7 +487,9 @@ body {
   .reveal-up,
   .auth-enter,
   .toast-pop,
-  .skeleton-pulse {
+  .skeleton-pulse,
+  .progress-fill,
+  .stagger-list > * {
     animation: none !important;
   }
 

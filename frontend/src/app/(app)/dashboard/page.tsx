@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { DueBadge } from "@/components/tasks/DueBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
@@ -80,30 +81,28 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="section-label">Vue d&apos;ensemble</p>
-          <h1 className="page-title mt-1">Dashboard</h1>
-          <p className="page-subtitle">
-            Bonjour {user.firstName}. Vue {user.clubRole.toLowerCase()}.
-          </p>
-        </div>
-        {isBureau && (
-          <button
-            type="button"
-            onClick={handleExport}
-            disabled={exporting}
-            className="btn btn-secondary"
-          >
-            {exporting ? "Export…" : "Exporter CSV"}
-          </button>
-        )}
-      </div>
+      <PageHeader
+        eyebrow="Aujourd’hui"
+        title={`Salut, ${user.firstName}`}
+        description="Ce qui avance dans le club — projets, tâches et signaux urgents."
+        actions={
+          isBureau ? (
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={exporting}
+              className="btn btn-secondary"
+            >
+              {exporting ? "Export…" : "Exporter CSV"}
+            </button>
+          ) : undefined
+        }
+      />
 
       {data.pinnedAnnouncements.length > 0 && (
         <section className="space-y-3">
-          <h2 className="section-label">Annonces urgentes</h2>
-          <ul className="space-y-2">
+          <h2 className="section-label">À traiter en priorité</h2>
+          <ul className="stagger-list space-y-2">
             {data.pinnedAnnouncements.map((a) => (
               <li key={a.id}>
                 <Link
@@ -121,7 +120,7 @@ export default function DashboardPage() {
 
       {kpis && (
         <section className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="stagger-list grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {[
               ["Membres actifs", kpis.activeMembers],
               ["Projets", kpis.totalProjects],
@@ -131,7 +130,7 @@ export default function DashboardPage() {
             ].map(([label, value]) => (
               <div key={String(label)} className="kpi-tile">
                 <p className="text-xs text-muted">{label}</p>
-                <p className="mt-1 text-2xl font-bold tracking-tight text-brand">
+                <p className="mt-1 font-[family-name:var(--font-syne)] text-2xl font-bold tracking-tight text-brand">
                   {value}
                 </p>
               </div>

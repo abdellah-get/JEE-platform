@@ -17,10 +17,8 @@ export function AuthShell({
           <div className="rounded-2xl bg-surface/70 p-3 shadow-[var(--shadow-soft)] ring-1 ring-line backdrop-blur-sm">
             <ClubLogo size="lg" />
           </div>
-          <p className="mt-5 text-xs font-bold tracking-[0.2em] text-brand">
-            ESEM ENGINEERING
-          </p>
-          <h1 className="mt-2 page-title text-[1.8rem]">{title}</h1>
+          <p className="section-label mt-5">ENSEM Engineering</p>
+          <h1 className="page-title mt-2 text-[1.9rem]">{title}</h1>
           <p className="page-subtitle max-w-sm">{subtitle}</p>
         </div>
         <div className="surface p-6 sm:p-8">{children}</div>

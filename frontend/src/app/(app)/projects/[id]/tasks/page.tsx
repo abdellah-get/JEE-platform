@@ -313,10 +313,10 @@ export default function ProjectTasksPage() {
           >
             ← {project.name}
           </Link>
-          <h1 className="mt-2 page-title">Kanban</h1>
-          <p className="mt-1 text-sm text-muted">
-            Avancement : {project.progressPercent}% · glisser ou flèches clavier
-            pour déplacer · cliquer pour éditer
+          <h1 className="mt-2 page-title">Tableau Kanban</h1>
+          <p className="page-subtitle">
+            {project.progressPercent}% d’avancement — glisse les cartes, ou utilise
+            les flèches clavier. Clique pour éditer.
           </p>
         </div>
       </div>

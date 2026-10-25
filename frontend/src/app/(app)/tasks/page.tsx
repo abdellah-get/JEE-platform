@@ -66,16 +66,22 @@ export default function MyTasksPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="page-title">Mes tâches</h1>
-        <p className="mt-1 text-sm text-muted">
-          Tâches qui te sont assignées, tous projets confondus.
+        <p className="section-label">Travail personnel</p>
+        <h1 className="page-title mt-1">Mes tâches</h1>
+        <p className="page-subtitle">
+          Tout ce qui t’est assigné, tous projets confondus.
         </p>
       </div>
 
       <div className="flex flex-wrap gap-2 surface-quiet p-3">
+        <label className="sr-only" htmlFor="filter-status">
+          Filtrer par statut
+        </label>
         <select
+          id="filter-status"
           value={status}
           onChange={(e) => setStatus(e.target.value as TaskStatus | "")}
+          aria-label="Filtrer par statut"
           className="rounded-lg border border-line px-2 py-1.5 text-sm"
         >
           <option value="">Tous statuts</option>
@@ -83,9 +89,14 @@ export default function MyTasksPage() {
           <option value="IN_PROGRESS">En cours</option>
           <option value="DONE">Fait</option>
         </select>
+        <label className="sr-only" htmlFor="filter-priority">
+          Filtrer par priorité
+        </label>
         <select
+          id="filter-priority"
           value={priority}
           onChange={(e) => setPriority(e.target.value as TaskPriority | "")}
+          aria-label="Filtrer par priorité"
           className="rounded-lg border border-line px-2 py-1.5 text-sm"
         >
           <option value="">Toutes priorités</option>
@@ -93,9 +104,14 @@ export default function MyTasksPage() {
           <option value="MEDIUM">Moyenne</option>
           <option value="HIGH">Haute</option>
         </select>
+        <label className="sr-only" htmlFor="filter-project">
+          Filtrer par projet
+        </label>
         <select
+          id="filter-project"
           value={projectId}
           onChange={(e) => setProjectId(e.target.value)}
+          aria-label="Filtrer par projet"
           className="min-w-[160px] flex-1 rounded-lg border border-line px-2 py-1.5 text-sm"
         >
           <option value="">Tous projets</option>

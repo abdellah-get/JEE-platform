@@ -11,12 +11,12 @@ import { useAuth } from "@/context/AuthContext";
 import { canAccessAdmin } from "@/lib/auth-storage";
 
 const NAV = [
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/dashboard", label: "Vue d’ensemble" },
   { href: "/projects", label: "Projets" },
   { href: "/tasks", label: "Mes tâches" },
   { href: "/announcements", label: "Annonces" },
   { href: "/notifications", label: "Notifications" },
-  { href: "/profile", label: "Profil" },
+  { href: "/profile", label: "Mon profil" },
 ] as const;
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -138,13 +138,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Menu
           </button>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">ESEM Platform</p>
+            <p className="truncate text-sm font-semibold">ENSEM Platform</p>
           </div>
           <NotificationBell />
         </header>
         <div className="glass-bar hidden items-center justify-between px-8 py-3.5 md:flex">
           <p className="text-sm text-muted">
-            Études et conseils — plateforme projets
+            Études &amp; conseils · espace membres
           </p>
           <NotificationBell />
         </div>

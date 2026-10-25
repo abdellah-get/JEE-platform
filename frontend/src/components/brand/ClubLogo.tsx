@@ -23,8 +23,8 @@ export function ClubLogo({
   return (
     <div className={`flex items-center gap-3 ${className}`}>
       <Image
-        src="/esem-logo.png"
-        alt="ESEM Engineering Junior-Entreprise"
+        src="/ensem-logo.png"
+        alt="ENSEM Engineering Junior-Entreprise"
         width={dim.w}
         height={dim.h}
         className="h-auto w-auto object-contain"
@@ -32,10 +32,10 @@ export function ClubLogo({
       />
       {showWordmark ? (
         <div className="min-w-0">
-          <p className="truncate text-sm font-bold tracking-tight text-ink">
-            ESEM Engineering
+          <p className="truncate font-[family-name:var(--font-syne)] text-[0.95rem] font-bold tracking-tight text-ink">
+            ENSEM Platform
           </p>
-          <p className="truncate text-xs text-muted">Junior-Entreprise</p>
+          <p className="truncate text-[0.7rem] text-muted">Junior-Entreprise</p>
         </div>
       ) : null}
     </div>

@@ -138,7 +138,7 @@ export default function ProjectSettingsPage() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
-            className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-line0"
+            className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand"
           />
         </div>
         <div>
@@ -149,7 +149,7 @@ export default function ProjectSettingsPage() {
             id="status"
             value={status}
             onChange={(e) => setStatus(e.target.value as ProjectStatus)}
-            className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-line0"
+            className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand"
           >
             {PROJECT_STATUSES.map((s) => (
               <option key={s} value={s}>

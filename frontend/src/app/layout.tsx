@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Manrope, Syne } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -9,10 +9,17 @@ const manrope = Manrope({
   display: "swap",
 });
 
+const syne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["500", "600", "700", "800"],
+});
+
 export const metadata: Metadata = {
-  title: "ESEM Platform — Junior-Entreprise",
+  title: "ENSEM Platform — Junior-Entreprise",
   description:
-    "Plateforme d'avancement de projets de ESEM Engineering Junior-Entreprise",
+    "Pilote projets, tâches et annonces de ENSEM Engineering Junior-Entreprise.",
 };
 
 export default function RootLayout({
@@ -22,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr">
-      <body className={`${manrope.variable} antialiased`}>
+      <body className={`${manrope.variable} ${syne.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>
