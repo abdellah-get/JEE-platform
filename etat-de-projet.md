@@ -21,7 +21,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
-| P8 Sécurité session & UX SaaS | **En cours** | 9/13 (#87–#99) |
+| P8 Sécurité session & UX SaaS | **En cours** | 10/13 (#87–#99) |
 
 Étude : [docs/ETUDE-P8.md](./docs/ETUDE-P8.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
@@ -120,7 +120,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [93](https://github.com/abdellah-get/JEE-platform/issues/93) | ConfirmDialog + focus trap + a11y cloche | **Terminé** |
 | [94](https://github.com/abdellah-get/JEE-platform/issues/94) | Headers + rate-limit refresh/reset + health DB | **Terminé** |
 | [95](https://github.com/abdellah-get/JEE-platform/issues/95) | Élargir E2E | **Terminé** |
-| [96](https://github.com/abdellah-get/JEE-platform/issues/96) | Pièces jointes / livrables | À faire |
+| [96](https://github.com/abdellah-get/JEE-platform/issues/96) | Pièces jointes / livrables | **Terminé** |
 | [97](https://github.com/abdellah-get/JEE-platform/issues/97) | Événements + calendrier | À faire |
 | [98](https://github.com/abdellah-get/JEE-platform/issues/98) | Access token hors localStorage | À faire |
 | [99](https://github.com/abdellah-get/JEE-platform/issues/99) | Pagination + OpenAPI + Actuator | À faire |
@@ -128,6 +128,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #96 terminée (pièces jointes / livrables)
+
+**Fait :**
+- Flyway **V10** `project_attachments` + stockage local (`AttachmentStorage`)
+- API list/upload/download/delete (authz membre ; delete uploader/chef/bureau)
+- Contrôles type MIME + taille 5 Mo
+- UI livrables sur fiche projet
+
+**Prochaine mission :** [#97](https://github.com/abdellah-get/JEE-platform/issues/97) — événements + calendrier.
 
 ### 2026-10-25 — Mission #95 terminée (élargir E2E)
 

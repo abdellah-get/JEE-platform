@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { ProjectAttachments } from "@/components/projects/ProjectAttachments";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
@@ -139,6 +140,13 @@ export default function ProjectDetailPage() {
           </Link>
         )}
       </div>
+
+      <ProjectAttachments
+        projectId={project.id}
+        accessToken={accessToken}
+        currentUserId={user.userId}
+        canDeleteAny={manage}
+      />
 
       <div className="surface-quiet p-5">
         <h2 className="text-sm font-semibold text-ink">Membres</h2>
