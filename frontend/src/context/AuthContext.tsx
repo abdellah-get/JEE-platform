@@ -97,9 +97,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         clearSession();
         setAccessToken(null);
         setUser(null);
+        // Middleware may still show app chrome via cookie — force login.
+        const path =
+          typeof window !== "undefined" ? window.location.pathname : "";
+        if (
+          path &&
+          !path.startsWith("/login") &&
+          !path.startsWith("/register") &&
+          !path.startsWith("/forgot-password") &&
+          !path.startsWith("/reset-password")
+        ) {
+          router.replace(
+            `/login?next=${encodeURIComponent(
+              `${path}${window.location.search}`,
+            )}`,
+          );
+        }
       })
       .finally(() => setLoading(false));
-  }, [applyAuth]);
+  }, [applyAuth, router]);
 
   const login = useCallback(
     async (email: string, password: string) => {

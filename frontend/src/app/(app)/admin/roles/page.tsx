@@ -30,12 +30,14 @@ export default function AdminRolesPage() {
   useEffect(() => {
     if (!accessToken || !canAccessAdmin(user?.clubRole)) return;
     setListBusy(true);
+    setError(null);
     api
       .listAdminUsers(accessToken, page)
       .then(setPageData)
-      .catch((err) =>
-        setError(err instanceof ApiError ? err.message : "Chargement impossible"),
-      )
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) return;
+        setError(err instanceof ApiError ? err.message : "Chargement impossible");
+      })
       .finally(() => setListBusy(false));
   }, [accessToken, user?.clubRole, page]);
 

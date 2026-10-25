@@ -37,6 +37,7 @@ export default function EventDetailPage() {
 
   useEffect(() => {
     if (!accessToken || !params.id) return;
+    setError(null);
     api
       .getEvent(accessToken, params.id)
       .then((e) => {
@@ -47,9 +48,10 @@ export default function EventDetailPage() {
         setEditStartsAt(toDatetimeLocalValue(e.startsAt));
         setEditEndsAt(toDatetimeLocalValue(e.endsAt));
       })
-      .catch((err) =>
-        setError(err instanceof ApiError ? err.message : "Chargement impossible"),
-      );
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) return;
+        setError(err instanceof ApiError ? err.message : "Chargement impossible");
+      });
   }, [accessToken, params.id]);
 
   if (loading || !user || !accessToken) {

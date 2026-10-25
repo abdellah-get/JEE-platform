@@ -86,9 +86,14 @@ function toUser(res: AuthResponse): AuthUser {
   };
 }
 
+function forceLogout() {
+  clearSession();
+  authSessionHandlers.onCleared?.();
+}
+
 /**
  * Single-flight refresh via HttpOnly cookie. Puts access JWT in memory + AuthProvider.
- * Returns the new access token, or null if the session is dead.
+ * Returns the new access token, or null if the session is dead (caller must logout).
  */
 async function silentRefresh(): Promise<string | null> {
   if (!refreshInFlight) {
@@ -100,8 +105,6 @@ async function silentRefresh(): Promise<string | null> {
           headers: CSRF_HEADER,
         });
         if (!res.ok) {
-          clearSession();
-          authSessionHandlers.onCleared?.();
           return null;
         }
         const data = (await res.json()) as AuthResponse;
@@ -111,8 +114,6 @@ async function silentRefresh(): Promise<string | null> {
         authSessionHandlers.onRefreshed?.(data);
         return data.accessToken;
       } catch {
-        clearSession();
-        authSessionHandlers.onCleared?.();
         return null;
       } finally {
         refreshInFlight = null;
@@ -143,12 +144,15 @@ export async function apiFetch<T>(
   });
 
   if (!res.ok) {
-    // 401 = session/token dead. Try one silent refresh; on failure AuthProvider redirects to /login.
-    if (res.status === 401 && !retried && canSilentRefresh(path)) {
-      const newToken = await silentRefresh();
-      if (newToken) {
-        return apiFetch<T>(path, options, newToken, true);
+    // 401 = session/token dead. One silent refresh; on failure → logout + redirect /login.
+    if (res.status === 401 && canSilentRefresh(path)) {
+      if (!retried) {
+        const newToken = await silentRefresh();
+        if (newToken) {
+          return apiFetch<T>(path, options, newToken, true);
+        }
       }
+      forceLogout();
       throw new ApiError(401, "Session expirée. Reconnecte-toi.");
     }
     throw new ApiError(res.status, await parseError(res));
