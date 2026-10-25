@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { DueBadge } from "@/components/tasks/DueBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -9,59 +10,49 @@ import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
+import { queryKeys } from "@/lib/query-keys";
 import {
   dueDateClassName,
   formatDueDate,
   priorityLabel,
   taskStatusLabel,
 } from "@/lib/tasks";
-import type { Project, Task, TaskPriority, TaskStatus } from "@/lib/types";
+import type { TaskPriority, TaskStatus } from "@/lib/types";
 
 export default function MyTasksPage() {
   const { accessToken, loading } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
   const [status, setStatus] = useState<TaskStatus | "">("");
   const [priority, setPriority] = useState<TaskPriority | "">("");
   const [projectId, setProjectId] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(true);
 
-  useEffect(() => {
-    if (!accessToken) return;
-    api.listProjects(accessToken).then(setProjects).catch(() => setProjects([]));
-  }, [accessToken]);
+  const filters = {
+    status: status || undefined,
+    priority: priority || undefined,
+    projectId: projectId || undefined,
+  };
 
-  useEffect(() => {
-    if (!accessToken) return;
-    let cancelled = false;
-    setBusy(true);
-    setError(null);
-    api
-      .listMyTasks(accessToken, {
-        status: status || undefined,
-        priority: priority || undefined,
-        projectId: projectId || undefined,
-      })
-      .then((data) => {
-        if (!cancelled) setTasks(data);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(err instanceof ApiError ? err.message : "Chargement impossible");
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setBusy(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken, status, priority, projectId]);
+  const { data: projects = [] } = useQuery({
+    queryKey: queryKeys.projects,
+    queryFn: () => api.listProjects(accessToken!),
+    enabled: Boolean(accessToken),
+  });
+
+  const {
+    data: tasks = [],
+    error,
+    isPending,
+  } = useQuery({
+    queryKey: queryKeys.myTasks(filters),
+    queryFn: () => api.listMyTasks(accessToken!, filters),
+    enabled: Boolean(accessToken),
+  });
 
   if (loading || !accessToken) {
     return <LoadingBlock />;
   }
+
+  const errorMessage =
+    error instanceof ApiError ? error.message : error ? "Chargement impossible" : null;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -123,23 +114,20 @@ export default function MyTasksPage() {
         </select>
       </div>
 
-      {error && (
+      {errorMessage && (
         <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
+          {errorMessage}
         </p>
       )}
 
-      {busy ? (
+      {isPending ? (
         <LoadingBlock label="Chargement des tâches…" />
       ) : tasks.length === 0 ? (
         <EmptyState
           title="Aucune tâche"
           description="Aucune tâche assignée avec ces filtres."
           action={
-            <Link
-              href="/projects"
-              className="btn btn-primary"
-            >
+            <Link href="/projects" className="btn btn-primary">
               Voir les projets
             </Link>
           }

@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
@@ -12,36 +13,21 @@ import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canCreateProject, roleLabel, statusLabel } from "@/lib/projects";
-import type { Project } from "@/lib/types";
+import { queryKeys } from "@/lib/query-keys";
 
 export default function ProjectsPage() {
   const { accessToken, user, loading } = useAuth();
-  const [projects, setProjects] = useState<Project[]>([]);
   const [query, setQuery] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(true);
 
-  useEffect(() => {
-    if (!accessToken) return;
-    let cancelled = false;
-    setBusy(true);
-    api
-      .listProjects(accessToken)
-      .then((data) => {
-        if (!cancelled) setProjects(data);
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(err instanceof ApiError ? err.message : "Chargement impossible");
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setBusy(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken]);
+  const {
+    data: projects = [],
+    error,
+    isPending,
+  } = useQuery({
+    queryKey: queryKeys.projects,
+    queryFn: () => api.listProjects(accessToken!),
+    enabled: Boolean(accessToken),
+  });
 
   const filtered = useMemo(
     () =>
@@ -56,6 +42,8 @@ export default function ProjectsPage() {
   }
 
   const showCreate = canCreateProject(user.clubRole);
+  const errorMessage =
+    error instanceof ApiError ? error.message : error ? "Chargement impossible" : null;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -76,13 +64,13 @@ export default function ProjectsPage() {
         }
       />
 
-      {error && (
+      {errorMessage && (
         <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
+          {errorMessage}
         </p>
       )}
 
-      {busy ? (
+      {isPending ? (
         <LoadingBlock label="Chargement des projets…" />
       ) : projects.length === 0 ? (
         <EmptyState
