@@ -4,12 +4,26 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canManageProject, roleLabel, statusLabel } from "@/lib/projects";
-import type { Project, ProjectMember } from "@/lib/types";
+import type { Project, ProjectActivity, ProjectMember } from "@/lib/types";
+
+function formatActivityTime(iso: string): string {
+  try {
+    return new Date(iso).toLocaleString("fr-FR", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return iso;
+  }
+}
 
 export default function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
@@ -17,6 +31,7 @@ export default function ProjectDetailPage() {
   const { accessToken, user, loading } = useAuth();
   const [project, setProject] = useState<Project | null>(null);
   const [members, setMembers] = useState<ProjectMember[]>([]);
+  const [activity, setActivity] = useState<ProjectActivity[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,11 +40,13 @@ export default function ProjectDetailPage() {
     Promise.all([
       api.getProject(accessToken, projectId),
       api.listProjectMembers(accessToken, projectId),
+      api.listProjectActivity(accessToken, projectId),
     ])
-      .then(([p, m]) => {
+      .then(([p, m, a]) => {
         if (!cancelled) {
           setProject(p);
           setMembers(m);
+          setActivity(a);
         }
       })
       .catch((err) => {
@@ -141,6 +158,28 @@ export default function ProjectDetailPage() {
           </ul>
         )}
       </div>
+
+      <section className="rounded-xl border border-zinc-200 bg-white p-5" aria-label="Fil d’activité">
+        <h2 className="text-sm font-semibold text-zinc-900">Activité récente</h2>
+        {activity.length === 0 ? (
+          <EmptyState
+            compact
+            title="Aucune activité"
+            description="Les créations / déplacements de tâches et changements d’équipe apparaîtront ici."
+          />
+        ) : (
+          <ul className="mt-3 space-y-3">
+            {activity.map((item) => (
+              <li key={item.id} className="border-l-2 border-zinc-200 pl-3 text-sm">
+                <p className="text-zinc-800">{item.message}</p>
+                <p className="mt-0.5 text-xs text-zinc-500">
+                  {formatActivityTime(item.createdAt)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

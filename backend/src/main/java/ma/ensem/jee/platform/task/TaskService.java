@@ -16,6 +16,7 @@ import ma.ensem.jee.platform.common.ResourceNotFoundException;
 import ma.ensem.jee.platform.notification.NotificationService;
 import ma.ensem.jee.platform.project.Project;
 import ma.ensem.jee.platform.project.ProjectAccessService;
+import ma.ensem.jee.platform.project.ProjectActivityService;
 import ma.ensem.jee.platform.project.ProjectMemberRepository;
 import ma.ensem.jee.platform.project.ProjectRepository;
 import ma.ensem.jee.platform.task.dto.CreateTaskRequest;
@@ -32,6 +33,7 @@ public class TaskService {
 	private final ProjectRepository projectRepository;
 	private final ProjectMemberRepository projectMemberRepository;
 	private final ProjectAccessService accessService;
+	private final ProjectActivityService activityService;
 	private final UserRepository userRepository;
 	private final NotificationService notificationService;
 
@@ -40,12 +42,14 @@ public class TaskService {
 			ProjectRepository projectRepository,
 			ProjectMemberRepository projectMemberRepository,
 			ProjectAccessService accessService,
+			ProjectActivityService activityService,
 			UserRepository userRepository,
 			NotificationService notificationService) {
 		this.taskRepository = taskRepository;
 		this.projectRepository = projectRepository;
 		this.projectMemberRepository = projectMemberRepository;
 		this.accessService = accessService;
+		this.activityService = activityService;
 		this.userRepository = userRepository;
 		this.notificationService = notificationService;
 	}
@@ -83,6 +87,7 @@ public class TaskService {
 				current.getId());
 		taskRepository.save(task);
 		recalculateProgress(project);
+		activityService.recordTaskCreated(projectId, current.getId(), task.getId(), task.getTitle());
 		if (assigneeId != null) {
 			notificationService.notifyTaskAssigned(
 					assigneeId, current.getId(), task.getTitle(), projectId);
@@ -113,6 +118,7 @@ public class TaskService {
 		if (request.description() != null) {
 			task.setDescription(normalize(request.description()));
 		}
+		TaskStatus previousStatus = task.getStatus();
 		if (request.status() != null) {
 			task.setStatus(request.status());
 		}
@@ -141,6 +147,15 @@ public class TaskService {
 		}
 
 		recalculateProgress(project);
+		if (request.status() != null && previousStatus != task.getStatus()) {
+			activityService.recordTaskStatusChanged(
+					task.getProjectId(),
+					current.getId(),
+					task.getId(),
+					task.getTitle(),
+					previousStatus,
+					task.getStatus());
+		}
 		if (assigneeChanged && task.getAssigneeId() != null) {
 			notificationService.notifyTaskAssigned(
 					task.getAssigneeId(), current.getId(), task.getTitle(), task.getProjectId());
@@ -155,8 +170,11 @@ public class TaskService {
 				.orElseThrow(() -> new ResourceNotFoundException("Tâche introuvable"));
 		Project project = accessService.requireVisibleProject(task.getProjectId(), current);
 		accessService.requireCanDeleteTask(task.getProjectId(), current);
+		String title = task.getTitle();
+		UUID projectId = task.getProjectId();
 		taskRepository.delete(task);
 		recalculateProgress(project);
+		activityService.recordTaskDeleted(projectId, current.getId(), title);
 	}
 
 	/**
@@ -189,8 +207,13 @@ public class TaskService {
 		TaskStatus status = request.status();
 		for (int i = 0; i < taskIds.size(); i++) {
 			Task task = byId.get(taskIds.get(i));
+			TaskStatus previous = task.getStatus();
 			task.setStatus(status);
 			task.setSortOrder(i);
+			if (previous != status) {
+				activityService.recordTaskStatusChanged(
+						projectId, current.getId(), task.getId(), task.getTitle(), previous, status);
+			}
 		}
 
 		recalculateProgress(project);

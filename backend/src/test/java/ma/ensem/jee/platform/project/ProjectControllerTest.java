@@ -167,6 +167,77 @@ class ProjectControllerTest {
 				.andExpect(status().isForbidden());
 	}
 
+	@Test
+	void projectActivityRecordsTaskAndMemberEventsWithIsolation() throws Exception {
+		String bureauToken = registerAndPromote("bureau.act@ensem.jee", "Bureau", "Act", ClubRole.BUREAU);
+		String chefToken = register("chef.act@ensem.jee", "Chef", "Act");
+		String contribToken = register("contrib.act@ensem.jee", "Contrib", "Act");
+		String outsiderToken = register("out.act@ensem.jee", "Out", "Act");
+		String chefId = userId(chefToken);
+		String contribId = userId(contribToken);
+
+		String projectId = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects")
+						.header("Authorization", "Bearer " + bureauToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "name": "Activity project",
+								  "chefUserId": "%s"
+								}
+								""".formatted(chefId)))
+						.andExpect(status().isCreated())
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		mockMvc.perform(put("/api/v1/projects/" + projectId + "/members")
+				.header("Authorization", "Bearer " + chefToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "members": [
+						    { "userId": "%s", "role": "CHEF_PROJET" },
+						    { "userId": "%s", "role": "CONTRIBUTEUR" }
+						  ]
+						}
+						""".formatted(chefId, contribId)))
+				.andExpect(status().isOk());
+
+		String taskId = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects/" + projectId + "/tasks")
+						.header("Authorization", "Bearer " + chefToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{ "title": "Suivi activité" }
+								"""))
+						.andExpect(status().isCreated())
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		mockMvc.perform(patch("/api/v1/tasks/" + taskId)
+				.header("Authorization", "Bearer " + chefToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{ "status": "IN_PROGRESS" }
+						"""))
+				.andExpect(status().isOk());
+
+		mockMvc.perform(get("/api/v1/projects/" + projectId + "/activity")
+				.header("Authorization", "Bearer " + contribToken))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[?(@.type=='TASK_CREATED')]").isNotEmpty())
+				.andExpect(jsonPath("$[?(@.type=='TASK_STATUS_CHANGED')]").isNotEmpty())
+				.andExpect(jsonPath("$[?(@.type=='MEMBER_ADDED')]").isNotEmpty());
+
+		mockMvc.perform(get("/api/v1/projects/" + projectId + "/activity")
+				.header("Authorization", "Bearer " + outsiderToken))
+				.andExpect(status().isNotFound());
+	}
+
 	private String register(String email, String firstName, String lastName) throws Exception {
 		MvcResult result = mockMvc.perform(post("/api/v1/auth/register")
 				.contentType(MediaType.APPLICATION_JSON)
