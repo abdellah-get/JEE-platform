@@ -1,17 +1,14 @@
 import { expect, test } from "@playwright/test";
 
+import { loginAs } from "./helpers";
+
 /**
  * Smoke against a seeded API (SEED_ENABLED=true).
  * Demo account: chef@ensem.jee / Demo123! — project "Site Junior ENSEM".
  */
 test("login → dashboard → Kanban projet", async ({ page }) => {
-  await page.goto("/login");
+  await loginAs(page, "chef@ensem.jee");
 
-  await page.getByLabel("Email").fill("chef@ensem.jee");
-  await page.getByLabel("Mot de passe").fill("Demo123!");
-  await page.getByRole("button", { name: /Continuer|Se connecter/i }).click();
-
-  await expect(page).toHaveURL(/\/dashboard/);
   await expect(
     page.getByRole("heading", { name: /Salut, Chaimae|Dashboard/i }),
   ).toBeVisible();

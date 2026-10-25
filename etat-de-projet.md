@@ -21,7 +21,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
-| P8 Sécurité session & UX SaaS | **En cours** | 8/13 (#87–#99) |
+| P8 Sécurité session & UX SaaS | **En cours** | 9/13 (#87–#99) |
 
 Étude : [docs/ETUDE-P8.md](./docs/ETUDE-P8.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
@@ -119,7 +119,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [92](https://github.com/abdellah-get/JEE-platform/issues/92) | TanStack Query autour de `api.ts` | **Terminé** |
 | [93](https://github.com/abdellah-get/JEE-platform/issues/93) | ConfirmDialog + focus trap + a11y cloche | **Terminé** |
 | [94](https://github.com/abdellah-get/JEE-platform/issues/94) | Headers + rate-limit refresh/reset + health DB | **Terminé** |
-| [95](https://github.com/abdellah-get/JEE-platform/issues/95) | Élargir E2E | À faire |
+| [95](https://github.com/abdellah-get/JEE-platform/issues/95) | Élargir E2E | **Terminé** |
 | [96](https://github.com/abdellah-get/JEE-platform/issues/96) | Pièces jointes / livrables | À faire |
 | [97](https://github.com/abdellah-get/JEE-platform/issues/97) | Événements + calendrier | À faire |
 | [98](https://github.com/abdellah-get/JEE-platform/issues/98) | Access token hors localStorage | À faire |
@@ -128,6 +128,14 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #95 terminée (élargir E2E)
+
+**Fait :**
+- Specs Playwright : logout, filtres Mes tâches, lecture/création annonce (bureau)
+- Helper `e2e/helpers.ts` ; doc `E2E.md` mise à jour
+
+**Prochaine mission :** [#96](https://github.com/abdellah-get/JEE-platform/issues/96) — pièces jointes / livrables.
 
 ### 2026-10-25 — Mission #94 terminée (headers + rate-limit + health DB)
 
