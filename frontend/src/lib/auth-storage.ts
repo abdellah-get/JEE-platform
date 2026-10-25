@@ -3,15 +3,26 @@ import { AUTH_COOKIE, ROLE_COOKIE } from "./auth-constants";
 
 export { AUTH_COOKIE, ROLE_COOKIE };
 
-const TOKEN_KEY = "jee_access_token";
+/** Legacy key — purged on save/clear/boot (XSS: never persist the JWT). */
+const LEGACY_TOKEN_KEY = "jee_access_token";
 const USER_KEY = "jee_user";
 
-/** Aligné sur la durée du access token (30 min) — renouvelé à chaque login / refresh. */
-const COOKIE_MAX_AGE = 60 * 30;
+/**
+ * Middleware hint only (not a secret). Aligned with refresh cookie TTL (~7j)
+ * so a reload can reach the app and resume via HttpOnly refresh.
+ */
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
+
+/** Access JWT — process memory only (lost on full page reload; restored via refresh). */
+let memoryAccessToken: string | null = null;
+
+function purgeLegacyAccessToken() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(LEGACY_TOKEN_KEY);
+}
 
 export function getAccessToken(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
+  return memoryAccessToken;
 }
 
 export function getStoredUser(): AuthUser | null {
@@ -34,17 +45,26 @@ function clearClientCookie(name: string) {
 }
 
 export function saveSession(accessToken: string, user: AuthUser) {
-  localStorage.setItem(TOKEN_KEY, accessToken);
+  memoryAccessToken = accessToken;
+  if (typeof window === "undefined") return;
+  purgeLegacyAccessToken();
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   setClientCookie(AUTH_COOKIE, "1", COOKIE_MAX_AGE);
   setClientCookie(ROLE_COOKIE, user.clubRole, COOKIE_MAX_AGE);
 }
 
 export function clearSession() {
-  localStorage.removeItem(TOKEN_KEY);
+  memoryAccessToken = null;
+  if (typeof window === "undefined") return;
+  purgeLegacyAccessToken();
   localStorage.removeItem(USER_KEY);
   clearClientCookie(AUTH_COOKIE);
   clearClientCookie(ROLE_COOKIE);
+}
+
+/** Call once on boot to scrub any JWT left from older builds. */
+export function scrubLegacyAccessTokenStorage() {
+  purgeLegacyAccessToken();
 }
 
 export function canAccessAdmin(role: ClubRole | null | undefined): boolean {

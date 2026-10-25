@@ -9,6 +9,7 @@ Specs CI (API seed `SEED_ENABLED=true`) :
 | `tasks-filters.spec.ts` | filtres statut / priorité sur Mes tâches |
 | `announcements.spec.ts` | lecture + création annonce (compte bureau) |
 | `events.spec.ts` | événements + calendrier + création (compte bureau) |
+| `auth-token-storage.spec.ts` | access JWT absent de `localStorage` (login + reload) |
 
 ## Prérequis
 

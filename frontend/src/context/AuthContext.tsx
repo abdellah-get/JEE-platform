@@ -13,9 +13,9 @@ import { useRouter } from "next/navigation";
 import * as api from "@/lib/api";
 import {
   clearSession,
-  getAccessToken,
   getStoredUser,
   saveSession,
+  scrubLegacyAccessTokenStorage,
 } from "@/lib/auth-storage";
 import type { AuthResponse, AuthUser } from "@/lib/types";
 
@@ -81,15 +81,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [applyAuth, router]);
 
   useEffect(() => {
-    const token = getAccessToken();
+    scrubLegacyAccessTokenStorage();
+    // Optimistic UI from cached profile; access JWT always rehydrated via HttpOnly refresh.
     const stored = getStoredUser();
-    if (token && stored) {
-      // Resync cookies for Next middleware after refresh navigations
-      saveSession(token, stored);
-      setAccessToken(token);
+    if (stored) {
       setUser(stored);
-      setLoading(false);
-      return;
     }
 
     api
@@ -99,6 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       })
       .catch(() => {
         clearSession();
+        setAccessToken(null);
+        setUser(null);
       })
       .finally(() => setLoading(false));
   }, [applyAuth]);
