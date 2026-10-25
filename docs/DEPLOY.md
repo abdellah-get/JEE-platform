@@ -72,6 +72,8 @@ docker run --rm -p 8081:8081 \
   -e DATABASE_DRIVER=org.postgresql.Driver \
   -e CORS_ORIGINS=http://localhost:3000 \
   -e SEED_ENABLED=false \
+  -e REGISTRATION_ALLOWED_DOMAINS=ensem.ac.ma,ensem.jee \
+  -e REGISTRATION_REQUIRE_APPROVAL=true \
   jee-platform-api
 ```
 
@@ -106,8 +108,13 @@ spring.mail.properties.mail.smtp.auth=true
 spring.mail.properties.mail.smtp.starttls.enable=true
 ```
 
-> Sans `JWT_SECRET` fort + environnement prod-like, l’API **refuse de démarrer** (`ProductionSafetyValidator`).  
-> Console H2 **désactivée** hors profil `local`.
+> En environnement prod-like, l’API **refuse de démarrer** (`ProductionSafetyValidator`) si :
+> - `JWT_SECRET` manquant / trop court / secret de dev
+> - console H2 activée
+> - `SEED_ENABLED=true`
+> - `REGISTRATION_ALLOWED_DOMAINS` vide
+> - `REGISTRATION_REQUIRE_APPROVAL` ≠ `true`  
+> Console H2 **désactivée** hors profil `local`. Profil `prod` : approval **true** et domaines ENSEM par défaut.
 
 **Cold start (Free) :** premier appel 30–60 s. Pour limiter : un ping gratuit (UptimeRobot / cron-job.org) sur `GET /api/v1/health` toutes les 10–14 min.
 
@@ -138,6 +145,7 @@ NEXT_PUBLIC_API_URL=https://ton-api.onrender.com
 - [ ] `GET /api/v1/health` → `UP`
 - [ ] `/h2-console` inaccessible
 - [ ] `SEED_ENABLED=false`
+- [ ] `REGISTRATION_REQUIRE_APPROVAL=true` + domaines non vides
 - [ ] CORS : origine Vercel dans `CORS_ORIGINS`
 - [ ] Cookie refresh : HTTPS + `JWT_COOKIE_SECURE=true`
 - [ ] Inscription (domaine autorisé) + login depuis Vercel
