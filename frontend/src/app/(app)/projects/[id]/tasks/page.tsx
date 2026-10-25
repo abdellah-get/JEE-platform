@@ -522,7 +522,7 @@ export default function ProjectTasksPage() {
                         key={c.status}
                         type="button"
                         onClick={() => void moveTaskToColumn(task, c.status)}
-                        aria-label={`Déplacer « ${task.title} » vers ${c.label}`}
+                        aria-label={`Vers ${c.label}`}
                         className="rounded bg-zinc-100 px-1.5 py-0.5 text-[11px] text-zinc-700 hover:bg-zinc-200"
                       >
                         → {c.label}
