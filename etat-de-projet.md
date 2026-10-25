@@ -2,9 +2,10 @@
 
 Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement notable.
 
-**Dernière mise à jour :** 2026-10-24  
+**Dernière mise à jour :** 2026-10-25  
 **Board GitHub :** [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)  
-**Étude post-P4 :** [docs/ETUDE-AMELIORATIONS.md](./docs/ETUDE-AMELIORATIONS.md)
+**Étude post-P4 :** [docs/ETUDE-AMELIORATIONS.md](./docs/ETUDE-AMELIORATIONS.md)  
+**Étude P8 :** [docs/ETUDE-P8.md](./docs/ETUDE-P8.md)
 
 ---
 
@@ -20,6 +21,9 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
+| P8 Sécurité session & UX SaaS | **En cours** | 1/13 (#87–#99) |
+
+Étude : [docs/ETUDE-P8.md](./docs/ETUDE-P8.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
 ---
 
@@ -102,6 +106,24 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | 60 | Permissions tâches (delete chef/bureau) | **Terminé** |
 | 61 | Pass accessibilité | **Terminé** |
 | 62 | Stretch : activity feed (piste A) | **Terminé** |
+
+### P8 — Sécurité session, UX SaaS & JE élargie
+
+| # | Mission | Statut |
+|---|---------|--------|
+| [87](https://github.com/abdellah-get/JEE-platform/issues/87) | Révoquer refresh tokens au change/reset MDP | À faire |
+| [88](https://github.com/abdellah-get/JEE-platform/issues/88) | Anti-CSRF refresh / logout | À faire |
+| [89](https://github.com/abdellah-get/JEE-platform/issues/89) | Middleware `/notifications` + a11y filtres | **Terminé** |
+| [90](https://github.com/abdellah-get/JEE-platform/issues/90) | Prod safety SEED + approval/domaines | À faire |
+| [91](https://github.com/abdellah-get/JEE-platform/issues/91) | Recherche client (projets, annonces, membres) | À faire |
+| [92](https://github.com/abdellah-get/JEE-platform/issues/92) | TanStack Query autour de `api.ts` | À faire |
+| [93](https://github.com/abdellah-get/JEE-platform/issues/93) | ConfirmDialog + focus trap + a11y cloche | À faire |
+| [94](https://github.com/abdellah-get/JEE-platform/issues/94) | Headers + rate-limit refresh/reset + health DB | À faire |
+| [95](https://github.com/abdellah-get/JEE-platform/issues/95) | Élargir E2E | À faire |
+| [96](https://github.com/abdellah-get/JEE-platform/issues/96) | Pièces jointes / livrables | À faire |
+| [97](https://github.com/abdellah-get/JEE-platform/issues/97) | Événements + calendrier | À faire |
+| [98](https://github.com/abdellah-get/JEE-platform/issues/98) | Access token hors localStorage | À faire |
+| [99](https://github.com/abdellah-get/JEE-platform/issues/99) | Pagination + OpenAPI + Actuator | À faire |
 
 ---
 
