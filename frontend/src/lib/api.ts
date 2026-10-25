@@ -34,6 +34,9 @@ export type MeResponse = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
 
+/** Required on cookie-auth endpoints (refresh/logout) — triggers CORS preflight, blocks CSRF. */
+const CSRF_HEADER = { "X-Requested-With": "XMLHttpRequest" } as const;
+
 type AuthSessionHandlers = {
   onRefreshed?: (res: AuthResponse) => void;
   onCleared?: () => void;
@@ -90,6 +93,7 @@ async function silentRefresh(): Promise<string | null> {
         const res = await fetch(`${API_URL}/api/v1/auth/refresh`, {
           method: "POST",
           credentials: "include",
+          headers: CSRF_HEADER,
         });
         if (!res.ok) {
           clearSession();
@@ -186,11 +190,17 @@ export function login(body: { email: string; password: string }) {
 }
 
 export function refresh() {
-  return apiFetch<AuthResponse>("/api/v1/auth/refresh", { method: "POST" });
+  return apiFetch<AuthResponse>("/api/v1/auth/refresh", {
+    method: "POST",
+    headers: CSRF_HEADER,
+  });
 }
 
 export function logout() {
-  return apiFetch<void>("/api/v1/auth/logout", { method: "POST" });
+  return apiFetch<void>("/api/v1/auth/logout", {
+    method: "POST",
+    headers: CSRF_HEADER,
+  });
 }
 
 export function forgotPassword(body: { email: string }) {

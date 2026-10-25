@@ -21,7 +21,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
-| P8 Sécurité session & UX SaaS | **En cours** | 2/13 (#87–#99) |
+| P8 Sécurité session & UX SaaS | **En cours** | 3/13 (#87–#99) |
 
 Étude : [docs/ETUDE-P8.md](./docs/ETUDE-P8.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
@@ -112,7 +112,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | # | Mission | Statut |
 |---|---------|--------|
 | [87](https://github.com/abdellah-get/JEE-platform/issues/87) | Révoquer refresh tokens au change/reset MDP | **Terminé** |
-| [88](https://github.com/abdellah-get/JEE-platform/issues/88) | Anti-CSRF refresh / logout | À faire |
+| [88](https://github.com/abdellah-get/JEE-platform/issues/88) | Anti-CSRF refresh / logout | **Terminé** |
 | [89](https://github.com/abdellah-get/JEE-platform/issues/89) | Middleware `/notifications` + a11y filtres | **Terminé** |
 | [90](https://github.com/abdellah-get/JEE-platform/issues/90) | Prod safety SEED + approval/domaines | À faire |
 | [91](https://github.com/abdellah-get/JEE-platform/issues/91) | Recherche client (projets, annonces, membres) | À faire |
@@ -128,6 +128,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #88 terminée (anti-CSRF refresh / logout)
+
+**Fait :**
+- `AuthCookieCsrfFilter` : header `X-Requested-With: XMLHttpRequest` + contrôle `Origin` vs `CORS_ORIGINS`
+- Front (`api.ts`) envoie le header sur refresh silencieux / explicite et logout
+- Tests : 403 sans header / Origin hostile ; SECURITY.md mis à jour
+
+**Prochaine mission :** [#90](https://github.com/abdellah-get/JEE-platform/issues/90) — prod safety SEED + approval/domaines (#89 déjà terminé).
 
 ### 2026-10-25 — Mission #87 terminée (révoquer refresh au change/reset MDP)
 

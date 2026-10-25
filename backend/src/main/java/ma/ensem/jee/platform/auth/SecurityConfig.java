@@ -38,16 +38,19 @@ public class SecurityConfig {
 
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final AuthRateLimitFilter authRateLimitFilter;
+	private final AuthCookieCsrfFilter authCookieCsrfFilter;
 	private final CorsProperties corsProperties;
 	private final boolean h2ConsoleEnabled;
 
 	public SecurityConfig(
 			JwtAuthenticationFilter jwtAuthenticationFilter,
 			AuthRateLimitFilter authRateLimitFilter,
+			AuthCookieCsrfFilter authCookieCsrfFilter,
 			CorsProperties corsProperties,
 			@Value("${spring.h2.console.enabled:false}") boolean h2ConsoleEnabled) {
 		this.jwtAuthenticationFilter = jwtAuthenticationFilter;
 		this.authRateLimitFilter = authRateLimitFilter;
+		this.authCookieCsrfFilter = authCookieCsrfFilter;
 		this.corsProperties = corsProperties;
 		this.h2ConsoleEnabled = h2ConsoleEnabled;
 	}
@@ -69,6 +72,7 @@ public class SecurityConfig {
 					auth.anyRequest().authenticated();
 				})
 				.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+				.addFilterBefore(authCookieCsrfFilter, UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(authRateLimitFilter, UsernamePasswordAuthenticationFilter.class)
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -87,6 +87,9 @@ class MeControllerTest {
 
 		// Change password revokes all refresh sessions
 		mockMvc.perform(post("/api/v1/auth/refresh")
+				.header(
+						ma.ensem.jee.platform.auth.AuthCookieCsrfFilter.CSRF_HEADER,
+						ma.ensem.jee.platform.auth.AuthCookieCsrfFilter.CSRF_HEADER_VALUE)
 				.cookie(new jakarta.servlet.http.Cookie(
 						ma.ensem.jee.platform.auth.AuthService.REFRESH_COOKIE, refreshCookie)))
 				.andExpect(status().isUnauthorized());
