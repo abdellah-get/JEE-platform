@@ -9,6 +9,8 @@ import type {
   AppNotification,
   AuthResponse,
   AuthUser,
+  CalendarItem,
+  ClubEvent,
   ClubRole,
   Dashboard,
   Project,
@@ -592,6 +594,77 @@ export function deleteAnnouncement(accessToken: string, id: string) {
   return apiFetch<void>(
     `/api/v1/announcements/${id}`,
     { method: "DELETE" },
+    accessToken,
+  );
+}
+
+export function listEvents(accessToken: string) {
+  return apiFetch<ClubEvent[]>("/api/v1/events", { method: "GET" }, accessToken);
+}
+
+export function getEvent(accessToken: string, id: string) {
+  return apiFetch<ClubEvent>(
+    `/api/v1/events/${id}`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function createEvent(
+  accessToken: string,
+  body: {
+    title: string;
+    description: string;
+    location?: string;
+    startsAt: string;
+    endsAt?: string | null;
+    pinned?: boolean;
+  },
+) {
+  return apiFetch<ClubEvent>(
+    "/api/v1/events",
+    { method: "POST", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function updateEvent(
+  accessToken: string,
+  id: string,
+  body: {
+    title?: string;
+    description?: string;
+    location?: string | null;
+    startsAt?: string;
+    endsAt?: string | null;
+    clearEndsAt?: boolean;
+    pinned?: boolean;
+  },
+) {
+  return apiFetch<ClubEvent>(
+    `/api/v1/events/${id}`,
+    { method: "PATCH", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function deleteEvent(accessToken: string, id: string) {
+  return apiFetch<void>(
+    `/api/v1/events/${id}`,
+    { method: "DELETE" },
+    accessToken,
+  );
+}
+
+export function getCalendar(
+  accessToken: string,
+  from: string,
+  to: string,
+) {
+  const params = new URLSearchParams({ from, to });
+  return apiFetch<CalendarItem[]>(
+    `/api/v1/calendar?${params}`,
+    { method: "GET" },
     accessToken,
   );
 }

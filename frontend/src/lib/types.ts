@@ -55,7 +55,10 @@ export type TaskComment = {
   updatedAt: string;
 };
 
-export type NotificationType = "TASK_ASSIGNED" | "ANNOUNCEMENT_PINNED";
+export type NotificationType =
+  | "TASK_ASSIGNED"
+  | "ANNOUNCEMENT_PINNED"
+  | "EVENT_PINNED";
 
 export type AppNotification = {
   id: string;
@@ -133,6 +136,34 @@ export type Announcement = {
   authorName: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type ClubEvent = {
+  id: string;
+  title: string;
+  description: string;
+  location: string | null;
+  startsAt: string;
+  endsAt: string | null;
+  pinned: boolean;
+  createdById: string;
+  createdByName: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CalendarItemType = "EVENT" | "TASK_DUE";
+
+export type CalendarItem = {
+  type: CalendarItemType;
+  id: string;
+  title: string;
+  startsAt: string;
+  endsAt: string | null;
+  location: string | null;
+  link: string;
+  pinned: boolean;
+  meta: string | null;
 };
 
 export type DashboardKpis = {

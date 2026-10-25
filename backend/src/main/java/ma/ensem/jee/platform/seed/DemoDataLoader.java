@@ -1,6 +1,8 @@
 package ma.ensem.jee.platform.seed;
 
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ma.ensem.jee.platform.announcement.Announcement;
 import ma.ensem.jee.platform.announcement.AnnouncementRepository;
+import ma.ensem.jee.platform.event.ClubEvent;
+import ma.ensem.jee.platform.event.ClubEventRepository;
 import ma.ensem.jee.platform.project.Project;
 import ma.ensem.jee.platform.project.ProjectMember;
 import ma.ensem.jee.platform.project.ProjectMemberRepository;
@@ -40,6 +44,7 @@ public class DemoDataLoader implements ApplicationRunner {
 	private final ProjectMemberRepository projectMemberRepository;
 	private final TaskRepository taskRepository;
 	private final AnnouncementRepository announcementRepository;
+	private final ClubEventRepository clubEventRepository;
 	private final PasswordEncoder passwordEncoder;
 
 	public DemoDataLoader(
@@ -49,6 +54,7 @@ public class DemoDataLoader implements ApplicationRunner {
 			ProjectMemberRepository projectMemberRepository,
 			TaskRepository taskRepository,
 			AnnouncementRepository announcementRepository,
+			ClubEventRepository clubEventRepository,
 			PasswordEncoder passwordEncoder) {
 		this.properties = properties;
 		this.userRepository = userRepository;
@@ -56,6 +62,7 @@ public class DemoDataLoader implements ApplicationRunner {
 		this.projectMemberRepository = projectMemberRepository;
 		this.taskRepository = taskRepository;
 		this.announcementRepository = announcementRepository;
+		this.clubEventRepository = clubEventRepository;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -143,6 +150,18 @@ public class DemoDataLoader implements ApplicationRunner {
 				"Utilisez l'espace Projets pour suivre l'avancement et Mes tâches pour vos assignations.",
 				false,
 				admin.getId()));
+
+		Instant formationStart = Instant.now().plus(7, ChronoUnit.DAYS)
+				.truncatedTo(ChronoUnit.HOURS)
+				.plus(17, ChronoUnit.HOURS);
+		clubEventRepository.save(new ClubEvent(
+				"Formation Soft Skills",
+				"Atelier communication et pitch client — amphi A.",
+				"Amphi A — ENSEM",
+				formationStart,
+				formationStart.plus(2, ChronoUnit.HOURS),
+				true,
+				bureau.getId()));
 
 		log.info(
 				"Seed demo OK — comptes: admin/bureau/chef/membre@ensem.jee — mot de passe: {}",
