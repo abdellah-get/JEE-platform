@@ -17,9 +17,9 @@ const syne = Syne({
 });
 
 export const metadata: Metadata = {
-  title: "ESEM Platform — Junior-Entreprise",
+  title: "ENSEM Platform — Junior-Entreprise",
   description:
-    "Pilote projets, tâches et annonces de ESEM Engineering Junior-Entreprise.",
+    "Pilote projets, tâches et annonces de ENSEM Engineering Junior-Entreprise.",
 };
 
 export default function RootLayout({

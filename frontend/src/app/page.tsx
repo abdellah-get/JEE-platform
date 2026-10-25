@@ -20,7 +20,7 @@ export default function Home() {
           <ClubLogo size="lg" />
         </div>
         <div className="max-w-xl space-y-4 text-center">
-          <p className="section-label">ESEM Engineering</p>
+          <p className="section-label">ENSEM Engineering</p>
           <h1 className="display-hero text-4xl sm:text-5xl md:text-[3.35rem]">
             La plateforme
             <br />
