@@ -21,7 +21,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
-| P8 Sécurité session & UX SaaS | **En cours** | 1/13 (#87–#99) |
+| P8 Sécurité session & UX SaaS | **En cours** | 2/13 (#87–#99) |
 
 Étude : [docs/ETUDE-P8.md](./docs/ETUDE-P8.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
@@ -111,7 +111,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | # | Mission | Statut |
 |---|---------|--------|
-| [87](https://github.com/abdellah-get/JEE-platform/issues/87) | Révoquer refresh tokens au change/reset MDP | À faire |
+| [87](https://github.com/abdellah-get/JEE-platform/issues/87) | Révoquer refresh tokens au change/reset MDP | **Terminé** |
 | [88](https://github.com/abdellah-get/JEE-platform/issues/88) | Anti-CSRF refresh / logout | À faire |
 | [89](https://github.com/abdellah-get/JEE-platform/issues/89) | Middleware `/notifications` + a11y filtres | **Terminé** |
 | [90](https://github.com/abdellah-get/JEE-platform/issues/90) | Prod safety SEED + approval/domaines | À faire |
@@ -128,6 +128,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #87 terminée (révoquer refresh au change/reset MDP)
+
+**Fait :**
+- `RefreshTokenRepository.revokeAllForUser` (bulk, flush + clear)
+- `MeService.changePassword` et `PasswordResetService.resetPassword` révoquent toutes les sessions refresh
+- Tests MockMvc : refresh → 401 après change/reset ; `docs/SECURITY.md` mis à jour
+
+**Prochaine mission :** [#88](https://github.com/abdellah-get/JEE-platform/issues/88) — anti-CSRF sur `/auth/refresh` et `/logout`.
 
 ### 2026-10-25 — Mission #62 terminée (fil d’activité projet) — fin P7
 

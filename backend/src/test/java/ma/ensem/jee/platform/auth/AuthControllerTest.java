@@ -121,7 +121,7 @@ class AuthControllerTest {
 		String oldPassword = "Password123!";
 		String newPassword = "NewPassword456!";
 
-		mockMvc.perform(post("/api/v1/auth/register")
+		MvcResult register = mockMvc.perform(post("/api/v1/auth/register")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("""
 						{
@@ -131,7 +131,10 @@ class AuthControllerTest {
 						  "lastName": "Reset"
 						}
 						""".formatted(email, oldPassword)))
-				.andExpect(status().isCreated());
+				.andExpect(status().isCreated())
+				.andReturn();
+
+		String refreshCookie = register.getResponse().getCookie(AuthService.REFRESH_COOKIE).getValue();
 
 		mockMvc.perform(post("/api/v1/auth/forgot-password")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -162,6 +165,11 @@ class AuthControllerTest {
 						}
 						""".formatted(token, newPassword)))
 				.andExpect(status().isOk());
+
+		// Reset password revokes all refresh sessions
+		mockMvc.perform(post("/api/v1/auth/refresh")
+				.cookie(new jakarta.servlet.http.Cookie(AuthService.REFRESH_COOKIE, refreshCookie)))
+				.andExpect(status().isUnauthorized());
 
 		mockMvc.perform(post("/api/v1/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)

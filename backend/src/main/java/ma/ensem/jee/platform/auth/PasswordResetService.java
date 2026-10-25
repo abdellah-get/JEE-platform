@@ -25,6 +25,7 @@ public class PasswordResetService {
 
 	private final UserRepository userRepository;
 	private final PasswordResetTokenRepository tokenRepository;
+	private final RefreshTokenRepository refreshTokenRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final MailService mailService;
 	private final PasswordResetProperties properties;
@@ -32,11 +33,13 @@ public class PasswordResetService {
 	public PasswordResetService(
 			UserRepository userRepository,
 			PasswordResetTokenRepository tokenRepository,
+			RefreshTokenRepository refreshTokenRepository,
 			PasswordEncoder passwordEncoder,
 			MailService mailService,
 			PasswordResetProperties properties) {
 		this.userRepository = userRepository;
 		this.tokenRepository = tokenRepository;
+		this.refreshTokenRepository = refreshTokenRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.mailService = mailService;
 		this.properties = properties;
@@ -83,8 +86,10 @@ public class PasswordResetService {
 		}
 
 		user.setPasswordHash(passwordEncoder.encode(request.password()));
+		userRepository.saveAndFlush(user);
 		token.markUsed();
 		tokenRepository.invalidateOpenTokensForUser(user.getId(), now);
+		refreshTokenRepository.revokeAllForUser(user.getId(), now);
 	}
 
 	private static String generateRawToken() {
