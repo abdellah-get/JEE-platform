@@ -90,6 +90,25 @@ public class NotificationService {
 		}
 	}
 
+	@Transactional
+	public void notifyEventPinned(UUID eventId, String eventTitle, UUID authorId) {
+		List<User> recipients = userRepository.findByActiveTrueOrderByLastNameAscFirstNameAsc();
+		String title = "Événement à retenir";
+		String body = "« " + truncate(eventTitle, 80) + " » a été épinglé.";
+		String link = "/events/" + eventId;
+		for (User user : recipients) {
+			if (user.getId().equals(authorId)) {
+				continue;
+			}
+			notificationRepository.save(new Notification(
+					user.getId(),
+					NotificationType.EVENT_PINNED,
+					title,
+					body,
+					link));
+		}
+	}
+
 	private static String truncate(String value, int max) {
 		if (value == null) {
 			return "";

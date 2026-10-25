@@ -67,4 +67,14 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 			@Param("status") TaskStatus status,
 			@Param("priority") TaskPriority priority,
 			@Param("projectId") UUID projectId);
+
+	@Query("""
+			select t from Task t
+			where t.dueDate is not null
+			  and t.dueDate >= :from
+			  and t.dueDate <= :to
+			  and t.status <> ma.ensem.jee.platform.task.TaskStatus.DONE
+			order by t.dueDate asc
+			""")
+	List<Task> findDueBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
 }

@@ -8,6 +8,7 @@ Specs CI (API seed `SEED_ENABLED=true`) :
 | `logout.spec.ts` | logout → `/login` (+ garde middleware) |
 | `tasks-filters.spec.ts` | filtres statut / priorité sur Mes tâches |
 | `announcements.spec.ts` | lecture + création annonce (compte bureau) |
+| `events.spec.ts` | événements + calendrier + création (compte bureau) |
 
 ## Prérequis
 

@@ -121,13 +121,23 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [94](https://github.com/abdellah-get/JEE-platform/issues/94) | Headers + rate-limit refresh/reset + health DB | **Terminé** |
 | [95](https://github.com/abdellah-get/JEE-platform/issues/95) | Élargir E2E | **Terminé** |
 | [96](https://github.com/abdellah-get/JEE-platform/issues/96) | Pièces jointes / livrables | **Terminé** |
-| [97](https://github.com/abdellah-get/JEE-platform/issues/97) | Événements + calendrier | À faire |
+| [97](https://github.com/abdellah-get/JEE-platform/issues/97) | Événements + calendrier | **Terminé** |
 | [98](https://github.com/abdellah-get/JEE-platform/issues/98) | Access token hors localStorage | À faire |
 | [99](https://github.com/abdellah-get/JEE-platform/issues/99) | Pagination + OpenAPI + Actuator | À faire |
 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #97 terminée (événements + calendrier)
+
+**Fait :**
+- Flyway **V11** `club_events` + **V12** notif `EVENT_PINNED`
+- API CRUD `/api/v1/events` (bureau) + `/api/v1/calendar?from&to` (événements + due dates visibles)
+- UI liste/détail/création + vue calendrier mensuelle ; nav + middleware
+- Notif optionnelle à l’épinglage ; seed demo ; E2E `events.spec.ts`
+
+**Prochaine mission :** [#98](https://github.com/abdellah-get/JEE-platform/issues/98) — access token hors localStorage.
 
 ### 2026-10-25 — Mission #96 terminée (pièces jointes / livrables)
 

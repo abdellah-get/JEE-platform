@@ -21,6 +21,8 @@ Au démarrage, Flyway applique **toutes** les migrations présentes :
 | **V8** | `refresh_tokens` |
 | **V9** | `project_activities` |
 | **V10** | `project_attachments` |
+| **V11** | `club_events` |
+| **V12** | notif type `EVENT_PINNED` |
 
 Fichiers : `backend/src/main/resources/db/migration/`.
 
@@ -143,7 +145,7 @@ NEXT_PUBLIC_API_URL=https://ton-api.onrender.com
 ### Checklist
 
 - [ ] `SPRING_PROFILES_ACTIVE=prod` et `JWT_SECRET` (≥ 32)
-- [ ] Flyway **V1–V10** appliquées (pas d’erreur au boot)
+- [ ] Flyway **V1–V12** appliquées (pas d’erreur au boot)
 - [ ] (Optionnel) volume persistant / `ATTACHMENTS_PATH` pour les livrables
 - [ ] `GET /api/v1/health` → `status=UP` et `db=UP`
 - [ ] `/h2-console` inaccessible
