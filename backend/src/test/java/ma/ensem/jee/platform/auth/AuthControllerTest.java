@@ -11,12 +11,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.jayway.jsonpath.JsonPath;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
 
 @SpringBootTest
 class AuthControllerTest {
@@ -33,6 +35,12 @@ class AuthControllerTest {
 	void setUp() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(
 				org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity()).build();
+	}
+
+	private static MockHttpServletRequestBuilder cookieAuthPost(String path, String refreshCookie) {
+		return post(path)
+				.header(AuthCookieCsrfFilter.CSRF_HEADER, AuthCookieCsrfFilter.CSRF_HEADER_VALUE)
+				.cookie(new Cookie(AuthService.REFRESH_COOKIE, refreshCookie));
 	}
 
 	@Test
@@ -81,8 +89,7 @@ class AuthControllerTest {
 				.header("Authorization", "Bearer " + accessToken))
 				.andExpect(status().isOk());
 
-		MvcResult refreshed = mockMvc.perform(post("/api/v1/auth/refresh")
-				.cookie(new jakarta.servlet.http.Cookie(AuthService.REFRESH_COOKIE, refreshCookie)))
+		MvcResult refreshed = mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", refreshCookie))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.accessToken").isNotEmpty())
 				.andReturn();
@@ -91,17 +98,14 @@ class AuthControllerTest {
 		org.assertj.core.api.Assertions.assertThat(rotatedCookie).isNotEqualTo(refreshCookie);
 
 		// Previous refresh token is revoked after rotation
-		mockMvc.perform(post("/api/v1/auth/refresh")
-				.cookie(new jakarta.servlet.http.Cookie(AuthService.REFRESH_COOKIE, refreshCookie)))
+		mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", refreshCookie))
 				.andExpect(status().isUnauthorized());
 
-		mockMvc.perform(post("/api/v1/auth/logout")
-				.cookie(new jakarta.servlet.http.Cookie(AuthService.REFRESH_COOKIE, rotatedCookie)))
+		mockMvc.perform(cookieAuthPost("/api/v1/auth/logout", rotatedCookie))
 				.andExpect(status().isNoContent());
 
 		// Logout revokes the current refresh token
-		mockMvc.perform(post("/api/v1/auth/refresh")
-				.cookie(new jakarta.servlet.http.Cookie(AuthService.REFRESH_COOKIE, rotatedCookie)))
+		mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", rotatedCookie))
 				.andExpect(status().isUnauthorized());
 
 		mockMvc.perform(post("/api/v1/auth/login")
@@ -113,6 +117,47 @@ class AuthControllerTest {
 						}
 						""".formatted(email)))
 				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void refreshAndLogoutRequireCsrfHeader() throws Exception {
+		String email = "csrf.test@ensem.jee";
+		String password = "Password123!";
+
+		MvcResult register = mockMvc.perform(post("/api/v1/auth/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "email": "%s",
+						  "password": "%s",
+						  "firstName": "Csrf",
+						  "lastName": "Guard"
+						}
+						""".formatted(email, password)))
+				.andExpect(status().isCreated())
+				.andReturn();
+
+		String refreshCookie = register.getResponse().getCookie(AuthService.REFRESH_COOKIE).getValue();
+
+		mockMvc.perform(post("/api/v1/auth/refresh")
+				.cookie(new Cookie(AuthService.REFRESH_COOKIE, refreshCookie)))
+				.andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.error").value("Requête refusée (protection CSRF). Recharge la page."));
+
+		mockMvc.perform(post("/api/v1/auth/logout")
+				.cookie(new Cookie(AuthService.REFRESH_COOKIE, refreshCookie)))
+				.andExpect(status().isForbidden());
+
+		mockMvc.perform(post("/api/v1/auth/refresh")
+				.header(AuthCookieCsrfFilter.CSRF_HEADER, AuthCookieCsrfFilter.CSRF_HEADER_VALUE)
+				.header("Origin", "https://evil.example")
+				.cookie(new Cookie(AuthService.REFRESH_COOKIE, refreshCookie)))
+				.andExpect(status().isForbidden());
+
+		mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", refreshCookie)
+				.header("Origin", "http://localhost:3000"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.accessToken").isNotEmpty());
 	}
 
 	@Test
@@ -167,8 +212,7 @@ class AuthControllerTest {
 				.andExpect(status().isOk());
 
 		// Reset password revokes all refresh sessions
-		mockMvc.perform(post("/api/v1/auth/refresh")
-				.cookie(new jakarta.servlet.http.Cookie(AuthService.REFRESH_COOKIE, refreshCookie)))
+		mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", refreshCookie))
 				.andExpect(status().isUnauthorized());
 
 		mockMvc.perform(post("/api/v1/auth/login")

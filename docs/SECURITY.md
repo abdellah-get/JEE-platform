@@ -48,6 +48,7 @@ Repo → **Settings** → **Code security** → Dependabot alerts + Dependabot s
 | **Refresh silencieux** | Sur `401` API (hors `/auth/**`) : un `POST /auth/refresh` puis retry. Échec → clear session + redirect `/login`. Single-flight (pas de boucle). |
 | **Refresh stocké + rotation** | Chaque refresh JWT est hashé (SHA-256) en base (`refresh_tokens`). Un refresh réussi révoque l’ancien et en émet un nouveau. Logout révoque le cookie courant. |
 | **Change / reset MDP** | `POST /me/password` et `POST /auth/reset-password` révoquent **tous** les refresh tokens de l’utilisateur (sessions restantes coupées). L’access JWT en cours expire naturellement (TTL 30 min). |
+| **Anti-CSRF refresh/logout** | `POST /auth/refresh` et `/auth/logout` exigent le header `X-Requested-With: XMLHttpRequest` (preflight CORS). Si `Origin` est présent, il doit être dans `CORS_ORIGINS`. Bloque les forgeries cross-site malgré `SameSite=None`. |
 
 Variables : `AUTH_RATE_LIMIT_ENABLED`, `AUTH_RATE_LIMIT_MAX`, `AUTH_RATE_LIMIT_WINDOW_SECONDS`.
 
