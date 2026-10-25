@@ -105,17 +105,17 @@ App (sidebar) : `/dashboard`, `/projects`, `/tasks`, `/announcements`, `/profile
 docker build -t jee-platform-api -f backend/Dockerfile backend
 ```
 
-Voir [`docs/DEPLOY.md`](docs/DEPLOY.md) (variables prod, Flyway V1–V7, scripts `scripts/smoke-api.*`).
+Voir [`docs/DEPLOY.md`](docs/DEPLOY.md) (variables prod, Flyway V1–V8, scripts `scripts/smoke-api.*`).
 
 ## CI & sécurité
 
 | Workflow | Rôle |
 |----------|------|
-| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Tests Maven + build Next.js |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Tests Maven + build Next.js + smoke Playwright |
 | [`.github/workflows/security.yml`](.github/workflows/security.yml) | Secrets (Gitleaks), npm audit, Trivy, CodeQL |
 | [`.github/dependabot.yml`](.github/dependabot.yml) | Mises à jour deps automatiques |
 
-Détails : **[docs/SECURITY.md](docs/SECURITY.md)**.
+Détails : **[docs/SECURITY.md](docs/SECURITY.md)** · E2E : **[docs/E2E.md](docs/E2E.md)**.
 
 ## Documentation
 
@@ -123,6 +123,7 @@ Détails : **[docs/SECURITY.md](docs/SECURITY.md)**.
 |-----|---------|
 | [docs/ADMIN.md](docs/ADMIN.md) | Rôles club, seed demo, parcours bureau |
 | [docs/DEPLOY.md](docs/DEPLOY.md) | Neon + Render/Docker + Vercel + smoke |
+| [docs/E2E.md](docs/E2E.md) | Playwright smoke login → Kanban |
 | [docs/SECURITY.md](docs/SECURITY.md) | Pipelines sécurité |
 | [docs/ETUDE-AMELIORATIONS.md](docs/ETUDE-AMELIORATIONS.md) | Roadmap P5–P7 (post P0–P4) |
 
