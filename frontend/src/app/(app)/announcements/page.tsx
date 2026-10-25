@@ -25,12 +25,14 @@ export default function AnnouncementsPage() {
   useEffect(() => {
     if (!accessToken) return;
     setBusy(true);
+    setError(null);
     api
       .listAnnouncements(accessToken, page)
       .then(setPageData)
-      .catch((err) =>
-        setError(err instanceof ApiError ? err.message : "Chargement impossible"),
-      )
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) return;
+        setError(err instanceof ApiError ? err.message : "Chargement impossible");
+      })
       .finally(() => setBusy(false));
   }, [accessToken, page]);
 

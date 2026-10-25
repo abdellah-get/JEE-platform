@@ -29,6 +29,7 @@ export default function AnnouncementDetailPage() {
 
   useEffect(() => {
     if (!accessToken || !params.id) return;
+    setError(null);
     api
       .getAnnouncement(accessToken, params.id)
       .then((a) => {
@@ -36,9 +37,10 @@ export default function AnnouncementDetailPage() {
         setEditTitle(a.title);
         setEditBody(a.body);
       })
-      .catch((err) =>
-        setError(err instanceof ApiError ? err.message : "Chargement impossible"),
-      );
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) return;
+        setError(err instanceof ApiError ? err.message : "Chargement impossible");
+      });
   }, [accessToken, params.id]);
 
   if (loading || !user || !accessToken) {
