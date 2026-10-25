@@ -21,7 +21,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
-| P8 Sécurité session & UX SaaS | **En cours** | 4/13 (#87–#99) |
+| P8 Sécurité session & UX SaaS | **En cours** | 5/13 (#87–#99) |
 
 Étude : [docs/ETUDE-P8.md](./docs/ETUDE-P8.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
@@ -115,7 +115,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [88](https://github.com/abdellah-get/JEE-platform/issues/88) | Anti-CSRF refresh / logout | **Terminé** |
 | [89](https://github.com/abdellah-get/JEE-platform/issues/89) | Middleware `/notifications` + a11y filtres | **Terminé** |
 | [90](https://github.com/abdellah-get/JEE-platform/issues/90) | Prod safety SEED + approval/domaines | **Terminé** |
-| [91](https://github.com/abdellah-get/JEE-platform/issues/91) | Recherche client (projets, annonces, membres) | À faire |
+| [91](https://github.com/abdellah-get/JEE-platform/issues/91) | Recherche client (projets, annonces, membres) | **Terminé** |
 | [92](https://github.com/abdellah-get/JEE-platform/issues/92) | TanStack Query autour de `api.ts` | À faire |
 | [93](https://github.com/abdellah-get/JEE-platform/issues/93) | ConfirmDialog + focus trap + a11y cloche | À faire |
 | [94](https://github.com/abdellah-get/JEE-platform/issues/94) | Headers + rate-limit refresh/reset + health DB | À faire |
@@ -128,6 +128,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-10-25 — Mission #91 terminée (recherche client)
+
+**Fait :**
+- `SearchInput` accessible (label, type search, bouton Effacer)
+- Filtre client sur projets, annonces, admin membres
+- EmptyState « Aucun résultat » + clear
+
+**Prochaine mission :** [#92](https://github.com/abdellah-get/JEE-platform/issues/92) — TanStack Query autour de `api.ts`.
 
 ### 2026-10-25 — Mission #90 terminée (prod safety SEED + inscription)
 
