@@ -491,7 +491,7 @@ export default function ProjectTasksPage() {
                   </button>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <label className="sr-only" htmlFor={`assign-${task.id}`}>
-                      Assigné — {task.title}
+                      Assigné
                     </label>
                     <select
                       id={`assign-${task.id}`}
