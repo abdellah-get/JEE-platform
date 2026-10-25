@@ -35,7 +35,9 @@ class MeControllerTest {
 
 	@Test
 	void meRequiresAuthAndAllowsUpdateAndPasswordChange() throws Exception {
-		mockMvc.perform(get("/api/v1/me")).andExpect(status().isForbidden());
+		mockMvc.perform(get("/api/v1/me"))
+				.andExpect(status().isUnauthorized())
+				.andExpect(jsonPath("$.error").value("Session expirée. Reconnecte-toi."));
 
 		String email = "me.test@ensem.jee";
 		String password = "Password123!";

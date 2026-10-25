@@ -135,6 +135,7 @@ export async function apiFetch<T>(
   });
 
   if (!res.ok) {
+    // 401 = session/token dead. Try one silent refresh; on failure AuthProvider redirects to /login.
     if (res.status === 401 && !retried && canSilentRefresh(path)) {
       const newToken = await silentRefresh();
       if (newToken) {

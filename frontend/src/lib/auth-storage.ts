@@ -6,7 +6,8 @@ export { AUTH_COOKIE, ROLE_COOKIE };
 const TOKEN_KEY = "jee_access_token";
 const USER_KEY = "jee_user";
 
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7 jours
+/** Aligné sur la durée du access token (30 min) — renouvelé à chaque login / refresh. */
+const COOKIE_MAX_AGE = 60 * 30;
 
 export function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;

@@ -11,7 +11,7 @@ public class JwtProperties {
 	/** HS256 key — override with JWT_SECRET in production (min 32 chars). */
 	private String secret = DEV_DEFAULT_SECRET;
 
-	private long accessTokenMinutes = 15;
+	private long accessTokenMinutes = 30;
 
 	private long refreshTokenDays = 7;
 
