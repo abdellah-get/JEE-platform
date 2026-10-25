@@ -84,16 +84,14 @@ export default function AnnouncementsPage() {
             <li key={a.id}>
               <Link
                 href={`/announcements/${a.id}`}
-                className={`block rounded-xl border p-4 transition hover:shadow-sm ${
-                  a.pinned
-                    ? "border-warning/40 bg-warning-soft"
-                    : "border-line bg-white hover:border-line"
+                className={`surface-interactive block p-4 ${
+                  a.pinned ? "border-warning/40 bg-warning-soft" : ""
                 }`}
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-medium text-ink">{a.title}</p>
                   {a.pinned && (
-                    <span className="shrink-0 rounded-full bg-amber-200 px-2 py-0.5 text-xs font-medium text-amber-900">
+                    <span className="shrink-0 rounded-full bg-warning/20 px-2 py-0.5 text-xs font-semibold text-warning">
                       Urgent
                     </span>
                   )}
