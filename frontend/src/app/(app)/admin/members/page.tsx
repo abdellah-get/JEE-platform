@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
+import { SearchInput, matchesSearch } from "@/components/ui/SearchInput";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
@@ -16,6 +17,7 @@ export default function AdminMembersPage() {
   const { accessToken, user, loading } = useAuth();
   const toast = useToast();
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [query, setQuery] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [listBusy, setListBusy] = useState(true);
@@ -31,6 +33,21 @@ export default function AdminMembersPage() {
       )
       .finally(() => setListBusy(false));
   }, [accessToken, user?.clubRole]);
+
+  const filtered = useMemo(
+    () =>
+      users.filter((u) =>
+        matchesSearch(
+          query,
+          u.firstName,
+          u.lastName,
+          `${u.firstName} ${u.lastName}`,
+          u.email,
+          u.clubRole,
+        ),
+      ),
+    [users, query],
+  );
 
   if (loading || !user || !accessToken) {
     return <LoadingBlock />;
@@ -98,40 +115,66 @@ export default function AdminMembersPage() {
       ) : users.length === 0 ? (
         <EmptyState title="Aucun membre" description="Aucun compte enregistré." />
       ) : (
-        <ul className="divide-y divide-line surface-quiet">
-          {users.map((u) => (
-            <li
-              key={u.userId}
-              className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
-            >
-              <div>
-                <p className="text-sm font-medium">
-                  {u.firstName} {u.lastName}
-                  {!u.active && (
-                    <span className="ml-2 rounded-full bg-warning-soft px-2 py-0.5 text-xs text-warning">
-                      En attente / inactif
-                    </span>
-                  )}
-                </p>
-                <p className="text-xs text-muted">
-                  {u.email} · {u.clubRole}
-                </p>
-              </div>
-              <button
-                type="button"
-                disabled={busyId === u.userId || u.userId === user.userId}
-                onClick={() => toggleActive(u)}
-                className="rounded-lg border border-line px-3 py-1.5 text-sm hover:bg-paper disabled:opacity-50"
-              >
-                {busyId === u.userId
-                  ? "…"
-                  : u.active
-                    ? "Désactiver"
-                    : "Activer"}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <>
+          <SearchInput
+            id="members-search"
+            label="Rechercher un membre"
+            value={query}
+            onChange={setQuery}
+            placeholder="Nom, email, rôle…"
+          />
+          {filtered.length === 0 ? (
+            <EmptyState
+              title="Aucun résultat"
+              description="Aucun membre ne correspond à ta recherche."
+              compact
+              action={
+                <button
+                  type="button"
+                  className="text-sm font-medium underline"
+                  onClick={() => setQuery("")}
+                >
+                  Effacer la recherche
+                </button>
+              }
+            />
+          ) : (
+            <ul className="divide-y divide-line surface-quiet">
+              {filtered.map((u) => (
+                <li
+                  key={u.userId}
+                  className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
+                >
+                  <div>
+                    <p className="text-sm font-medium">
+                      {u.firstName} {u.lastName}
+                      {!u.active && (
+                        <span className="ml-2 rounded-full bg-warning-soft px-2 py-0.5 text-xs text-warning">
+                          En attente / inactif
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-xs text-muted">
+                      {u.email} · {u.clubRole}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={busyId === u.userId || u.userId === user.userId}
+                    onClick={() => toggleActive(u)}
+                    className="rounded-lg border border-line px-3 py-1.5 text-sm hover:bg-paper disabled:opacity-50"
+                  >
+                    {busyId === u.userId
+                      ? "…"
+                      : u.active
+                        ? "Désactiver"
+                        : "Activer"}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </div>
   );
