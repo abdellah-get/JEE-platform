@@ -108,7 +108,7 @@ export default function DashboardPage() {
               <li key={a.id}>
                 <Link
                   href={`/announcements/${a.id}`}
-                  className="block rounded-xl border border-warning/40 bg-warning-soft p-4 hover:shadow-sm"
+                  className="surface-interactive block border-warning/40 bg-warning-soft p-4"
                 >
                   <p className="font-medium text-ink">{a.title}</p>
                   <p className="mt-1 line-clamp-2 text-sm text-ink/80">{a.body}</p>
@@ -129,10 +129,7 @@ export default function DashboardPage() {
               ["Tâches ouvertes", kpis.openTasks],
               ["Pins urgents", kpis.pinnedAnnouncements],
             ].map(([label, value]) => (
-              <div
-                key={String(label)}
-                className="surface-quiet px-4 py-3"
-              >
+              <div key={String(label)} className="kpi-tile">
                 <p className="text-xs text-muted">{label}</p>
                 <p className="mt-1 text-2xl font-bold tracking-tight text-brand">
                   {value}

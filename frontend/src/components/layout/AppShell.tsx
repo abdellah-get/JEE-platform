@@ -6,6 +6,7 @@ import { useEffect, useId, useState } from "react";
 
 import { ClubLogo } from "@/components/brand/ClubLogo";
 import { NotificationBell } from "@/components/layout/NotificationBell";
+import { PageMotion } from "@/components/motion/PageMotion";
 import { useAuth } from "@/context/AuthContext";
 import { canAccessAdmin } from "@/lib/auth-storage";
 
@@ -51,13 +52,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <aside
         id={navId}
-        className={`fixed inset-y-0 left-0 z-40 flex w-[min(18rem,88vw)] flex-col border-r border-line bg-surface pt-[env(safe-area-inset-top)] shadow-[4px_0_24px_rgb(61_61_61/4%)] transition-transform duration-200 md:static md:w-64 md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-[min(18rem,88vw)] flex-col border-r border-line bg-surface/95 pt-[env(safe-area-inset-top)] shadow-[8px_0_32px_rgb(61_61_61/6%)] backdrop-blur-md transition-transform duration-300 ease-out md:static md:w-64 md:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="flex h-full flex-col px-3 py-4">
           <div className="mb-5 flex items-start justify-between gap-2 px-2">
-            <Link href="/dashboard" className="min-w-0">
+            <Link
+              href="/dashboard"
+              className="min-w-0 transition-opacity duration-200 hover:opacity-90"
+            >
               <ClubLogo size="sm" showWordmark />
             </Link>
             <button
@@ -123,7 +127,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       ) : null}
 
       <div className="flex min-h-dvh flex-1 flex-col">
-        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-line bg-surface/95 px-4 py-3 backdrop-blur pt-[max(0.75rem,env(safe-area-inset-top))] md:hidden">
+        <header className="glass-bar sticky top-0 z-20 flex items-center gap-3 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:hidden">
           <button
             type="button"
             onClick={() => setOpen(true)}
@@ -138,9 +142,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           <NotificationBell />
         </header>
-        <div className="hidden items-center justify-between border-b border-line bg-surface/90 px-8 py-3 backdrop-blur md:flex">
+        <div className="glass-bar hidden items-center justify-between px-8 py-3.5 md:flex">
           <p className="text-sm text-muted">
-            Études et conseils · plateforme projets
+            Études et conseils — plateforme projets
           </p>
           <NotificationBell />
         </div>
@@ -148,7 +152,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           id="contenu-principal"
           className="flex-1 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:px-8 md:py-8"
         >
-          {children}
+          <PageMotion>{children}</PageMotion>
         </main>
       </div>
     </div>

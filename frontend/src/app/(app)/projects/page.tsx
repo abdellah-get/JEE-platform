@@ -100,7 +100,7 @@ export default function ProjectsPage() {
             <li key={project.id}>
               <Link
                 href={`/projects/${project.id}`}
-                className="block surface-quiet p-4 transition hover:border-line hover:shadow-sm"
+                className="surface-interactive block p-4"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>

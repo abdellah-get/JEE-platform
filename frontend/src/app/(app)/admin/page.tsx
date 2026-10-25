@@ -42,7 +42,7 @@ export default function AdminPage() {
       <div className="grid gap-3 sm:grid-cols-2">
         <Link
           href="/admin/members"
-          className="surface-quiet p-5 transition hover:border-line hover:shadow-sm"
+          className="surface-interactive block p-5"
         >
           <p className="font-medium text-ink">Membres</p>
           <p className="mt-1 text-sm text-muted">
@@ -51,7 +51,7 @@ export default function AdminPage() {
         </Link>
         <Link
           href="/admin/roles"
-          className="surface-quiet p-5 transition hover:border-line hover:shadow-sm"
+          className="surface-interactive block p-5"
         >
           <p className="font-medium text-ink">Rôles club</p>
           <p className="mt-1 text-sm text-muted">

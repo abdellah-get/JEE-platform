@@ -54,7 +54,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`pointer-events-auto w-full max-w-sm rounded-lg px-4 py-3 text-sm shadow-lg ${
+            className={`toast-pop pointer-events-auto w-full max-w-sm rounded-xl px-4 py-3 text-sm shadow-[var(--shadow-lift)] ${
               toast.kind === "success"
                 ? "bg-success text-white"
                 : toast.kind === "error"
