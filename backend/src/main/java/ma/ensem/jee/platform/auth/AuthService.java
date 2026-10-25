@@ -137,8 +137,16 @@ public class AuthService {
 				.secure(jwtService.isCookieSecure())
 				.path("/api/v1/auth")
 				.maxAge(0)
-				.sameSite("Lax")
+				.sameSite(refreshCookieSameSite())
 				.build();
+	}
+
+	/**
+	 * Cross-site front (Vercel) → API (Render) needs SameSite=None + Secure,
+	 * otherwise the browser never sends the refresh cookie on fetch/XHR.
+	 */
+	private String refreshCookieSameSite() {
+		return jwtService.isCookieSecure() ? "None" : "Lax";
 	}
 
 	private RefreshToken requireActiveRefreshToken(String refreshToken) {
@@ -179,7 +187,7 @@ public class AuthService {
 				.secure(jwtService.isCookieSecure())
 				.path("/api/v1/auth")
 				.maxAge(jwtService.getRefreshTokenDays() * 24 * 60 * 60)
-				.sameSite("Lax")
+				.sameSite(refreshCookieSameSite())
 				.build();
 
 		AuthResponse body = new AuthResponse(

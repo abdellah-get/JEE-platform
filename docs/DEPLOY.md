@@ -108,7 +108,9 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 > Sans `JWT_SECRET` fort + environnement prod-like, l’API **refuse de démarrer** (`ProductionSafetyValidator`).  
 > Console H2 **désactivée** hors profil `local`.
 
-**Cold start (Free) :** premier appel 30–60 s.
+**Cold start (Free) :** premier appel 30–60 s. Pour limiter : un ping gratuit (UptimeRobot / cron-job.org) sur `GET /api/v1/health` toutes les 10–14 min.
+
+**Cookies cross-site :** avec `JWT_COOKIE_SECURE=true`, le refresh cookie est `SameSite=None` (requis Vercel ↔ Render).
 
 ---
 
