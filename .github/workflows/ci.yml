@@ -57,6 +57,7 @@ jobs:
   e2e:
     name: E2E smoke (Playwright)
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -117,7 +118,15 @@ jobs:
         working-directory: frontend
         run: |
           npm ci
-          npx playwright install --with-deps chromium
+          ok=0
+          for i in 1 2; do
+            if timeout 180 npx playwright install --with-deps chromium; then
+              ok=1
+              break
+            fi
+            echo "playwright install attempt $i failed or timed out"
+          done
+          test "$ok" = 1
 
       - name: Build frontend
         working-directory: frontend
