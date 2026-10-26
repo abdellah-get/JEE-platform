@@ -6,7 +6,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +32,9 @@ public class HealthController {
 		body.put("service", "jee-platform");
 		body.put("club", "JEE ENSEM");
 
-		return ResponseEntity.status(up ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE).body(body);
+		// Always HTTP 200 while the process is up — Render/Docker health checks treat 503
+		// as deploy failure and keep the previous (stale) release. Clients must read `status`/`db`.
+		return ResponseEntity.ok(body);
 	}
 
 	private String probeDb() {
