@@ -13,12 +13,27 @@ import { SearchInput, matchesSearch } from "@/components/ui/SearchInput";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
-import { canCreateProject, roleLabel, statusLabel } from "@/lib/projects";
+import { canCreateProject, PROJECT_STATUSES, roleLabel, statusLabel } from "@/lib/projects";
 import { queryKeys } from "@/lib/query-keys";
+import type { ProjectStatus } from "@/lib/types";
+
+function tone(status: ProjectStatus) {
+  switch (status) {
+    case "ACTIF":
+      return "actif";
+    case "TERMINE":
+      return "termine";
+    case "ARCHIVE":
+      return "archive";
+    default:
+      return "brouillon";
+  }
+}
 
 export default function ProjectsPage() {
   const { accessToken, user, loading } = useAuth();
   const [query, setQuery] = useState("");
+  const [status, setStatus] = useState<ProjectStatus | "">("");
   const [page, setPage] = useState(0);
 
   const {
@@ -35,11 +50,19 @@ export default function ProjectsPage() {
 
   const filtered = useMemo(
     () =>
-      projects.filter((p) =>
-        matchesSearch(query, p.name, p.description, statusLabel(p.status)),
-      ),
-    [projects, query],
+      projects.filter((p) => {
+        if (status && p.status !== status) return false;
+        return matchesSearch(query, p.name, p.description, statusLabel(p.status));
+      }),
+    [projects, query, status],
   );
+
+  const average =
+    filtered.length === 0
+      ? 0
+      : Math.round(
+          filtered.reduce((sum, p) => sum + p.progressPercent, 0) / filtered.length,
+        );
 
   if (loading || !user || !accessToken) {
     return <LoadingBlock label="Chargement des projets…" rows={4} />;
@@ -56,8 +79,8 @@ export default function ProjectsPage() {
         title="Projets"
         description={
           showCreate
-            ? "Ouvre un projet pour l’équipe, les tâches, les fichiers et le suivi."
-            : "Tes missions : rôle, avancement, et accès rapide au Kanban."
+            ? "Ouvre une mission pour l’équipe, les tâches, les fichiers et le suivi."
+            : "Tes missions : rôle, avancement, et accès au Kanban."
         }
         actions={
           showCreate ? (
@@ -75,14 +98,14 @@ export default function ProjectsPage() {
       )}
 
       {isPending ? (
-        <LoadingBlock label="Chargement des projets…" />
+        <LoadingBlock label="Chargement des projets…" rows={4} />
       ) : projects.length === 0 ? (
         <EmptyState
           title="Aucun projet"
           description={
             showCreate
-              ? "Crée le premier projet du club."
-              : "Tu seras ajouté à une équipe par un chef de projet."
+              ? "Crée le premier projet du club pour y ajouter une équipe et des tâches."
+              : "Tu apparaîtras ici dès qu’un chef de projet t’ajoute à une équipe."
           }
           action={
             showCreate ? (
@@ -94,62 +117,107 @@ export default function ProjectsPage() {
         />
       ) : (
         <>
-          <SearchInput
-            id="projects-search"
-            label="Rechercher un projet"
-            value={query}
-            onChange={setQuery}
-            placeholder="Nom, description, statut…"
-          />
+          <div className="space-y-3">
+            <SearchInput
+              id="projects-search"
+              label="Rechercher un projet"
+              value={query}
+              onChange={setQuery}
+              placeholder="Nom, description, statut…"
+            />
+            <div
+              role="group"
+              aria-label="Filtrer par statut"
+              className="flex flex-wrap gap-2"
+            >
+              <button
+                type="button"
+                className="chip chip-filter"
+                aria-pressed={status === ""}
+                onClick={() => setStatus("")}
+              >
+                Tous
+              </button>
+              {PROJECT_STATUSES.map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className="chip chip-filter"
+                  aria-pressed={status === value}
+                  onClick={() => setStatus(value)}
+                >
+                  {statusLabel(value)}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {filtered.length === 0 ? (
             <EmptyState
               title="Aucun résultat"
-              description="Aucun projet ne correspond à ta recherche."
+              description="Aucun projet ne correspond à ce filtre. Élargis la recherche ou reviens à Tous."
               compact
               action={
                 <button
                   type="button"
-                  className="text-sm font-medium underline"
-                  onClick={() => setQuery("")}
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setQuery("");
+                    setStatus("");
+                  }}
                 >
-                  Effacer la recherche
+                  Réinitialiser
                 </button>
               }
             />
           ) : (
-            <ul className="stagger-list space-y-3">
-              {filtered.map((project) => (
-                <li key={project.id}>
-                  <Link
-                    href={`/projects/${project.id}`}
-                    className="surface-interactive block p-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-[family-name:var(--font-syne)] text-base font-semibold tracking-tight text-ink">
-                          {project.name}
-                        </p>
-                        {project.description && (
-                          <p className="mt-1 line-clamp-2 text-sm text-muted">
-                            {project.description}
+            <>
+              <p className="text-sm text-muted">
+                {filtered.length} projet{filtered.length > 1 ? "s" : ""} · avancement
+                moyen {average}%
+              </p>
+              <ul className="stagger-list space-y-3">
+                {filtered.map((project) => (
+                  <li key={project.id}>
+                    <Link
+                      href={`/projects/${project.id}`}
+                      data-tone={tone(project.status)}
+                      className="project-card surface-interactive block p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-[family-name:var(--font-syne)] text-base font-semibold tracking-tight text-ink">
+                            {project.name}
                           </p>
-                        )}
+                          {project.description ? (
+                            <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted">
+                              {project.description}
+                            </p>
+                          ) : (
+                            <p className="mt-1 text-sm text-muted">
+                              Pas encore de description.
+                            </p>
+                          )}
+                        </div>
+                        <span className="chip shrink-0" data-tone={tone(project.status)}>
+                          {statusLabel(project.status)}
+                        </span>
                       </div>
-                      <span className="chip shrink-0">
-                        {statusLabel(project.status)}
-                      </span>
-                    </div>
-                    <div className="mt-4 space-y-2">
-                      <ProgressBar value={project.progressPercent} />
-                      <div className="flex items-center justify-between gap-3 text-xs text-muted">
+                      <div className="mt-4">
+                        <ProgressBar
+                          value={project.progressPercent}
+                          label="Avancement"
+                        />
+                      </div>
+                      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted">
                         <span>{roleLabel(project.myRole)}</span>
-                        <span>{project.progressPercent}% complété</span>
+                        <span className="font-semibold text-brand">Ouvrir</span>
                       </div>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
           <PaginationBar
             page={data?.page ?? page}
@@ -158,6 +226,7 @@ export default function ProjectsPage() {
             onPageChange={(p) => {
               setPage(p);
               setQuery("");
+              setStatus("");
             }}
           />
         </>
