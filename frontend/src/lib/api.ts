@@ -110,7 +110,8 @@ async function silentRefresh(): Promise<RefreshResult> {
           credentials: "include",
           headers: CSRF_HEADER,
         });
-        if (res.status === 401 || res.status === 403) {
+        // Only 401 = dead refresh session. 403 is often CSRF/Origin misconfig — retryable, not logout.
+        if (res.status === 401) {
           return { status: "expired" };
         }
         if (!res.ok) {
