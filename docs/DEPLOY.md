@@ -122,6 +122,10 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 
 **Cold start (Free) :** premier appel 30–60 s. Pour limiter : un ping gratuit (UptimeRobot / cron-job.org) sur `GET /api/v1/health` toutes les 10–14 min.
 
+**Health check Render :** pointe le health check du service sur `GET /api/v1/health` (ou `/actuator/health/liveness`). La réponse est **toujours HTTP 200** si le process tourne ; lis `status` / `db` dans le JSON. Un 503 sur cet endpoint faisait échouer les deploys Docker et gardait l’ancienne API (sans événements/calendrier).
+
+**Pièces jointes :** le Dockerfile crée `/app/data/attachments` (writable). Sur Free le disque est éphémère — OK pour démo ; pour persister, monte un disk Render et mets `ATTACHMENTS_PATH` dessus.
+
 **Cookies cross-site :** avec `JWT_COOKIE_SECURE=true`, le refresh cookie est `SameSite=None` (requis Vercel ↔ Render).
 
 ---
@@ -147,7 +151,7 @@ NEXT_PUBLIC_API_URL=https://ton-api.onrender.com
 - [ ] `SPRING_PROFILES_ACTIVE=prod` et `JWT_SECRET` (≥ 32)
 - [ ] Flyway **V1–V12** appliquées (pas d’erreur au boot)
 - [ ] (Optionnel) volume persistant / `ATTACHMENTS_PATH` pour les livrables
-- [ ] `GET /api/v1/health` → `status=UP` et `db=UP`
+- [ ] `GET /api/v1/health` → HTTP 200, JSON `status=UP` et `db=UP`
 - [ ] `GET /actuator/health` (et probes) → `UP` (public) ; Swagger UI nécessite un JWT
 - [ ] (Prod) `SPRINGDOC_ENABLED=false` si tu ne veux pas exposer l’OpenAPI
 - [ ] `/h2-console` inaccessible
