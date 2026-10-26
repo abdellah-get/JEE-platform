@@ -181,6 +181,7 @@ export default function ProjectsPage() {
                   <li key={project.id}>
                     <Link
                       href={`/projects/${project.id}`}
+                      data-tone={tone(project.status)}
                       className="project-card surface-interactive block p-4"
                     >
                       <div className="flex items-start justify-between gap-3">

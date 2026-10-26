@@ -594,6 +594,71 @@ html[data-theme="dark"] body {
     height: 0.5rem;
   }
 
+  .project-card[data-tone="actif"] {
+    box-shadow: inset 3px 0 0 #8b2e3b;
+  }
+
+  .project-card[data-tone="brouillon"] {
+    box-shadow: inset 3px 0 0 var(--line);
+  }
+
+  .project-card[data-tone="termine"] {
+    box-shadow: inset 3px 0 0 var(--success);
+  }
+
+  .project-card[data-tone="archive"] {
+    box-shadow: inset 3px 0 0 var(--muted);
+  }
+
+  .project-hero {
+    background:
+      linear-gradient(165deg, rgb(139 46 59 / 14%), transparent 42%),
+      var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.3rem 1.35rem;
+    box-shadow: var(--shadow-soft);
+  }
+
+  html[data-theme="dark"] .project-hero {
+    background:
+      linear-gradient(165deg, rgb(139 46 59 / 32%), transparent 46%),
+      var(--surface);
+  }
+
+  .dest-card {
+    display: flex;
+    min-height: 5.5rem;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.35rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 0.9rem 1rem;
+    transition:
+      border-color 180ms var(--ease-out),
+      transform 180ms var(--ease-out);
+  }
+
+  .dest-card:hover {
+    border-color: rgb(139 46 59 / 45%);
+    transform: translateY(-2px);
+  }
+
+  .dest-card strong {
+    font-family: var(--font-syne), sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+  }
+
+  .dest-card span {
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--muted);
+  }
+
   .input-field {
     width: 100%;
     border-radius: 0.7rem;
@@ -797,7 +862,8 @@ html[data-theme="dark"] body {
   .surface-interactive:hover,
   .kpi-tile:hover,
   .cal-day:hover,
-  .list-row:hover {
+  .list-row:hover,
+  .dest-card:hover {
     transform: none;
   }
 }
