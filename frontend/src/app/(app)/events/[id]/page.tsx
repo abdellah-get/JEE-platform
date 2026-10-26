@@ -227,7 +227,7 @@ export default function EventDetailPage() {
       ) : (
         <article
           className={`rounded-xl border p-6 ${
-            item.pinned ? "border-warning/40 bg-warning-soft" : "border-line bg-white"
+            item.pinned ? "border-warning/40 bg-warning-soft" : "border-line bg-surface"
           }`}
         >
           <div className="flex flex-wrap items-start justify-between gap-2">

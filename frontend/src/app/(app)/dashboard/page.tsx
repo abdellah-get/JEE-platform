@@ -8,6 +8,7 @@ import { DueBadge } from "@/components/tasks/DueBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { SectionBlock } from "@/components/ui/SectionBlock";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
@@ -83,6 +84,8 @@ export default function DashboardPage() {
 
   const kpis = data.kpis;
   const isBureau = user.clubRole === "BUREAU" || user.clubRole === "ADMIN_TECH";
+  const openTasks = data.myTasks.length;
+  const projectCount = data.myProjects.length;
 
   return (
     <div className="mx-auto max-w-5xl space-y-8">
@@ -124,6 +127,29 @@ export default function DashboardPage() {
             ))}
           </ul>
         </SectionBlock>
+      ) : null}
+
+      {!kpis ? (
+        <section className="grid gap-3 sm:grid-cols-3" aria-label="Ton activité">
+          <div className="kpi-tile">
+            <p className="text-xs text-muted">Tes projets</p>
+            <p className="mt-1 font-[family-name:var(--font-syne)] text-2xl font-bold tracking-tight text-brand">
+              {projectCount}
+            </p>
+          </div>
+          <div className="kpi-tile">
+            <p className="text-xs text-muted">Tâches ouvertes</p>
+            <p className="mt-1 font-[family-name:var(--font-syne)] text-2xl font-bold tracking-tight text-brand">
+              {openTasks}
+            </p>
+          </div>
+          <div className="kpi-tile">
+            <p className="text-xs text-muted">Annonces à lire</p>
+            <p className="mt-1 font-[family-name:var(--font-syne)] text-2xl font-bold tracking-tight text-brand">
+              {data.pinnedAnnouncements.length}
+            </p>
+          </div>
+        </section>
       ) : null}
 
       {kpis ? (
@@ -223,8 +249,11 @@ export default function DashboardPage() {
                       <div className="flex items-center justify-between gap-3 text-sm">
                         <span className="font-medium text-ink">{p.name}</span>
                         <span className="shrink-0 text-xs text-muted">
-                          {statusLabel(p.status)} · {p.progressPercent}%
+                          {statusLabel(p.status)}
                         </span>
+                      </div>
+                      <div className="mt-2">
+                        <ProgressBar value={p.progressPercent} />
                       </div>
                     </Link>
                   </li>

@@ -388,7 +388,7 @@ export default function ProjectTasksPage() {
             rows={2}
             maxLength={4000}
             placeholder="Contexte court…"
-            className="w-full resize-y rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none ring-brand focus:ring-2"
+            className="w-full resize-y rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none ring-brand focus:ring-2"
           />
         </label>
       </form>
@@ -458,7 +458,7 @@ export default function ProjectTasksPage() {
                     const dragged = tasks.find((t) => t.id === taskId);
                     if (dragged) void moveTaskBefore(dragged, task);
                   }}
-                  className="cursor-grab rounded-lg border border-line bg-white p-3 shadow-sm outline-none ring-brand focus-visible:ring-2 active:cursor-grabbing"
+                  className="cursor-grab rounded-lg border border-line bg-surface p-3 shadow-sm outline-none ring-brand focus-visible:ring-2 active:cursor-grabbing"
                 >
                   <button
                     type="button"
