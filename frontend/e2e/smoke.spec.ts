@@ -13,7 +13,7 @@ test("login → dashboard → Kanban projet", async ({ page }) => {
     page.getByRole("heading", { name: /Salut, Chaimae/i }),
   ).toBeVisible();
   await expect(
-    page.getByText(/Repère vite ce qui bloque|Priorités du jour/i),
+    page.locator(".page-subtitle").filter({ hasText: /Repère vite ce qui bloque/i }),
   ).toBeVisible();
 
   await page.locator('nav a[href="/projects"]').click();
