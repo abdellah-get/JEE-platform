@@ -67,8 +67,8 @@ export function dueDateClassName(
 ): string {
   if (!dueDate) return "text-muted";
   const urgency = dueUrgency(dueDate, status);
-  if (urgency === "overdue") return "font-medium text-red-600";
-  if (urgency === "due-soon") return "font-medium text-amber-700";
+  if (urgency === "overdue") return "font-medium text-danger";
+  if (urgency === "due-soon") return "font-medium text-warning";
   return "text-muted";
 }
 

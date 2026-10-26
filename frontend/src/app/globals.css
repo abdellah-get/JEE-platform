@@ -590,6 +590,21 @@ html[data-theme="dark"] body {
     color: var(--muted);
   }
 
+  .chip[data-tone="haute"] {
+    background: color-mix(in srgb, var(--danger) 16%, var(--surface));
+    color: var(--danger);
+  }
+
+  .chip[data-tone="moyenne"] {
+    background: color-mix(in srgb, var(--warning) 18%, var(--surface));
+    color: var(--warning);
+  }
+
+  .chip[data-tone="basse"] {
+    background: var(--brand-mist);
+    color: var(--muted);
+  }
+
   .project-card .progress-track {
     height: 0.5rem;
   }
@@ -657,6 +672,46 @@ html[data-theme="dark"] body {
     font-size: 0.78rem;
     line-height: 1.35;
     color: var(--muted);
+  }
+
+  .select-field {
+    border-radius: 0.7rem;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    padding: 0.55rem 0.75rem;
+    font-size: 0.875rem;
+    outline: none;
+  }
+
+  .select-field:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgb(139 46 59 / 16%);
+  }
+
+  .task-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .task-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--line);
+  }
+
+  .task-card[data-priority="HIGH"]::before {
+    background: var(--danger);
+  }
+
+  .task-card[data-priority="MEDIUM"]::before {
+    background: var(--warning);
+  }
+
+  .task-card[data-priority="LOW"]::before {
+    background: var(--line);
   }
 
   .input-field {
