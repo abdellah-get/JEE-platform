@@ -1,14 +1,28 @@
-export function LoadingBlock({ label = "Chargement…" }: { label?: string }) {
+export function LoadingBlock({
+  label = "Chargement…",
+  rows = 3,
+}: {
+  label?: string;
+  /** Skeleton rows for denser pages (0 = spinner only). */
+  rows?: number;
+}) {
   return (
-    <div className="flex flex-col gap-3" role="status">
+    <div className="loading-block" role="status" aria-live="polite">
       <div className="flex items-center gap-3 text-sm text-muted">
-        <span
-          className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-brand-soft border-t-brand"
-          aria-hidden
-        />
+        <span className="loading-block__spinner" aria-hidden />
         {label}
       </div>
-      <div className="skeleton-pulse h-2 max-w-xs rounded-full opacity-70" aria-hidden />
+      {rows > 0 ? (
+        <div className="loading-block__skeleton" aria-hidden>
+          {Array.from({ length: rows }, (_, i) => (
+            <div
+              key={i}
+              className="skeleton-pulse loading-block__bar"
+              style={{ width: `${88 - i * 12}%`, animationDelay: `${i * 90}ms` }}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

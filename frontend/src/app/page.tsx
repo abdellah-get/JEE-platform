@@ -27,18 +27,29 @@ export default function Home() {
             du club
           </h1>
           <p className="mx-auto max-w-md text-[1.02rem] leading-relaxed text-muted">
-            Avancement des projets, priorités d&apos;équipe et annonces —
-            pensé pour le rythme d&apos;une Junior-Entreprise.
+            Suis les projets, tes tâches, les annonces et le calendrier — au
+            rythme d&apos;une Junior-Entreprise.
           </p>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Link href="/login" className="btn btn-primary min-w-[10.5rem]">
-            Entrer
+            Se connecter
           </Link>
           <Link href="/register" className="btn btn-secondary min-w-[10.5rem]">
             Créer un compte
           </Link>
         </div>
+        <ul className="stagger-list mt-2 flex flex-wrap justify-center gap-2 text-center text-xs text-muted">
+          <li className="rounded-full border border-line bg-surface/70 px-3 py-1.5">
+            Projets &amp; livrables
+          </li>
+          <li className="rounded-full border border-line bg-surface/70 px-3 py-1.5">
+            Tâches assignées
+          </li>
+          <li className="rounded-full border border-line bg-surface/70 px-3 py-1.5">
+            Événements &amp; calendrier
+          </li>
+        </ul>
       </div>
     </main>
   );

@@ -86,23 +86,23 @@ export default function CalendarPage() {
   const todayIso = isoDate(new Date());
 
   if (loading || !user || !accessToken) {
-    return <LoadingBlock />;
+    return <LoadingBlock label="Ouverture du calendrier…" rows={4} />;
   }
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <PageHeader
-        eyebrow="Club"
+        eyebrow="Planning"
         title="Calendrier"
-        description="Événements du club et échéances des tâches de tes projets."
+        description="Clique un jour pour voir les événements du club et les échéances de tes tâches."
         actions={
           <Link href="/events" className="btn btn-secondary">
-            Événements
+            Liste des événements
           </Link>
         }
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="panel flex flex-wrap items-center justify-between gap-3 reveal-up">
         <button
           type="button"
           className="btn btn-secondary"
@@ -129,13 +129,13 @@ export default function CalendarPage() {
       )}
 
       {busy ? (
-        <LoadingBlock label="Chargement du calendrier…" />
+        <LoadingBlock label="Chargement du calendrier…" rows={5} />
       ) : (
         <>
-          <div className="overflow-hidden rounded-xl border border-line bg-white">
-            <div className="grid grid-cols-7 border-b border-line bg-surface/60 text-center text-xs font-semibold uppercase tracking-wide text-muted">
+          <div className="overflow-hidden rounded-xl border border-line bg-white reveal-up shadow-[var(--shadow-soft)]">
+            <div className="grid grid-cols-7 border-b border-line bg-brand-mist/80 text-center text-xs font-semibold tracking-wide text-muted">
               {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((d) => (
-                <div key={d} className="px-1 py-2">
+                <div key={d} className="px-1 py-2.5">
                   {d}
                 </div>
               ))}
@@ -159,9 +159,8 @@ export default function CalendarPage() {
                     key={key}
                     type="button"
                     onClick={() => setSelectedDay(key)}
-                    className={`min-h-20 border-b border-r border-line/60 p-1.5 text-left transition-colors hover:bg-brand-soft/40 ${
-                      isSelected ? "bg-brand-soft/60" : ""
-                    }`}
+                    data-selected={isSelected ? "true" : "false"}
+                    className="cal-day min-h-20 border-b border-r border-line/60 p-1.5 text-left hover:bg-brand-soft/40"
                   >
                     <span
                       className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
@@ -205,22 +204,25 @@ export default function CalendarPage() {
           </div>
 
           {selectedDay ? (
-            <section className="space-y-3">
-              <h2 className="font-[family-name:var(--font-syne)] text-base font-semibold tracking-tight">
-                {new Date(selectedDay + "T12:00:00").toLocaleDateString("fr-FR", {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "long",
-                })}
-              </h2>
+            <section className="space-y-3 reveal-up">
+              <div>
+                <h2 className="section-heading capitalize">
+                  {new Date(selectedDay + "T12:00:00").toLocaleDateString("fr-FR", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "long",
+                  })}
+                </h2>
+                <p className="section-hint">Détail du jour sélectionné.</p>
+              </div>
               {selectedItems.length === 0 ? (
                 <EmptyState
                   title="Rien ce jour-là"
-                  description="Pas d’événement ni d’échéance visible."
+                  description="Pas d’événement ni d’échéance visible — choisis un autre jour ou ouvre la liste des événements."
                   compact
                 />
               ) : (
-                <ul className="space-y-2">
+                <ul className="stagger-list space-y-2">
                   {selectedItems.map((item) => (
                     <li key={`${item.type}-${item.id}`}>
                       <Link
