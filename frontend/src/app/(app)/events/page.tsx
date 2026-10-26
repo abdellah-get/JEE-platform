@@ -48,7 +48,7 @@ export default function EventsPage() {
   );
 
   if (loading || !user || !accessToken) {
-    return <LoadingBlock />;
+    return <LoadingBlock label="Chargement des événements…" rows={4} />;
   }
 
   const canWrite = canAccessAdmin(user.clubRole);
@@ -56,13 +56,13 @@ export default function EventsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader
-        eyebrow="Club"
+        eyebrow="Vie du club"
         title="Événements"
-        description="AG, formations et rendez-vous du club — aussi visibles dans le calendrier."
+        description="AG, formations et rendez-vous — ouvre le calendrier pour la vue mois."
         actions={
           <div className="flex flex-wrap gap-2">
             <Link href="/calendar" className="btn btn-secondary">
-              Calendrier
+              Voir le calendrier
             </Link>
             {canWrite ? (
               <Link href="/events/new" className="btn btn-primary">
@@ -80,15 +80,15 @@ export default function EventsPage() {
       )}
 
       {busy ? (
-        <LoadingBlock label="Chargement des événements…" />
+        <LoadingBlock label="Chargement des événements…" rows={4} />
       ) : items.length === 0 ? (
         <EmptyState
-          title="Aucun événement"
-          description="Le bureau publiera bientôt les prochaines dates du club."
+          title="Aucun événement pour l’instant"
+          description="Dès qu’une date est publiée par le bureau, elle apparaît ici et dans le calendrier."
           action={
             canWrite ? (
               <Link href="/events/new" className="btn btn-primary">
-                Créer
+                Créer un événement
               </Link>
             ) : undefined
           }

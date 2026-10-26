@@ -10,10 +10,10 @@ test("login → dashboard → Kanban projet", async ({ page }) => {
   await loginAs(page, "chef@ensem.jee");
 
   await expect(
-    page.getByRole("heading", { name: /Salut, Chaimae|Dashboard/i }),
+    page.getByRole("heading", { name: /Salut, Chaimae/i }),
   ).toBeVisible();
   await expect(
-    page.getByText(/Ce qui avance dans le club|Bonjour Chaimae/i),
+    page.locator(".page-subtitle").filter({ hasText: /Repère vite ce qui bloque/i }),
   ).toBeVisible();
 
   await page.locator('nav a[href="/projects"]').click();

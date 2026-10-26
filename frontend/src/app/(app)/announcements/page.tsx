@@ -47,7 +47,7 @@ export default function AnnouncementsPage() {
   );
 
   if (loading || !user || !accessToken) {
-    return <LoadingBlock />;
+    return <LoadingBlock label="Chargement des annonces…" rows={4} />;
   }
 
   const canWrite = canAccessAdmin(user.clubRole);

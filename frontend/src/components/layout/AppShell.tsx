@@ -10,17 +10,7 @@ import { PageMotion } from "@/components/motion/PageMotion";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import { canAccessAdmin } from "@/lib/auth-storage";
-
-const NAV = [
-  { href: "/dashboard", label: "Vue d’ensemble" },
-  { href: "/projects", label: "Projets" },
-  { href: "/tasks", label: "Mes tâches" },
-  { href: "/announcements", label: "Annonces" },
-  { href: "/events", label: "Événements" },
-  { href: "/calendar", label: "Calendrier" },
-  { href: "/notifications", label: "Notifications" },
-  { href: "/profile", label: "Mon profil" },
-] as const;
+import { ADMIN_NAV, APP_NAV, navContext } from "@/lib/nav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -29,10 +19,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [resuming, setResuming] = useState(false);
   const navId = useId();
   const showAdmin = canAccessAdmin(user?.clubRole);
+  const context = navContext(pathname);
 
-  const links = showAdmin
-    ? [...NAV, { href: "/admin", label: "Admin" } as const]
-    : NAV;
+  const links = showAdmin ? [...APP_NAV, ADMIN_NAV] : APP_NAV;
 
   useEffect(() => {
     setOpen(false);
@@ -45,27 +34,25 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     };
   }, [open]);
 
-  // Avoid shell + empty page flash while the access JWT is rehydrated.
   if (loading) {
     return (
       <div className="flex min-h-dvh items-center justify-center text-ink">
-        <LoadingBlock label="Chargement de la session…" />
+        <LoadingBlock label="Chargement de la session…" rows={2} />
       </div>
     );
   }
 
   if (!accessToken) {
-    // Logout redirect in flight (no cached profile) vs transient refresh failure.
     if (!user) {
       return (
         <div className="flex min-h-dvh items-center justify-center text-ink">
-          <LoadingBlock label="Redirection…" />
+          <LoadingBlock label="Redirection…" rows={0} />
         </div>
       );
     }
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-4 text-ink">
-        <p className="text-center text-sm text-muted">
+        <p className="max-w-sm text-center text-sm text-muted">
           Session en cours de reprise — l’API met parfois quelques secondes à
           répondre.
         </p>
@@ -95,7 +82,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <aside
         id={navId}
-        className={`fixed inset-y-0 left-0 z-40 flex w-[min(18rem,88vw)] flex-col border-r border-line bg-surface/95 pt-[env(safe-area-inset-top)] shadow-[8px_0_32px_rgb(61_61_61/6%)] backdrop-blur-md transition-transform duration-300 ease-out md:static md:w-64 md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-[min(18rem,88vw)] flex-col border-r border-line bg-surface/95 pt-[env(safe-area-inset-top)] shadow-[8px_0_32px_rgb(61_61_61/6%)] backdrop-blur-md transition-transform duration-300 ease-out md:static md:w-[16.5rem] md:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -131,7 +118,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   aria-current={active ? "page" : undefined}
                   className="nav-link"
                 >
-                  {item.label}
+                  <span className="block leading-tight">{item.label}</span>
+                  <span className="nav-link__hint">{item.hint}</span>
                 </Link>
               );
             })}
@@ -181,14 +169,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Menu
           </button>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold">ENSEM Platform</p>
+            <p className="truncate text-sm font-semibold">{context.label}</p>
+            <p className="truncate text-[11px] text-muted">{context.hint}</p>
           </div>
           <NotificationBell />
         </header>
-        <div className="glass-bar hidden items-center justify-between px-8 py-3.5 md:flex">
-          <p className="text-sm text-muted">
-            Études &amp; conseils · espace membres
-          </p>
+        <div className="glass-bar soft-fade hidden items-center justify-between px-8 py-3 md:flex">
+          <div className="context-chip" aria-live="polite">
+            <span className="context-chip__dot" aria-hidden />
+            <span>
+              <strong>{context.label}</strong>
+              <span className="mx-1.5 text-line">·</span>
+              {context.hint}
+            </span>
+          </div>
           <NotificationBell />
         </div>
         <main

@@ -8,6 +8,7 @@ import { DueBadge } from "@/components/tasks/DueBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { PageHeader } from "@/components/ui/PageHeader";
+import { SectionBlock } from "@/components/ui/SectionBlock";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
@@ -51,15 +52,17 @@ export default function DashboardPage() {
   }
 
   if (loading || !user || !accessToken) {
-    return <LoadingBlock />;
+    return <LoadingBlock label="Préparation de ton espace…" rows={4} />;
   }
 
   if (error && !data) {
     return (
       <EmptyState
-        title="Dashboard indisponible"
+        title="Vue d’ensemble indisponible"
         description={
-          error instanceof ApiError ? error.message : "Chargement impossible"
+          error instanceof ApiError
+            ? error.message
+            : "Impossible de charger le tableau de bord pour le moment."
         }
         action={
           <button
@@ -75,7 +78,7 @@ export default function DashboardPage() {
   }
 
   if (isPending || !data) {
-    return <LoadingBlock label="Chargement du dashboard…" />;
+    return <LoadingBlock label="Chargement du dashboard…" rows={5} />;
   }
 
   const kpis = data.kpis;
@@ -86,7 +89,7 @@ export default function DashboardPage() {
       <PageHeader
         eyebrow="Aujourd’hui"
         title={`Salut, ${user.firstName}`}
-        description="Ce qui avance dans le club — projets, tâches et signaux urgents."
+        description="Repère vite ce qui bloque, ce qui avance, et ce que le bureau a épinglé."
         actions={
           isBureau ? (
             <button
@@ -101,9 +104,12 @@ export default function DashboardPage() {
         }
       />
 
-      {data.pinnedAnnouncements.length > 0 && (
-        <section className="space-y-3">
-          <h2 className="section-label">À traiter en priorité</h2>
+      {data.pinnedAnnouncements.length > 0 ? (
+        <SectionBlock
+          index={0}
+          title="À traiter en priorité"
+          hint="Annonces épinglées par le bureau — lis-les avant le reste."
+        >
           <ul className="stagger-list space-y-2">
             {data.pinnedAnnouncements.map((a) => (
               <li key={a.id}>
@@ -117,11 +123,15 @@ export default function DashboardPage() {
               </li>
             ))}
           </ul>
-        </section>
-      )}
+        </SectionBlock>
+      ) : null}
 
-      {kpis && (
-        <section className="space-y-4">
+      {kpis ? (
+        <SectionBlock
+          index={1}
+          title="Signaux du club"
+          hint="Chiffres clés pour voir l’activité d’un coup d’œil."
+        >
           <div className="stagger-list grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             {[
               ["Membres actifs", kpis.activeMembers],
@@ -139,8 +149,8 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="surface-quiet px-4 py-3 sm:col-span-2 lg:col-span-1">
+          <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="panel sm:col-span-2 lg:col-span-1">
               <p className="text-xs text-muted">Projets par statut</p>
               <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
                 <div className="flex justify-between gap-2">
@@ -161,13 +171,11 @@ export default function DashboardPage() {
                 </div>
               </dl>
             </div>
-            <div className="surface-quiet px-4 py-3">
+            <div className="panel">
               <p className="text-xs text-muted">Avancement moyen</p>
-              <p className="mt-1 page-title">
-                {kpis.averageProgressPercent}%
-              </p>
+              <p className="mt-1 page-title">{kpis.averageProgressPercent}%</p>
             </div>
-            <div className="surface-quiet px-4 py-3">
+            <div className="panel">
               <p className="text-xs text-muted">Tâches en retard</p>
               <p
                 className={`mt-1 page-title ${
@@ -178,96 +186,113 @@ export default function DashboardPage() {
               </p>
             </div>
           </div>
-        </section>
-      )}
+        </SectionBlock>
+      ) : null}
 
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div className="surface-quiet p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-ink">Mes projets</h2>
-            <Link href="/projects" className="text-xs font-medium underline">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <SectionBlock
+          index={2}
+          title="Mes projets"
+          hint="Tes missions en cours."
+          action={
+            <Link
+              href="/projects"
+              className="text-xs font-semibold text-brand underline-offset-2 hover:underline"
+            >
               Tout voir
             </Link>
-          </div>
-          {data.myProjects.length === 0 ? (
-            <EmptyState
-              compact
-              title="Aucun projet"
-              description="Tu apparaîtras ici dès qu’on t’ajoute à une équipe."
-              action={
-                <Link href="/projects" className="text-sm font-medium underline">
-                  Voir les projets
-                </Link>
-              }
-            />
-          ) : (
-            <ul className="space-y-2">
-              {data.myProjects.map((p) => (
-                <li key={p.id}>
-                  <Link
-                    href={`/projects/${p.id}`}
-                    className="flex items-center justify-between rounded-lg px-2 py-2 text-sm hover:bg-paper"
-                  >
-                    <span className="font-medium">{p.name}</span>
-                    <span className="text-xs text-muted">
-                      {statusLabel(p.status)} · {p.progressPercent}%
-                    </span>
+          }
+        >
+          <div className="panel">
+            {data.myProjects.length === 0 ? (
+              <EmptyState
+                compact
+                title="Aucun projet"
+                description="Tu apparaîtras ici dès qu’on t’ajoute à une équipe."
+                action={
+                  <Link href="/projects" className="btn btn-secondary">
+                    Voir les projets
                   </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+                }
+              />
+            ) : (
+              <ul className="stagger-list space-y-1">
+                {data.myProjects.map((p) => (
+                  <li key={p.id}>
+                    <Link href={`/projects/${p.id}`} className="list-row">
+                      <div className="flex items-center justify-between gap-3 text-sm">
+                        <span className="font-medium text-ink">{p.name}</span>
+                        <span className="shrink-0 text-xs text-muted">
+                          {statusLabel(p.status)} · {p.progressPercent}%
+                        </span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </SectionBlock>
 
-        <div className="surface-quiet p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-ink">Mes tâches ouvertes</h2>
-            <Link href="/tasks" className="text-xs font-medium underline">
+        <SectionBlock
+          index={3}
+          title="Mes tâches ouvertes"
+          hint="Ce qui te reste à livrer."
+          action={
+            <Link
+              href="/tasks"
+              className="text-xs font-semibold text-brand underline-offset-2 hover:underline"
+            >
               Tout voir
             </Link>
-          </div>
-          {data.myTasks.length === 0 ? (
-            <EmptyState
-              compact
-              title="Aucune tâche ouverte"
-              description="Les tâches qui te sont assignées s’affichent ici."
-              action={
-                <Link href="/tasks" className="text-sm font-medium underline">
-                  Mes tâches
-                </Link>
-              }
-            />
-          ) : (
-            <ul className="space-y-2">
-              {data.myTasks.map((t) => (
-                <li key={t.id}>
-                  <Link
-                    href={`/projects/${t.projectId}/tasks`}
-                    className="block rounded-lg px-2 py-2 text-sm hover:bg-paper"
-                  >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium">{t.title}</p>
-                      <DueBadge dueDate={t.dueDate} status={t.status} />
-                    </div>
-                    <p className="text-xs text-muted">
-                      {t.projectName} · {taskStatusLabel(t.status)} ·{" "}
-                      {priorityLabel(t.priority)}
-                      {t.dueDate ? (
-                        <>
-                          {" · "}
-                          <span className={dueDateClassName(t.dueDate, t.status)}>
-                            {formatDueDate(t.dueDate)}
-                          </span>
-                        </>
-                      ) : null}
-                    </p>
+          }
+        >
+          <div className="panel">
+            {data.myTasks.length === 0 ? (
+              <EmptyState
+                compact
+                title="Aucune tâche ouverte"
+                description="Les tâches qui te sont assignées s’affichent ici."
+                action={
+                  <Link href="/tasks" className="btn btn-secondary">
+                    Mes tâches
                   </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </section>
+                }
+              />
+            ) : (
+              <ul className="stagger-list space-y-1">
+                {data.myTasks.map((t) => (
+                  <li key={t.id}>
+                    <Link
+                      href={`/projects/${t.projectId}/tasks`}
+                      className="list-row"
+                    >
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
+                        <p className="font-medium text-ink">{t.title}</p>
+                        <DueBadge dueDate={t.dueDate} status={t.status} />
+                      </div>
+                      <p className="mt-0.5 text-xs text-muted">
+                        {t.projectName} · {taskStatusLabel(t.status)} ·{" "}
+                        {priorityLabel(t.priority)}
+                        {t.dueDate ? (
+                          <>
+                            {" · "}
+                            <span
+                              className={dueDateClassName(t.dueDate, t.status)}
+                            >
+                              {formatDueDate(t.dueDate)}
+                            </span>
+                          </>
+                        ) : null}
+                      </p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </SectionBlock>
+      </div>
     </div>
   );
 }

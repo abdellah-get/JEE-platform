@@ -42,7 +42,7 @@ export default function ProjectsPage() {
   );
 
   if (loading || !user || !accessToken) {
-    return <LoadingBlock />;
+    return <LoadingBlock label="Chargement des projets…" rows={4} />;
   }
 
   const showCreate = canCreateProject(user.clubRole);
@@ -56,8 +56,8 @@ export default function ProjectsPage() {
         title="Projets"
         description={
           showCreate
-            ? "Pilote l’ensemble des missions du club."
-            : "Tes missions en cours et ton rôle dans chaque équipe."
+            ? "Ouvre un projet pour l’équipe, les tâches, les fichiers et le suivi."
+            : "Tes missions : rôle, avancement, et accès rapide au Kanban."
         }
         actions={
           showCreate ? (

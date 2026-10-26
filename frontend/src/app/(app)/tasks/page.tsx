@@ -7,6 +7,7 @@ import { useState } from "react";
 import { DueBadge } from "@/components/tasks/DueBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { PaginationBar } from "@/components/ui/PaginationBar";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
@@ -53,7 +54,7 @@ export default function MyTasksPage() {
   const tasks = tasksPage?.content ?? [];
 
   if (loading || !accessToken) {
-    return <LoadingBlock />;
+    return <LoadingBlock label="Chargement de tes tâches…" rows={4} />;
   }
 
   const errorMessage =
@@ -61,13 +62,11 @@ export default function MyTasksPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <p className="section-label">Travail personnel</p>
-        <h1 className="page-title mt-1">Mes tâches</h1>
-        <p className="page-subtitle">
-          Tout ce qui t’est assigné, tous projets confondus.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Travail personnel"
+        title="Mes tâches"
+        description="Filtre par statut, priorité ou projet pour retrouver vite ce qui t’attend."
+      />
 
       <div className="flex flex-wrap gap-2 surface-quiet p-3">
         <label className="sr-only" htmlFor="filter-status">
