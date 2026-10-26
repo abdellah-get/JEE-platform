@@ -7,6 +7,7 @@ import { useEffect, useId, useState } from "react";
 import { ClubLogo } from "@/components/brand/ClubLogo";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { PageMotion } from "@/components/motion/PageMotion";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import { canAccessAdmin } from "@/lib/auth-storage";
@@ -172,6 +173,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <p className="truncate text-sm font-semibold">{context.label}</p>
             <p className="truncate text-[11px] text-muted">{context.hint}</p>
           </div>
+          <ThemeToggle />
           <NotificationBell />
         </header>
         <div className="glass-bar soft-fade hidden items-center justify-between px-8 py-3 md:flex">
@@ -183,7 +185,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {context.hint}
             </span>
           </div>
-          <NotificationBell />
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <NotificationBell />
+          </div>
         </div>
         <main
           id="contenu-principal"

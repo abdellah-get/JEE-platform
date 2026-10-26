@@ -25,14 +25,17 @@ export const metadata: Metadata = {
     "Pilote projets, tâches et annonces de ENSEM Engineering Junior-Entreprise.",
 };
 
+const themeBoot = `(function(){try{var k="jee_theme";var t=localStorage.getItem(k);if(t!=="dark"&&t!=="light"){t=window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";}document.documentElement.dataset.theme=t;}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <body className={`${manrope.variable} ${syne.variable} antialiased`}>
+        <script dangerouslySetInnerHTML={{ __html: themeBoot }} />
         <Providers>{children}</Providers>
       </body>
     </html>

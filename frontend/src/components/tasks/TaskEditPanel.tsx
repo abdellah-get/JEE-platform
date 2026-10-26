@@ -95,7 +95,7 @@ export function TaskEditPanel({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative z-10 flex h-full w-full max-w-md flex-col border-l border-line bg-white shadow-xl"
+        className="relative z-10 flex h-full w-full max-w-md flex-col border-l border-line bg-surface shadow-xl"
       >
         <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
           <div>
@@ -134,7 +134,7 @@ export function TaskEditPanel({
                 rows={5}
                 maxLength={4000}
                 placeholder="Contexte, livrables, liens…"
-                className="w-full resize-y rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none ring-brand focus:ring-2"
+                className="w-full resize-y rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none ring-brand focus:ring-2"
               />
             </label>
 

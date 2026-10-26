@@ -122,7 +122,7 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
                       onChange={(e) => setEditBody(e.target.value)}
                       rows={3}
                       maxLength={4000}
-                      className="w-full rounded-lg border border-line bg-white px-2 py-1.5 text-sm"
+                      className="w-full rounded-lg border border-line bg-surface px-2 py-1.5 text-sm"
                     />
                     <div className="flex gap-2">
                       <button
@@ -185,7 +185,7 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
             rows={3}
             maxLength={4000}
             placeholder="Répondre à l’équipe…"
-            className="w-full rounded-lg border border-line bg-white px-3 py-2 text-sm outline-none ring-brand focus:ring-2"
+            className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none ring-brand focus:ring-2"
           />
         </label>
         <button

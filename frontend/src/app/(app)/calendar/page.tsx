@@ -132,7 +132,7 @@ export default function CalendarPage() {
         <LoadingBlock label="Chargement du calendrier…" rows={5} />
       ) : (
         <>
-          <div className="overflow-hidden rounded-xl border border-line bg-white reveal-up shadow-[var(--shadow-soft)]">
+          <div className="overflow-hidden rounded-xl border border-line bg-surface reveal-up shadow-[var(--shadow-soft)]">
             <div className="grid grid-cols-7 border-b border-line bg-brand-mist/80 text-center text-xs font-semibold tracking-wide text-muted">
               {["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"].map((d) => (
                 <div key={d} className="px-1 py-2.5">
