@@ -6,9 +6,10 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import * as api from "@/lib/api";
 import {
@@ -39,6 +40,19 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+const AUTH_ROUTE_PREFIXES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+] as const;
+
+function isAuthRoute(path: string) {
+  return AUTH_ROUTE_PREFIXES.some(
+    (p) => path === p || path.startsWith(`${p}/`),
+  );
+}
+
 function toUser(res: AuthResponse): AuthUser {
   return {
     userId: res.userId,
@@ -49,11 +63,32 @@ function toUser(res: AuthResponse): AuthUser {
   };
 }
 
+/** Hard navigation after clearing cookies — avoids soft-nav races with middleware. */
+function goToLogin(nextPath: string) {
+  const next =
+    nextPath && !isAuthRoute(nextPath) ? nextPath : "/dashboard";
+  const dest = `/login?next=${encodeURIComponent(next)}`;
+  if (typeof window !== "undefined") {
+    window.location.replace(dest);
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+  const returnToRef = useRef("/dashboard");
+
+  // Remember last app page for post-logout ?next= (pathname can lag during soft nav).
+  useEffect(() => {
+    if (pathname && !isAuthRoute(pathname)) {
+      const search =
+        typeof window !== "undefined" ? window.location.search : "";
+      returnToRef.current = `${pathname}${search}`;
+    }
+  }, [pathname]);
 
   const applyAuth = useCallback((res: AuthResponse) => {
     const nextUser = toUser(res);
@@ -68,19 +103,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       onCleared: () => {
         setAccessToken(null);
         setUser(null);
-        const next =
-          typeof window !== "undefined"
-            ? `${window.location.pathname}${window.location.search}`
-            : "/dashboard";
-        const dest =
-          next.startsWith("/login") || next.startsWith("/register")
-            ? "/login"
-            : `/login?next=${encodeURIComponent(next)}`;
-        router.replace(dest);
+        goToLogin(returnToRef.current);
       },
     });
     return () => api.setAuthSessionHandlers({});
-  }, [applyAuth, router]);
+  }, [applyAuth]);
 
   useEffect(() => {
     let cancelled = false;
@@ -91,24 +118,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(stored);
     }
 
-    const redirectToLogin = () => {
-      const path =
-        typeof window !== "undefined" ? window.location.pathname : "";
-      if (
-        path &&
-        !path.startsWith("/login") &&
-        !path.startsWith("/register") &&
-        !path.startsWith("/forgot-password") &&
-        !path.startsWith("/reset-password")
-      ) {
-        router.replace(
-          `/login?next=${encodeURIComponent(
-            `${path}${window.location.search}`,
-          )}`,
-        );
-      }
-    };
-
     const hydrate = async (attempt = 0): Promise<void> => {
       try {
         const res = await api.refresh();
@@ -116,17 +125,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (err) {
         if (cancelled) return;
         const expired =
-          err instanceof api.ApiError &&
-          (err.status === 401 || err.status === 403);
+          err instanceof api.ApiError && err.status === 401;
         if (expired) {
           clearSession();
           setAccessToken(null);
           setUser(null);
-          // Middleware may still show app chrome via cookie — force login.
-          redirectToLogin();
+          if (pathname && !isAuthRoute(pathname)) {
+            goToLogin(`${pathname}${window.location.search}`);
+          }
           return;
         }
-        // Cold start / 429 / network: retry before giving up (never treat as logout).
+        // Cold start / 403 CSRF / 429 / network: retry (never treat as logout).
         if (attempt < 2) {
           await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
           if (!cancelled) await hydrate(attempt + 1);
@@ -141,7 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-    // Boot once on mount — do not re-run on router identity changes (would race refresh rotation).
+    // Boot once on mount — do not re-run on router/pathname (refresh rotation races).
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only hydrate
   }, [applyAuth]);
 
@@ -195,8 +204,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     clearSession();
     setAccessToken(null);
     setUser(null);
-    router.replace("/login");
-  }, [router]);
+    window.location.replace("/login");
+  }, []);
 
   const updateLocalUser = useCallback(
     (next: AuthUser) => {
@@ -213,18 +222,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       applyAuth(res);
       return true;
     } catch (err) {
-      const expired =
-        err instanceof api.ApiError &&
-        (err.status === 401 || err.status === 403);
-      if (expired) {
+      if (err instanceof api.ApiError && err.status === 401) {
         clearSession();
         setAccessToken(null);
         setUser(null);
-        router.replace("/login");
+        goToLogin(returnToRef.current);
       }
       return false;
     }
-  }, [applyAuth, router]);
+  }, [applyAuth]);
 
   const refreshProfile = useCallback(async () => {
     if (!accessToken) return;

@@ -3,13 +3,6 @@ import type { NextRequest } from "next/server";
 
 import { AUTH_COOKIE, ROLE_COOKIE } from "@/lib/auth-constants";
 
-const AUTH_PAGES = [
-  "/login",
-  "/register",
-  "/forgot-password",
-  "/reset-password",
-];
-
 const PROTECTED_PREFIXES = [
   "/dashboard",
   "/projects",
@@ -21,12 +14,6 @@ const PROTECTED_PREFIXES = [
   "/profile",
   "/admin",
 ];
-
-function isAuthPage(pathname: string) {
-  return AUTH_PAGES.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`),
-  );
-}
 
 function isProtected(pathname: string) {
   return PROTECTED_PREFIXES.some(
@@ -49,9 +36,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  if (isAuthPage(pathname) && hasSession) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  // Do NOT bounce /login → /dashboard based on jee_auth alone.
+  // That cookie is a non-secret hint and can outlive a dead refresh cookie,
+  // which caused events/calendar ↔ login flicker ending at ?next=/dashboard.
+  // AuthProvider + login page redirect only after a successful refresh.
 
   return NextResponse.next();
 }
