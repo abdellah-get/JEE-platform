@@ -38,13 +38,14 @@ export default function AnnouncementsPage() {
 
   const items = pageData?.content ?? [];
 
-  const filtered = useMemo(
-    () =>
-      items.filter((a) =>
-        matchesSearch(query, a.title, a.body, a.authorName),
-      ),
-    [items, query],
-  );
+  const filtered = useMemo(() => {
+    const matched = items.filter((a) =>
+      matchesSearch(query, a.title, a.body, a.authorName),
+    );
+    return [...matched].sort((a, b) => Number(b.pinned) - Number(a.pinned));
+  }, [items, query]);
+  const urgentCount = filtered.filter((a) => a.pinned).length;
+  const shownCount = query ? filtered.length : (pageData?.totalElements ?? filtered.length);
 
   if (loading || !user || !accessToken) {
     return <LoadingBlock label="Chargement des annonces…" rows={4} />;
@@ -112,34 +113,52 @@ export default function AnnouncementsPage() {
               }
             />
           ) : (
-            <ul className="stagger-list space-y-3">
-              {filtered.map((a) => (
-                <li key={a.id}>
-                  <Link
-                    href={`/announcements/${a.id}`}
-                    className={`surface-interactive block p-4 ${
-                      a.pinned ? "border-warning/40 bg-warning-soft" : ""
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="font-[family-name:var(--font-syne)] font-semibold tracking-tight text-ink">
-                        {a.title}
+            <>
+              <p className="text-sm text-muted">
+                {`${shownCount} annonce${shownCount > 1 ? "s" : ""}${
+                  urgentCount > 0
+                    ? ` · ${urgentCount} urgente${urgentCount > 1 ? "s" : ""}`
+                    : ""
+                }`}
+              </p>
+              <ul className="stagger-list space-y-3">
+                {filtered.map((a) => (
+                  <li key={a.id}>
+                    <Link
+                      href={`/announcements/${a.id}`}
+                      data-pinned={a.pinned ? "true" : "false"}
+                      className="announcement-card surface-interactive block p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="font-[family-name:var(--font-syne)] text-base font-semibold tracking-tight text-ink">
+                          {a.title}
+                        </p>
+                        {a.pinned ? (
+                          <span className="chip shrink-0" data-tone="urgente">
+                            Urgent
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="mt-1 line-clamp-3 text-sm leading-relaxed text-muted">
+                        {a.body}
                       </p>
-                      {a.pinned && (
-                        <span className="shrink-0 rounded-full bg-warning/20 px-2 py-0.5 text-xs font-semibold text-warning">
-                          Urgent
+                      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted">
+                        <span className="min-w-0 truncate">
+                          {a.authorName}
+                          {" · "}
+                          {new Date(a.createdAt).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
                         </span>
-                      )}
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-sm text-muted">{a.body}</p>
-                    <p className="mt-2 text-xs text-muted">
-                      {a.authorName} ·{" "}
-                      {new Date(a.createdAt).toLocaleDateString("fr-FR")}
-                    </p>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+                        <span className="shrink-0 font-semibold text-brand">Lire</span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
           <PaginationBar
             page={pageData?.page ?? page}

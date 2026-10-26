@@ -81,7 +81,7 @@ export default function NewAnnouncementPage() {
             rows={6}
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand"
+            className="input-field"
           />
         </div>
         <label className="flex items-center gap-2 text-sm text-ink/80">
@@ -92,7 +92,7 @@ export default function NewAnnouncementPage() {
           />
           Épingler comme urgent
         </label>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         <button
           type="submit"
           disabled={saving}
