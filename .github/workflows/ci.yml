@@ -118,15 +118,10 @@ jobs:
         working-directory: frontend
         run: |
           npm ci
-          # --with-deps runs apt. A 3 min kill left dpkg locked, so the retry failed with code 100.
-          if ! timeout --kill-after=20 360 npx playwright install --with-deps chromium; then
-            echo "playwright install failed; releasing apt lock before retry"
-            sudo killall apt-get apt 2>/dev/null || true
-            sleep 3
-            sudo rm -f /var/lib/dpkg/lock-frontend /var/lib/dpkg/lock /var/cache/apt/archives/lock
-            sudo dpkg --configure -a || true
-            timeout --kill-after=20 240 npx playwright install --with-deps chromium
-          fi
+          # Browser only. ubuntu-latest already has Chromium's shared libraries.
+          # --with-deps pulls large fonts over apt and the job times out (exit 124)
+          # when the Ubuntu mirror is slow.
+          npx playwright install chromium
 
       - name: Build frontend
         working-directory: frontend
