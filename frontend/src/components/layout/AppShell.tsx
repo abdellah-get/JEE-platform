@@ -7,6 +7,7 @@ import { useEffect, useId, useState } from "react";
 import { ClubLogo } from "@/components/brand/ClubLogo";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { PageMotion } from "@/components/motion/PageMotion";
+import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import { canAccessAdmin } from "@/lib/auth-storage";
 
@@ -23,8 +24,9 @@ const NAV = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user, accessToken, logout, loading, resumeSession } = useAuth();
   const [open, setOpen] = useState(false);
+  const [resuming, setResuming] = useState(false);
   const navId = useId();
   const showAdmin = canAccessAdmin(user?.clubRole);
 
@@ -42,6 +44,45 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       document.body.style.overflow = "";
     };
   }, [open]);
+
+  // Avoid shell + empty page flash while the access JWT is rehydrated.
+  if (loading) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center text-ink">
+        <LoadingBlock label="Chargement de la session…" />
+      </div>
+    );
+  }
+
+  if (!accessToken) {
+    // Logout redirect in flight (no cached profile) vs transient refresh failure.
+    if (!user) {
+      return (
+        <div className="flex min-h-dvh items-center justify-center text-ink">
+          <LoadingBlock label="Redirection…" />
+        </div>
+      );
+    }
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-4 text-ink">
+        <p className="text-center text-sm text-muted">
+          Session en cours de reprise — l’API met parfois quelques secondes à
+          répondre.
+        </p>
+        <button
+          type="button"
+          className="btn btn-primary"
+          disabled={resuming}
+          onClick={() => {
+            setResuming(true);
+            void resumeSession().finally(() => setResuming(false));
+          }}
+        >
+          {resuming ? "Reprise…" : "Réessayer"}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-dvh text-ink md:flex">

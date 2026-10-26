@@ -31,6 +31,8 @@ type AuthContextValue = {
     lastName: string;
   }) => Promise<{ pendingApproval: boolean; message: string }>;
   logout: () => Promise<void>;
+  /** Re-run cookie refresh after a transient API failure (no logout). */
+  resumeSession: () => Promise<boolean>;
   refreshProfile: () => Promise<void>;
   updateLocalUser: (user: AuthUser) => void;
 };
@@ -81,6 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [applyAuth, router]);
 
   useEffect(() => {
+    let cancelled = false;
     scrubLegacyAccessTokenStorage();
     // Optimistic UI from cached profile; access JWT always rehydrated via HttpOnly refresh.
     const stored = getStoredUser();
@@ -88,34 +91,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(stored);
     }
 
-    api
-      .refresh()
-      .then((res) => {
-        applyAuth(res);
-      })
-      .catch(() => {
-        clearSession();
-        setAccessToken(null);
-        setUser(null);
-        // Middleware may still show app chrome via cookie — force login.
-        const path =
-          typeof window !== "undefined" ? window.location.pathname : "";
-        if (
-          path &&
-          !path.startsWith("/login") &&
-          !path.startsWith("/register") &&
-          !path.startsWith("/forgot-password") &&
-          !path.startsWith("/reset-password")
-        ) {
-          router.replace(
-            `/login?next=${encodeURIComponent(
-              `${path}${window.location.search}`,
-            )}`,
-          );
+    const redirectToLogin = () => {
+      const path =
+        typeof window !== "undefined" ? window.location.pathname : "";
+      if (
+        path &&
+        !path.startsWith("/login") &&
+        !path.startsWith("/register") &&
+        !path.startsWith("/forgot-password") &&
+        !path.startsWith("/reset-password")
+      ) {
+        router.replace(
+          `/login?next=${encodeURIComponent(
+            `${path}${window.location.search}`,
+          )}`,
+        );
+      }
+    };
+
+    const hydrate = async (attempt = 0): Promise<void> => {
+      try {
+        const res = await api.refresh();
+        if (!cancelled) applyAuth(res);
+      } catch (err) {
+        if (cancelled) return;
+        const expired =
+          err instanceof api.ApiError &&
+          (err.status === 401 || err.status === 403);
+        if (expired) {
+          clearSession();
+          setAccessToken(null);
+          setUser(null);
+          // Middleware may still show app chrome via cookie — force login.
+          redirectToLogin();
+          return;
         }
-      })
-      .finally(() => setLoading(false));
-  }, [applyAuth, router]);
+        // Cold start / 429 / network: retry before giving up (never treat as logout).
+        if (attempt < 2) {
+          await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+          if (!cancelled) await hydrate(attempt + 1);
+        }
+      }
+    };
+
+    void hydrate().finally(() => {
+      if (!cancelled) setLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+    // Boot once on mount — do not re-run on router identity changes (would race refresh rotation).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only hydrate
+  }, [applyAuth]);
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -179,6 +207,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     [accessToken],
   );
 
+  const resumeSession = useCallback(async () => {
+    try {
+      const res = await api.refresh();
+      applyAuth(res);
+      return true;
+    } catch (err) {
+      const expired =
+        err instanceof api.ApiError &&
+        (err.status === 401 || err.status === 403);
+      if (expired) {
+        clearSession();
+        setAccessToken(null);
+        setUser(null);
+        router.replace("/login");
+      }
+      return false;
+    }
+  }, [applyAuth, router]);
+
   const refreshProfile = useCallback(async () => {
     if (!accessToken) return;
     const me = await api.getMe(accessToken);
@@ -193,6 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       register,
       logout,
+      resumeSession,
       refreshProfile,
       updateLocalUser,
     }),
@@ -203,6 +251,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       register,
       logout,
+      resumeSession,
       refreshProfile,
       updateLocalUser,
     ],

@@ -47,7 +47,13 @@ type AuthSessionHandlers = {
 };
 
 let authSessionHandlers: AuthSessionHandlers = {};
-let refreshInFlight: Promise<string | null> | null = null;
+
+type RefreshResult =
+  | { status: "ok"; data: AuthResponse }
+  | { status: "expired" }
+  | { status: "transient"; message: string };
+
+let refreshInFlight: Promise<RefreshResult> | null = null;
 
 /** Wired by AuthProvider so silent refresh keeps React state in sync. */
 export function setAuthSessionHandlers(handlers: AuthSessionHandlers) {
@@ -93,28 +99,37 @@ function forceLogout() {
 
 /**
  * Single-flight refresh via HttpOnly cookie. Puts access JWT in memory + AuthProvider.
- * Returns the new access token, or null if the session is dead (caller must logout).
+ * Only 401/403 mean the session is dead — 429/5xx/network stay "transient" (no logout).
  */
-async function silentRefresh(): Promise<string | null> {
+async function silentRefresh(): Promise<RefreshResult> {
   if (!refreshInFlight) {
-    refreshInFlight = (async () => {
+    refreshInFlight = (async (): Promise<RefreshResult> => {
       try {
         const res = await fetch(`${API_URL}/api/v1/auth/refresh`, {
           method: "POST",
           credentials: "include",
           headers: CSRF_HEADER,
         });
+        if (res.status === 401 || res.status === 403) {
+          return { status: "expired" };
+        }
         if (!res.ok) {
-          return null;
+          return {
+            status: "transient",
+            message: await parseError(res),
+          };
         }
         const data = (await res.json()) as AuthResponse;
         const nextUser = toUser(data);
         const stored = getStoredUser();
         saveSession(data.accessToken, stored ?? nextUser);
         authSessionHandlers.onRefreshed?.(data);
-        return data.accessToken;
+        return { status: "ok", data };
       } catch {
-        return null;
+        return {
+          status: "transient",
+          message: "Réseau indisponible. Réessaie dans un instant.",
+        };
       } finally {
         refreshInFlight = null;
       }
@@ -144,12 +159,15 @@ export async function apiFetch<T>(
   });
 
   if (!res.ok) {
-    // 401 = session/token dead. One silent refresh; on failure → logout + redirect /login.
+    // 401 = access JWT dead. One silent refresh; logout only if refresh says session expired.
     if (res.status === 401 && canSilentRefresh(path)) {
       if (!retried) {
-        const newToken = await silentRefresh();
-        if (newToken) {
-          return apiFetch<T>(path, options, newToken, true);
+        const refreshed = await silentRefresh();
+        if (refreshed.status === "ok") {
+          return apiFetch<T>(path, options, refreshed.data.accessToken, true);
+        }
+        if (refreshed.status === "transient") {
+          throw new ApiError(503, refreshed.message);
         }
       }
       forceLogout();
@@ -197,11 +215,15 @@ export function login(body: { email: string; password: string }) {
   });
 }
 
-export function refresh() {
-  return apiFetch<AuthResponse>("/api/v1/auth/refresh", {
-    method: "POST",
-    headers: CSRF_HEADER,
-  });
+export async function refresh() {
+  const refreshed = await silentRefresh();
+  if (refreshed.status === "ok") {
+    return refreshed.data;
+  }
+  if (refreshed.status === "expired") {
+    throw new ApiError(401, "Session expirée. Reconnecte-toi.");
+  }
+  throw new ApiError(503, refreshed.message);
 }
 
 export function logout() {
