@@ -382,8 +382,8 @@ html[data-theme="dark"] body {
   }
 
   .btn-primary {
-    background: linear-gradient(180deg, #9a3544 0%, var(--brand) 55%, var(--brand-dark) 100%);
-    color: white;
+    background: linear-gradient(180deg, #9a3544 0%, #8b2e3b 55%, #6f2430 100%);
+    color: #fff7f8;
     border: 1px solid rgb(0 0 0 / 6%);
     box-shadow:
       0 1px 0 rgb(255 255 255 / 18%) inset,
@@ -801,6 +801,28 @@ html[data-theme="dark"] body {
   .input-field[aria-invalid="true"] {
     border-color: var(--danger);
     box-shadow: 0 0 0 3px rgb(161 44 56 / 12%);
+  }
+
+  .input-field:read-only {
+    color: var(--muted);
+    background: color-mix(in srgb, var(--paper) 55%, var(--surface));
+    cursor: default;
+  }
+
+  .profile-mark {
+    display: inline-flex;
+    height: 2.75rem;
+    width: 2.75rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.85rem;
+    background: #8b2e3b;
+    color: #fff7f8;
+    font-family: var(--font-syne), sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
   }
 
   .nav-link {
