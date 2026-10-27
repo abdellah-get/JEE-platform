@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
+import { formatEventWhen } from "@/lib/date-input";
 import type { CalendarItem } from "@/lib/types";
 
 function startOfMonth(d: Date) {
@@ -28,6 +29,114 @@ function daysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
 }
 
+function dayLabel(iso: string) {
+  return new Date(iso + "T12:00:00").toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
+}
+
+function itemWhen(item: CalendarItem) {
+  if (item.type === "TASK_DUE") {
+    return new Date(item.startsAt).toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  }
+  return formatEventWhen(item.startsAt, item.endsAt);
+}
+
+function AgendaCard({ item }: { item: CalendarItem }) {
+  const kind = item.type === "EVENT" ? "event" : "task";
+  return (
+    <li>
+      <Link
+        href={item.link}
+        data-kind={kind}
+        className="announcement-card surface-interactive block p-4"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <p className="font-[family-name:var(--font-syne)] text-base font-semibold tracking-tight text-ink">
+            {item.title}
+          </p>
+          <span className="chip shrink-0" data-tone={kind === "event" ? "actif" : "moyenne"}>
+            {kind === "event" ? "Événement" : "Échéance"}
+          </span>
+        </div>
+        <p className="mt-1 text-sm text-ink">{itemWhen(item)}</p>
+        {item.location || item.meta ? (
+          <p className="mt-0.5 text-sm text-muted">
+            {[item.meta, item.location].filter(Boolean).join(" · ")}
+          </p>
+        ) : null}
+        <div className="mt-3 flex justify-end text-xs">
+          <span className="font-semibold text-brand">Ouvrir</span>
+        </div>
+      </Link>
+    </li>
+  );
+}
+
+function MonthAgenda({ items }: { items: CalendarItem[] }) {
+  const events = items.filter((item) => item.type === "EVENT").length;
+  const tasks = items.length - events;
+  const sorted = [...items].sort(
+    (a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime(),
+  );
+
+  return (
+    <section className="space-y-3">
+      <p className="text-sm text-muted">
+        {`${events} événement${events > 1 ? "s" : ""} · ${tasks} échéance${tasks > 1 ? "s" : ""}`}
+      </p>
+      <ul className="stagger-list space-y-3">
+        {sorted.map((item) => (
+          <AgendaCard key={`${item.type}-${item.id}`} item={item} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function DayPanel({
+  day,
+  items,
+  onBack,
+}: {
+  day: string;
+  items: CalendarItem[];
+  onBack: () => void;
+}) {
+  return (
+    <section className="space-y-3 reveal-up">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="section-heading capitalize">{dayLabel(day)}</h2>
+          <p className="section-hint">Détail du jour sélectionné.</p>
+        </div>
+        <button type="button" className="text-xs font-semibold text-brand" onClick={onBack}>
+          Tout le mois
+        </button>
+      </div>
+      {items.length === 0 ? (
+        <EmptyState
+          title="Rien ce jour-là"
+          description="Pas d’événement ni d’échéance visible — choisis un autre jour ou ouvre la liste des événements."
+          compact
+        />
+      ) : (
+        <ul className="stagger-list space-y-3">
+          {items.map((item) => (
+            <AgendaCard key={`${item.type}-${item.id}`} item={item} />
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 export default function CalendarPage() {
   const { accessToken, user, loading } = useAuth();
   const [cursor, setCursor] = useState(() => startOfMonth(new Date()));
@@ -45,10 +154,7 @@ export default function CalendarPage() {
     setError(null);
     api
       .getCalendar(accessToken, from, to)
-      .then((data) => {
-        setItems(data);
-        setSelectedDay(null);
-      })
+      .then(setItems)
       .catch((err) => {
         if (err instanceof ApiError && err.status === 401) return;
         setError(err instanceof ApiError ? err.message : "Chargement impossible");
@@ -106,17 +212,35 @@ export default function CalendarPage() {
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={() => setCursor((c) => addMonths(c, -1))}
+          onClick={() => {
+            setSelectedDay(null);
+            setCursor((c) => addMonths(c, -1));
+          }}
         >
           Mois précédent
         </button>
-        <p className="font-[family-name:var(--font-syne)] text-lg font-semibold capitalize tracking-tight">
-          {monthLabel}
-        </p>
+        <div className="text-center">
+          <p className="font-[family-name:var(--font-syne)] text-lg font-semibold capitalize tracking-tight">
+            {monthLabel}
+          </p>
+          <button
+            type="button"
+            className="mt-1 text-xs font-semibold text-brand"
+            onClick={() => {
+              setCursor(startOfMonth(new Date()));
+              setSelectedDay(isoDate(new Date()));
+            }}
+          >
+            Aujourd’hui
+          </button>
+        </div>
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={() => setCursor((c) => addMonths(c, 1))}
+          onClick={() => {
+            setSelectedDay(null);
+            setCursor((c) => addMonths(c, 1));
+          }}
         >
           Mois suivant
         </button>
@@ -159,16 +283,11 @@ export default function CalendarPage() {
                     key={key}
                     type="button"
                     onClick={() => setSelectedDay(key)}
+                    data-today={isToday ? "true" : "false"}
                     data-selected={isSelected ? "true" : "false"}
                     className="cal-day min-h-20 border-b border-r border-line/60 p-1.5 text-left hover:bg-brand-soft/40"
                   >
-                    <span
-                      className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
-                        isToday ? "bg-brand text-white" : "text-ink"
-                      }`}
-                    >
-                      {day}
-                    </span>
+                    <span className="cal-day__num">{day}</span>
                     <ul className="mt-1 space-y-0.5">
                       {dayItems.slice(0, 3).map((item) => (
                         <li
@@ -204,64 +323,18 @@ export default function CalendarPage() {
           </div>
 
           {selectedDay ? (
-            <section className="space-y-3 reveal-up">
-              <div>
-                <h2 className="section-heading capitalize">
-                  {new Date(selectedDay + "T12:00:00").toLocaleDateString("fr-FR", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                  })}
-                </h2>
-                <p className="section-hint">Détail du jour sélectionné.</p>
-              </div>
-              {selectedItems.length === 0 ? (
-                <EmptyState
-                  title="Rien ce jour-là"
-                  description="Pas d’événement ni d’échéance visible — choisis un autre jour ou ouvre la liste des événements."
-                  compact
-                />
-              ) : (
-                <ul className="stagger-list space-y-2">
-                  {selectedItems.map((item) => (
-                    <li key={`${item.type}-${item.id}`}>
-                      <Link
-                        href={item.link}
-                        className="surface-interactive flex items-start justify-between gap-3 p-3"
-                      >
-                        <div>
-                          <p className="text-sm font-semibold text-ink">{item.title}</p>
-                          <p className="mt-0.5 text-xs text-muted">
-                            {item.type === "EVENT" ? "Événement" : "Échéance"}
-                            {item.meta ? ` · ${item.meta}` : ""}
-                            {item.location ? ` · ${item.location}` : ""}
-                          </p>
-                          <p className="mt-1 text-xs text-muted">
-                            {new Date(item.startsAt).toLocaleTimeString("fr-FR", {
-                              timeStyle: "short",
-                            })}
-                          </p>
-                        </div>
-                        {item.pinned ? (
-                          <span className="shrink-0 rounded-full bg-warning/20 px-2 py-0.5 text-[10px] font-semibold text-warning">
-                            Épinglé
-                          </span>
-                        ) : null}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+            <DayPanel
+              day={selectedDay}
+              items={selectedItems}
+              onBack={() => setSelectedDay(null)}
+            />
           ) : items.length === 0 ? (
             <EmptyState
               title="Mois vide"
               description="Aucun événement ni échéance sur cette période."
             />
           ) : (
-            <p className="text-sm text-muted">
-              Sélectionne un jour pour voir le détail.
-            </p>
+            <MonthAgenda items={items} />
           )}
         </>
       )}

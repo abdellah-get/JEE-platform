@@ -311,6 +311,32 @@ html[data-theme="dark"] body {
     box-shadow: 0 0 0 1px rgb(139 46 59 / 12%);
   }
 
+  .cal-day__num {
+    display: inline-flex;
+    height: 1.6rem;
+    min-width: 1.6rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 0 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .cal-day[data-today="true"] .cal-day__num {
+    background: #8b2e3b;
+    color: #fff7f8;
+  }
+
+  .announcement-card[data-kind="event"]::before {
+    background: #8b2e3b;
+  }
+
+  .announcement-card[data-kind="task"]::before {
+    background: var(--warning);
+  }
+
   /* —— Buttons —— */
   .btn {
     display: inline-flex;
