@@ -171,7 +171,7 @@ export default function EventDetailPage() {
               maxLength={10000}
               value={editDescription}
               onChange={(e) => setEditDescription(e.target.value)}
-              className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand"
+              className="input-field"
             />
           </div>
           <Field
@@ -190,7 +190,7 @@ export default function EventDetailPage() {
               required
               value={editStartsAt}
               onChange={(e) => setEditStartsAt(e.target.value)}
-              className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand"
+              className="input-field"
             />
           </div>
           <div>
@@ -202,10 +202,10 @@ export default function EventDetailPage() {
               type="datetime-local"
               value={editEndsAt}
               onChange={(e) => setEditEndsAt(e.target.value)}
-              className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand"
+              className="input-field"
             />
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <div className="flex flex-wrap gap-2">
             <button
               type="submit"
@@ -226,17 +226,16 @@ export default function EventDetailPage() {
         </form>
       ) : (
         <article
-          className={`rounded-xl border p-6 ${
-            item.pinned ? "border-warning/40 bg-warning-soft" : "border-line bg-surface"
-          }`}
+          className="announcement-card project-hero"
+          data-pinned={item.pinned ? "true" : "false"}
         >
           <div className="flex flex-wrap items-start justify-between gap-2">
             <h1 className="page-title">{item.title}</h1>
-            {item.pinned && (
-              <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-xs font-medium text-amber-900">
+            {item.pinned ? (
+              <span className="chip shrink-0" data-tone="urgente">
                 À retenir
               </span>
-            )}
+            ) : null}
           </div>
           <p className="mt-2 text-sm font-medium text-ink">
             {formatEventWhen(item.startsAt, item.endsAt)}
@@ -251,7 +250,7 @@ export default function EventDetailPage() {
         </article>
       )}
 
-      {error && !editing && <p className="text-sm text-red-600">{error}</p>}
+      {error && !editing && <p className="text-sm text-danger">{error}</p>}
 
       {canWrite && !editing && (
         <div className="flex flex-wrap gap-2">

@@ -15,6 +15,65 @@ import { canAccessAdmin } from "@/lib/auth-storage";
 import { formatEventWhen } from "@/lib/date-input";
 import type { ClubEvent, PageResponse } from "@/lib/types";
 
+function splitEvents(events: ClubEvent[]) {
+  const now = Date.now();
+  const upcoming: ClubEvent[] = [];
+  const past: ClubEvent[] = [];
+  for (const event of events) {
+    if (new Date(event.startsAt).getTime() >= now) upcoming.push(event);
+    else past.push(event);
+  }
+  const byTime = (a: ClubEvent, b: ClubEvent) =>
+    new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime();
+  const pinnedFirst = (list: ClubEvent[], direction: 1 | -1) =>
+    [...list].sort((a, b) => {
+      if (a.pinned !== b.pinned) return Number(b.pinned) - Number(a.pinned);
+      return direction * byTime(a, b);
+    });
+  return {
+    upcoming: pinnedFirst(upcoming, 1),
+    past: pinnedFirst(past, -1),
+  };
+}
+
+function EventCard({ event }: { event: ClubEvent }) {
+  return (
+    <li>
+      <Link
+        href={`/events/${event.id}`}
+        data-pinned={event.pinned ? "true" : "false"}
+        className="announcement-card surface-interactive block p-4"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <p className="font-[family-name:var(--font-syne)] text-base font-semibold tracking-tight text-ink">
+            {event.title}
+          </p>
+          {event.pinned ? (
+            <span className="chip shrink-0" data-tone="urgente">
+              À retenir
+            </span>
+          ) : null}
+        </div>
+        <p className="mt-1 text-sm text-ink">
+          {formatEventWhen(event.startsAt, event.endsAt)}
+        </p>
+        {event.location ? (
+          <p className="mt-0.5 text-sm text-muted">{event.location}</p>
+        ) : null}
+        {event.description ? (
+          <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted">
+            {event.description}
+          </p>
+        ) : null}
+        <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted">
+          <span className="min-w-0 truncate">{event.createdByName}</span>
+          <span className="shrink-0 font-semibold text-brand">Ouvrir</span>
+        </div>
+      </Link>
+    </li>
+  );
+}
+
 export default function EventsPage() {
   const { accessToken, user, loading } = useAuth();
   const [pageData, setPageData] = useState<PageResponse<ClubEvent> | null>(null);
@@ -46,6 +105,8 @@ export default function EventsPage() {
       ),
     [items, query],
   );
+  const { upcoming, past } = splitEvents(filtered);
+  const shownCount = query ? filtered.length : (pageData?.totalElements ?? filtered.length);
 
   if (loading || !user || !accessToken) {
     return <LoadingBlock label="Chargement des événements…" rows={4} />;
@@ -90,7 +151,11 @@ export default function EventsPage() {
               <Link href="/events/new" className="btn btn-primary">
                 Créer un événement
               </Link>
-            ) : undefined
+            ) : (
+              <Link href="/calendar" className="btn btn-secondary">
+                Voir le calendrier
+              </Link>
+            )
           }
         />
       ) : (
@@ -118,38 +183,33 @@ export default function EventsPage() {
               }
             />
           ) : (
-            <ul className="stagger-list space-y-3">
-              {filtered.map((e) => (
-                <li key={e.id}>
-                  <Link
-                    href={`/events/${e.id}`}
-                    className={`surface-interactive block p-4 ${
-                      e.pinned ? "border-warning/40 bg-warning-soft" : ""
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="font-[family-name:var(--font-syne)] font-semibold tracking-tight text-ink">
-                        {e.title}
-                      </p>
-                      {e.pinned && (
-                        <span className="shrink-0 rounded-full bg-warning/20 px-2 py-0.5 text-xs font-semibold text-warning">
-                          À retenir
-                        </span>
-                      )}
-                    </div>
-                    <p className="mt-1 text-sm text-ink">
-                      {formatEventWhen(e.startsAt, e.endsAt)}
-                    </p>
-                    {e.location ? (
-                      <p className="mt-0.5 text-sm text-muted">{e.location}</p>
-                    ) : null}
-                    <p className="mt-2 line-clamp-2 text-sm text-muted">
-                      {e.description}
-                    </p>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <>
+              <p className="text-sm text-muted">
+                {`${shownCount} événement${shownCount > 1 ? "s" : ""} · ${upcoming.length} à venir`}
+              </p>
+              {upcoming.length > 0 ? (
+                <section className="space-y-3">
+                  {past.length > 0 ? (
+                    <h2 className="text-sm font-semibold text-ink">À venir</h2>
+                  ) : null}
+                  <ul className="stagger-list space-y-3">
+                    {upcoming.map((event) => (
+                      <EventCard key={event.id} event={event} />
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+              {past.length > 0 ? (
+                <section className="space-y-3">
+                  <h2 className="text-sm font-semibold text-ink">Passés</h2>
+                  <ul className="stagger-list space-y-3">
+                    {past.map((event) => (
+                      <EventCard key={event.id} event={event} />
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+            </>
           )}
           <PaginationBar
             page={pageData?.page ?? page}
