@@ -2,35 +2,136 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-
 import { useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { PaginationBar } from "@/components/ui/PaginationBar";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
-import type { AppNotification } from "@/lib/types";
+import type { AppNotification, NotificationType } from "@/lib/types";
+
+function formatNoticeWhen(iso: string) {
+  return new Date(iso).toLocaleString("fr-FR", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function kindMeta(type: NotificationType) {
+  switch (type) {
+    case "TASK_ASSIGNED":
+      return { label: "Assignation", tone: "moyenne", kind: "task" };
+    case "ANNOUNCEMENT_PINNED":
+      return { label: "Annonce", tone: "urgente", kind: "announcement" };
+    case "EVENT_PINNED":
+      return { label: "Événement", tone: "actif", kind: "event" };
+  }
+}
+
+function summaryLine(total: number, unread: number, unreadOnly: boolean) {
+  if (unreadOnly) {
+    return `${total} non lue${total > 1 ? "s" : ""}`;
+  }
+  const base = `${total} notification${total > 1 ? "s" : ""}`;
+  if (unread <= 0) return base;
+  return `${base} · ${unread} non lue${unread > 1 ? "s" : ""}`;
+}
+
+function NotificationCard({
+  n,
+  onOpen,
+}: {
+  n: AppNotification;
+  onOpen: (n: AppNotification) => void;
+}) {
+  const meta = kindMeta(n.type);
+  const className = "announcement-card surface-interactive block w-full p-4 text-left";
+  const body = (
+    <>
+      <div className="flex items-start justify-between gap-3">
+        <p className="font-[family-name:var(--font-syne)] text-base font-semibold tracking-tight text-ink">
+          {n.title}
+        </p>
+        <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
+          {!n.read ? (
+            <span className="chip" data-tone="actif">
+              Nouveau
+            </span>
+          ) : null}
+          <span className="chip" data-tone={meta.tone}>
+            {meta.label}
+          </span>
+        </div>
+      </div>
+      {n.body ? (
+        <p className="mt-2 text-sm leading-relaxed text-muted">{n.body}</p>
+      ) : null}
+      <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted">
+        <time dateTime={n.createdAt}>{formatNoticeWhen(n.createdAt)}</time>
+        {n.link ? <span className="shrink-0 font-semibold text-brand">Ouvrir</span> : null}
+      </div>
+    </>
+  );
+
+  if (n.link) {
+    return (
+      <Link
+        href={n.link}
+        onClick={() => void onOpen(n)}
+        data-kind={meta.kind}
+        data-unread={n.read ? "false" : "true"}
+        className={className}
+      >
+        {body}
+      </Link>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => void onOpen(n)}
+      data-kind={meta.kind}
+      data-unread={n.read ? "false" : "true"}
+      className={className}
+    >
+      {body}
+    </button>
+  );
+}
 
 export default function NotificationsPage() {
   const { accessToken, loading } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
   const [page, setPage] = useState(0);
+  const [unreadOnly, setUnreadOnly] = useState(false);
 
   const {
     data: pageData,
     error,
     isPending,
   } = useQuery({
-    queryKey: queryKeys.notifications(false, page),
-    queryFn: () => api.listNotifications(accessToken!, false, page),
+    queryKey: queryKeys.notifications(unreadOnly, page),
+    queryFn: () => api.listNotifications(accessToken!, unreadOnly, page),
+    enabled: Boolean(accessToken),
+  });
+  const { data: countData } = useQuery({
+    queryKey: queryKeys.unreadNotificationCount,
+    queryFn: () => api.getUnreadNotificationCount(accessToken!),
     enabled: Boolean(accessToken),
   });
   const items = pageData?.content ?? [];
+  const total = pageData?.totalElements ?? items.length;
+  const unread = countData?.count ?? items.filter((n) => !n.read).length;
 
   const invalidateNotifications = () =>
     queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -65,28 +166,39 @@ export default function NotificationsPage() {
     }
   }
 
+  function showAll() {
+    setUnreadOnly(false);
+    setPage(0);
+  }
+
+  function showUnread() {
+    setUnreadOnly(true);
+    setPage(0);
+  }
+
   const errorMessage =
     error instanceof ApiError ? error.message : error ? "Chargement impossible" : null;
+  const inboxEmpty = !unreadOnly && page === 0 && total === 0 && !isPending;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="page-title">Notifications</h1>
-          <p className="mt-1 text-sm text-muted">
-            Assignations et annonces urgentes.
-          </p>
-        </div>
-        {items.some((n) => !n.read) && (
-          <button
-            type="button"
-            onClick={() => void markAll.mutateAsync()}
-            className="rounded-lg border border-line px-3 py-1.5 text-sm hover:bg-paper"
-          >
-            Tout marquer lu
-          </button>
-        )}
-      </div>
+    <div className="mx-auto max-w-3xl space-y-6">
+      <PageHeader
+        eyebrow="Alertes"
+        title="Notifications"
+        description="Assignations et annonces urgentes."
+        actions={
+          unread > 0 ? (
+            <button
+              type="button"
+              onClick={() => void markAll.mutateAsync()}
+              disabled={markAll.isPending}
+              className="btn btn-secondary"
+            >
+              Tout marquer lu
+            </button>
+          ) : null
+        }
+      />
 
       {errorMessage && (
         <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
@@ -96,40 +208,64 @@ export default function NotificationsPage() {
 
       {isPending ? (
         <LoadingBlock label="Chargement des notifications…" />
-      ) : items.length === 0 ? (
+      ) : errorMessage && items.length === 0 ? null : inboxEmpty ? (
         <EmptyState
           title="Aucune notification"
           description="Tu seras prévenu lors d’une assignation ou d’une annonce épinglée."
+          action={
+            <div className="flex flex-wrap justify-center gap-2">
+              <Link href="/tasks" className="btn btn-secondary">
+                Mes tâches
+              </Link>
+              <Link href="/announcements" className="btn btn-secondary">
+                Annonces
+              </Link>
+            </div>
+          }
         />
       ) : (
         <>
-          <ul className="divide-y divide-line surface-quiet">
-            {items.map((n) => (
-              <li key={n.id}>
-                {n.link ? (
-                  <Link
-                    href={n.link}
-                    onClick={() => void openItem(n)}
-                    className={`block px-4 py-3 hover:bg-paper ${
-                      n.read ? "" : "bg-warning-soft/50"
-                    }`}
-                  >
-                    <NotificationRow n={n} />
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => void openItem(n)}
-                    className={`block w-full px-4 py-3 text-left hover:bg-paper ${
-                      n.read ? "" : "bg-warning-soft/50"
-                    }`}
-                  >
-                    <NotificationRow n={n} />
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrer les notifications">
+            <button
+              type="button"
+              className="chip chip-filter"
+              aria-pressed={!unreadOnly}
+              onClick={showAll}
+            >
+              Toutes
+            </button>
+            <button
+              type="button"
+              className="chip chip-filter"
+              aria-pressed={unreadOnly}
+              onClick={showUnread}
+            >
+              Non lues
+            </button>
+          </div>
+          {items.length === 0 ? (
+            <EmptyState
+              title="Aucune notification non lue"
+              description="Tout est déjà lu. Les prochaines assignations et annonces épinglées reviendront ici."
+              compact
+              action={
+                <button type="button" className="text-sm font-medium underline" onClick={showAll}>
+                  Voir toutes
+                </button>
+              }
+            />
+          ) : (
+            <>
+              <p className="text-sm text-muted">{summaryLine(total, unread, unreadOnly)}</p>
+              <ul className="stagger-list space-y-3">
+                {items.map((n) => (
+                  <li key={n.id}>
+                    <NotificationCard n={n} onOpen={openItem} />
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
           <PaginationBar
             page={pageData?.page ?? page}
             totalPages={pageData?.totalPages ?? 0}
@@ -139,24 +275,5 @@ export default function NotificationsPage() {
         </>
       )}
     </div>
-  );
-}
-
-function NotificationRow({ n }: { n: AppNotification }) {
-  return (
-    <>
-      <div className="flex flex-wrap items-center gap-2">
-        <p className="text-sm font-medium text-ink">{n.title}</p>
-        {!n.read && (
-          <span className="rounded-full bg-amber-200 px-2 py-0.5 text-[10px] font-medium text-amber-900">
-            Nouveau
-          </span>
-        )}
-      </div>
-      {n.body && <p className="mt-1 text-sm text-muted">{n.body}</p>}
-      <p className="mt-1 text-xs text-muted/80">
-        {new Date(n.createdAt).toLocaleString("fr-FR")}
-      </p>
-    </>
   );
 }

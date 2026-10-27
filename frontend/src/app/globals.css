@@ -333,8 +333,20 @@ html[data-theme="dark"] body {
     background: #8b2e3b;
   }
 
+  .announcement-card[data-kind="announcement"]::before {
+    background: var(--warning);
+  }
+
   .announcement-card[data-kind="task"]::before {
     background: var(--warning);
+  }
+
+  .announcement-card[data-unread="true"]::before {
+    background: #8b2e3b;
+  }
+
+  .notice-row[data-unread="true"] {
+    box-shadow: inset 3px 0 0 #8b2e3b;
   }
 
   /* —— Buttons —— */

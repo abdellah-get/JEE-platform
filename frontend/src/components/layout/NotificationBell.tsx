@@ -134,9 +134,8 @@ export function NotificationBell() {
                       <Link
                         href={n.link}
                         onClick={() => void onOpenItem(n)}
-                        className={`block px-3 py-2.5 hover:bg-paper ${
-                          n.read ? "" : "bg-warning-soft/60"
-                        }`}
+                        data-unread={n.read ? "false" : "true"}
+                        className="notice-row block px-3 py-2.5 hover:bg-paper"
                       >
                         <p className="text-sm font-medium text-ink">{n.title}</p>
                         {n.body && (
@@ -150,9 +149,8 @@ export function NotificationBell() {
                       <button
                         type="button"
                         onClick={() => void onOpenItem(n)}
-                        className={`block w-full px-3 py-2.5 text-left hover:bg-paper ${
-                          n.read ? "" : "bg-warning-soft/60"
-                        }`}
+                        data-unread={n.read ? "false" : "true"}
+                        className="notice-row block w-full px-3 py-2.5 text-left hover:bg-paper"
                       >
                         <p className="text-sm font-medium text-ink">{n.title}</p>
                         {n.body && (
