@@ -158,10 +158,10 @@ export default function AnnouncementDetailPage() {
               maxLength={10000}
               value={editBody}
               onChange={(e) => setEditBody(e.target.value)}
-              className="w-full rounded-lg border border-line px-3 py-2 text-sm outline-none focus:border-brand"
+              className="input-field"
             />
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <div className="flex flex-wrap gap-2">
             <button
               type="submit"
@@ -182,17 +182,16 @@ export default function AnnouncementDetailPage() {
         </form>
       ) : (
         <article
-          className={`rounded-xl border p-6 ${
-            item.pinned ? "border-warning/40 bg-warning-soft" : "border-line bg-surface"
-          }`}
+          className="announcement-card project-hero"
+          data-pinned={item.pinned ? "true" : "false"}
         >
           <div className="flex flex-wrap items-start justify-between gap-2">
             <h1 className="page-title">{item.title}</h1>
-            {item.pinned && (
-              <span className="rounded-full bg-amber-200 px-2.5 py-0.5 text-xs font-medium text-amber-900">
+            {item.pinned ? (
+              <span className="chip shrink-0" data-tone="urgente">
                 Urgent
               </span>
-            )}
+            ) : null}
           </div>
           <p className="mt-2 text-xs text-muted">
             {item.authorName} · {new Date(item.createdAt).toLocaleString("fr-FR")}
@@ -204,7 +203,7 @@ export default function AnnouncementDetailPage() {
         </article>
       )}
 
-      {error && !editing && <p className="text-sm text-red-600">{error}</p>}
+      {error && !editing && <p className="text-sm text-danger">{error}</p>}
 
       {canWrite && !editing && (
         <div className="flex flex-wrap gap-2">

@@ -605,6 +605,11 @@ html[data-theme="dark"] body {
     color: var(--muted);
   }
 
+  .chip[data-tone="urgente"] {
+    background: color-mix(in srgb, var(--warning) 18%, var(--surface));
+    color: var(--warning);
+  }
+
   .project-card .progress-track {
     height: 0.5rem;
   }
@@ -712,6 +717,23 @@ html[data-theme="dark"] body {
 
   .task-card[data-priority="LOW"]::before {
     background: var(--line);
+  }
+
+  .announcement-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .announcement-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--line);
+  }
+
+  .announcement-card[data-pinned="true"]::before {
+    background: var(--warning);
   }
 
   .input-field {
