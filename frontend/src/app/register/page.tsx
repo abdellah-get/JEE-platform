@@ -8,12 +8,22 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { Field } from "@/components/auth/Field";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/lib/api";
+import { splitFullName } from "@/lib/names";
+
+const ACADEMIC_EMAIL_ERROR = "Utilise ton email académique (@ensem.ac.ma).";
+
+function isAcademicEmail(value: string): boolean {
+  const trimmed = value.trim();
+  const at = trimmed.indexOf("@");
+  if (at <= 0 || at !== trimmed.lastIndexOf("@")) return false;
+  const domain = trimmed.slice(at + 1).toLowerCase();
+  return domain === "ensem.ac.ma" || domain === "ensem.jee";
+}
 
 export default function RegisterPage() {
   const { register, user, loading } = useAuth();
   const router = useRouter();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -30,13 +40,20 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null);
     setPendingMessage(null);
+
+    if (!isAcademicEmail(email)) {
+      setError(ACADEMIC_EMAIL_ERROR);
+      return;
+    }
+
     setSubmitting(true);
     try {
+      const { firstName, lastName } = splitFullName(fullName);
       const result = await register({
         email: email.trim(),
         password,
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
+        firstName,
+        lastName,
       });
       if (result.pendingApproval) {
         setPendingMessage(result.message);
@@ -59,52 +76,51 @@ export default function RegisterPage() {
   return (
     <AuthShell
       title="Inscription"
-      subtitle="Rejoins l’espace membres — email école ou domaine autorisé."
+      subtitle="Rejoins le club avec ton nom complet et ton email académique."
     >
       {pendingMessage ? (
-        <div className="space-y-4 text-sm text-ink/80">
-          <p className="rounded-lg bg-emerald-50 px-3 py-2 text-emerald-900">
-            {pendingMessage}
-          </p>
-          <Link href="/login" className="block text-center font-medium underline">
-            Aller à la connexion
+        <div className="space-y-4">
+          <div className="rounded-lg border border-line bg-surface px-4 py-4 text-sm text-ink">
+            <h2 className="font-semibold">Demande envoyée</h2>
+            <p className="mt-2">{pendingMessage}</p>
+            <p className="mt-2">
+              Tant que le bureau n’a pas accepté, tu ne peux pas entrer dans la plateforme.
+            </p>
+          </div>
+          <Link
+            href="/login"
+            className="block text-center text-sm font-medium text-ink underline"
+          >
+            Retour à la connexion
           </Link>
         </div>
       ) : (
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
-          <div className="grid grid-cols-2 gap-3">
-            <Field
-              id="firstName"
-              label="Prénom"
-              value={firstName}
-              onChange={setFirstName}
-              autoComplete="given-name"
-              required
-              describedBy={error ? "register-error" : undefined}
-              invalid={!!error}
-            />
-            <Field
-              id="lastName"
-              label="Nom"
-              value={lastName}
-              onChange={setLastName}
-              autoComplete="family-name"
-              required
-              describedBy={error ? "register-error" : undefined}
-              invalid={!!error}
-            />
-          </div>
           <Field
-            id="email"
-            label="Email"
-            type="email"
-            value={email}
-            onChange={setEmail}
-            autoComplete="email"
+            id="fullName"
+            label="Nom complet"
+            value={fullName}
+            onChange={setFullName}
+            autoComplete="name"
             required
             describedBy={error ? "register-error" : undefined}
             invalid={!!error}
           />
+          <label className="block space-y-1.5" htmlFor="email">
+            <span className="text-sm font-semibold text-ink">Email académique</span>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              placeholder="prenom.nom@ensem.ac.ma"
+              required
+              aria-invalid={error ? true : undefined}
+              aria-describedby={error ? "register-error" : undefined}
+              className="input-field"
+            />
+          </label>
           <Field
             id="password"
             label="Mot de passe (min. 8)"
@@ -133,7 +149,7 @@ export default function RegisterPage() {
             disabled={submitting}
             className="btn btn-primary w-full"
           >
-            {submitting ? "Création…" : "Créer mon compte"}
+            {submitting ? "Envoi…" : "Envoyer ma demande"}
           </button>
         </form>
       )}

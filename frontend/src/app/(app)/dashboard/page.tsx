@@ -14,6 +14,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
+import { formatPersonName } from "@/lib/names";
 import { statusLabel } from "@/lib/projects";
 import { queryKeys } from "@/lib/query-keys";
 import {
@@ -91,7 +92,7 @@ export default function DashboardPage() {
     <div className="mx-auto max-w-5xl space-y-8">
       <PageHeader
         eyebrow="Aujourd’hui"
-        title={`Salut, ${user.firstName}`}
+        title={`Salut, ${formatPersonName(user.firstName, user.lastName)}`}
         description="Repère vite ce qui bloque, ce qui avance, et ce que le bureau a épinglé."
         actions={
           isBureau ? (

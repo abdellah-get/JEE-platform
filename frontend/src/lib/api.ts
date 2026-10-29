@@ -449,11 +449,15 @@ export function listAdminUsers(
   accessToken: string,
   page = 0,
   size = 20,
+  membership?: "PENDING" | "APPROVED" | "REJECTED",
 ) {
   const params = new URLSearchParams({
     page: String(page),
     size: String(size),
   });
+  if (membership) {
+    params.set("membership", membership);
+  }
   return apiFetch<PageResponse<AdminUser>>(
     `/api/v1/admin/users?${params}`,
     { method: "GET" },
@@ -469,6 +473,18 @@ export function updateUserActive(
   return apiFetch<AdminUser>(
     `/api/v1/admin/users/${userId}/active`,
     { method: "PATCH", body: JSON.stringify({ active }) },
+    accessToken,
+  );
+}
+
+export function decideMembership(
+  accessToken: string,
+  userId: string,
+  decision: "APPROVE" | "REJECT",
+) {
+  return apiFetch<AdminUser>(
+    `/api/v1/admin/users/${userId}/membership`,
+    { method: "PATCH", body: JSON.stringify({ decision }) },
     accessToken,
   );
 }

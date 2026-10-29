@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 import ma.ensem.jee.platform.user.ClubRole;
+import ma.ensem.jee.platform.user.MembershipStatus;
 import ma.ensem.jee.platform.user.User;
 
 public record AdminUserResponse(
@@ -13,6 +14,7 @@ public record AdminUserResponse(
 		String lastName,
 		ClubRole clubRole,
 		boolean active,
+		MembershipStatus membershipStatus,
 		Instant createdAt) {
 
 	public static AdminUserResponse from(User user) {
@@ -23,6 +25,7 @@ public record AdminUserResponse(
 				user.getLastName(),
 				user.getClubRole(),
 				user.isActive(),
+				user.getMembershipStatus(),
 				user.getCreatedAt());
 	}
 }

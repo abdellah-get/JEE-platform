@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.user.dto.AdminUserResponse;
+import ma.ensem.jee.platform.user.dto.DecideMembershipRequest;
 import ma.ensem.jee.platform.user.dto.UpdateClubRoleRequest;
 import ma.ensem.jee.platform.user.dto.UpdateUserActiveRequest;
 
@@ -29,8 +30,9 @@ public class AdminUserController {
 	@GetMapping
 	public PageResponse<AdminUserResponse> list(
 			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size) {
-		return PageResponse.slice(adminUserService.listAll(), page, size);
+			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size,
+			@RequestParam(required = false) MembershipStatus membership) {
+		return PageResponse.slice(adminUserService.listAll(membership), page, size);
 	}
 
 	@PatchMapping("/{userId}/active")
@@ -38,6 +40,13 @@ public class AdminUserController {
 			@PathVariable UUID userId,
 			@Valid @RequestBody UpdateUserActiveRequest request) {
 		return adminUserService.updateActive(userId, request);
+	}
+
+	@PatchMapping("/{userId}/membership")
+	public AdminUserResponse decideMembership(
+			@PathVariable UUID userId,
+			@Valid @RequestBody DecideMembershipRequest request) {
+		return adminUserService.decideMembership(userId, request);
 	}
 
 	@PatchMapping("/{userId}/role")

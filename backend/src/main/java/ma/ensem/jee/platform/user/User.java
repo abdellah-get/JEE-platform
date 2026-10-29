@@ -38,6 +38,10 @@ public class User {
 	@Column(nullable = false)
 	private boolean active = true;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "membership_status", nullable = false, length = 16)
+	private MembershipStatus membershipStatus = MembershipStatus.APPROVED;
+
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
 
@@ -123,6 +127,14 @@ public class User {
 
 	public void setActive(boolean active) {
 		this.active = active;
+	}
+
+	public MembershipStatus getMembershipStatus() {
+		return membershipStatus;
+	}
+
+	public void setMembershipStatus(MembershipStatus membershipStatus) {
+		this.membershipStatus = membershipStatus;
 	}
 
 	public Instant getCreatedAt() {

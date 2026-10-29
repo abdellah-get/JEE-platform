@@ -5,6 +5,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.UUID;
+
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,6 +85,7 @@ class RegistrationRestrictionTest {
 						""".formatted(memberEmail, memberPassword)))
 				.andExpect(status().isCreated())
 				.andExpect(jsonPath("$.pendingApproval").value(true))
+				.andExpect(jsonPath("$.message").value(Matchers.containsString("bureau")))
 				.andExpect(jsonPath("$.accessToken").value(Matchers.nullValue()));
 
 		mockMvc.perform(post("/api/v1/auth/login")
@@ -119,7 +122,8 @@ class RegistrationRestrictionTest {
 						{ "active": true }
 						"""))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.active").value(true));
+				.andExpect(jsonPath("$.active").value(true))
+				.andExpect(jsonPath("$.membershipStatus").value("APPROVED"));
 
 		mockMvc.perform(post("/api/v1/auth/login")
 				.contentType(MediaType.APPLICATION_JSON)
@@ -128,5 +132,63 @@ class RegistrationRestrictionTest {
 						""".formatted(memberEmail, memberPassword)))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.accessToken").isNotEmpty());
+	}
+
+	@Test
+	void rejectedMembershipBlocksLogin() throws Exception {
+		String memberEmail = "to.reject." + UUID.randomUUID() + "@ensem.jee";
+		String memberPassword = "Password123!";
+		String bureauEmail = "bureau.reject." + UUID.randomUUID() + "@ensem.jee";
+		String bureauPassword = "Password123!";
+
+		mockMvc.perform(post("/api/v1/auth/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "email": "%s",
+						  "password": "%s",
+						  "firstName": "To",
+						  "lastName": "Reject"
+						}
+						""".formatted(memberEmail, memberPassword)))
+				.andExpect(status().isCreated())
+				.andExpect(jsonPath("$.pendingApproval").value(true));
+
+		User bureau = new User(
+				bureauEmail,
+				passwordEncoder.encode(bureauPassword),
+				"Bureau",
+				"Reject",
+				ClubRole.BUREAU);
+		bureau.setActive(true);
+		userRepository.save(bureau);
+
+		MvcResult login = mockMvc.perform(post("/api/v1/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{ "email": "%s", "password": "%s" }
+						""".formatted(bureauEmail, bureauPassword)))
+				.andExpect(status().isOk())
+				.andReturn();
+		String access = JsonPath.read(login.getResponse().getContentAsString(), "$.accessToken");
+
+		User pending = userRepository.findByEmailIgnoreCase(memberEmail).orElseThrow();
+		mockMvc.perform(patch("/api/v1/admin/users/" + pending.getId() + "/membership")
+				.header("Authorization", "Bearer " + access)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{ "decision": "REJECT" }
+						"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.membershipStatus").value("REJECTED"))
+				.andExpect(jsonPath("$.active").value(false));
+
+		mockMvc.perform(post("/api/v1/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{ "email": "%s", "password": "%s" }
+						""".formatted(memberEmail, memberPassword)))
+				.andExpect(status().isUnauthorized())
+				.andExpect(jsonPath("$.error").value(Matchers.containsString("refus")));
 	}
 }

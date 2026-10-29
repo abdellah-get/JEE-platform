@@ -11,6 +11,8 @@ import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
 import ma.ensem.jee.platform.user.dto.AdminUserResponse;
+import ma.ensem.jee.platform.user.dto.DecideMembershipRequest;
+import ma.ensem.jee.platform.user.dto.MembershipDecision;
 import ma.ensem.jee.platform.user.dto.UpdateClubRoleRequest;
 import ma.ensem.jee.platform.user.dto.UpdateUserActiveRequest;
 
@@ -24,9 +26,10 @@ public class AdminUserService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<AdminUserResponse> listAll() {
+	public List<AdminUserResponse> listAll(MembershipStatus membership) {
 		requireBureauOrAdmin();
 		return userRepository.findAllByOrderByLastNameAscFirstNameAsc().stream()
+				.filter(user -> membership == null || user.getMembershipStatus() == membership)
 				.map(AdminUserResponse::from)
 				.toList();
 	}
@@ -47,7 +50,38 @@ public class AdminUserService {
 			throw new IllegalArgumentException("Impossible de désactiver le dernier admin technique actif");
 		}
 
-		target.setActive(Boolean.TRUE.equals(request.active()));
+		boolean active = Boolean.TRUE.equals(request.active());
+		target.setActive(active);
+		if (active) {
+			target.setMembershipStatus(MembershipStatus.APPROVED);
+		}
+		else if (target.getMembershipStatus() == MembershipStatus.PENDING) {
+			target.setMembershipStatus(MembershipStatus.REJECTED);
+		}
+		return AdminUserResponse.from(target);
+	}
+
+	@Transactional
+	public AdminUserResponse decideMembership(UUID userId, DecideMembershipRequest request) {
+		UserPrincipal current = requireBureauOrAdmin();
+		User target = userRepository.findById(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("Utilisateur introuvable"));
+
+		if (target.getId().equals(current.getId())) {
+			throw new IllegalArgumentException("Tu ne peux pas décider de ton propre compte");
+		}
+
+		if (request.decision() == MembershipDecision.APPROVE) {
+			target.setMembershipStatus(MembershipStatus.APPROVED);
+			target.setActive(true);
+		}
+		else if (request.decision() == MembershipDecision.REJECT) {
+			target.setMembershipStatus(MembershipStatus.REJECTED);
+			target.setActive(false);
+		}
+		else {
+			throw new IllegalArgumentException("Décision invalide");
+		}
 		return AdminUserResponse.from(target);
 	}
 

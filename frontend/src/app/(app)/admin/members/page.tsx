@@ -12,6 +12,7 @@ import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canAccessAdmin } from "@/lib/auth-storage";
+import { formatPersonName } from "@/lib/names";
 import type { AdminUser, PageResponse } from "@/lib/types";
 
 export default function AdminMembersPage() {
@@ -38,16 +39,20 @@ export default function AdminMembersPage() {
       .finally(() => setListBusy(false));
   }, [accessToken, user?.clubRole, page]);
 
-  const users = pageData?.content ?? [];
+  const users = useMemo(
+    () =>
+      (pageData?.content ?? []).filter((u) => u.membershipStatus !== "PENDING"),
+    [pageData],
+  );
 
   const filtered = useMemo(
     () =>
       users.filter((u) =>
         matchesSearch(
           query,
+          formatPersonName(u.firstName, u.lastName),
           u.firstName,
           u.lastName,
-          `${u.firstName} ${u.lastName}`,
           u.email,
           u.clubRole,
         ),
@@ -111,9 +116,11 @@ export default function AdminMembersPage() {
         </Link>
         <h1 className="mt-2 page-title">Membres</h1>
         <p className="mt-1 text-sm text-muted">
-          Active ou désactive les comptes. Les inscriptions en attente
-          d&apos;approbation apparaissent comme <em>Inactif</em> — clique{" "}
-          <strong>Activer</strong> pour les valider.
+          Les nouvelles demandes se traitent sur{" "}
+          <Link href="/admin/requests" className="font-medium text-ink underline">
+            Demandes d’adhésion
+          </Link>
+          . Cette page active ou désactive les comptes existants.
         </p>
       </div>
 
@@ -159,12 +166,10 @@ export default function AdminMembersPage() {
                   className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
                 >
                   <div>
-                    <p className="text-sm font-medium">
-                      {u.firstName} {u.lastName}
-                      {!u.active && (
-                        <span className="ml-2 rounded-full bg-warning-soft px-2 py-0.5 text-xs text-warning">
-                          En attente / inactif
-                        </span>
+                    <p className="text-sm font-medium text-ink">
+                      {formatPersonName(u.firstName, u.lastName)}
+                      {u.membershipStatus === "REJECTED" && (
+                        <span className="chip ml-2">Refusée</span>
                       )}
                     </p>
                     <p className="text-xs text-muted">
