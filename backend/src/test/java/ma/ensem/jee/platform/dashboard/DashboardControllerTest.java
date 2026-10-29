@@ -52,6 +52,17 @@ class DashboardControllerTest {
 		String chefId = userId(chefToken);
 		String memberId = userId(memberToken);
 
+		String baseline = mockMvc.perform(get("/api/v1/dashboard")
+				.header("Authorization", "Bearer " + bureauToken))
+				.andExpect(status().isOk())
+				.andReturn()
+				.getResponse()
+				.getContentAsString();
+		int brouillon = kpi(baseline, "projectsBrouillon");
+		int actif = kpi(baseline, "projectsActif");
+		int openTasks = kpi(baseline, "openTasks");
+		int overdueTasks = kpi(baseline, "overdueTasks");
+
 		String projectId = JsonPath.read(
 				mockMvc.perform(post("/api/v1/projects")
 						.header("Authorization", "Bearer " + bureauToken)
@@ -98,10 +109,10 @@ class DashboardControllerTest {
 		mockMvc.perform(get("/api/v1/dashboard")
 				.header("Authorization", "Bearer " + bureauToken))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.kpis.projectsBrouillon").value(1))
-				.andExpect(jsonPath("$.kpis.projectsActif").value(0))
-				.andExpect(jsonPath("$.kpis.openTasks").value(1))
-				.andExpect(jsonPath("$.kpis.overdueTasks").value(1))
+				.andExpect(jsonPath("$.kpis.projectsBrouillon").value(brouillon + 1))
+				.andExpect(jsonPath("$.kpis.projectsActif").value(actif))
+				.andExpect(jsonPath("$.kpis.openTasks").value(openTasks + 1))
+				.andExpect(jsonPath("$.kpis.overdueTasks").value(overdueTasks + 1))
 				.andExpect(jsonPath("$.kpis.averageProgressPercent").exists());
 
 		mockMvc.perform(get("/api/v1/dashboard")
@@ -121,6 +132,10 @@ class DashboardControllerTest {
 				.andExpect(content().string(containsString("project_id,project_name,status,progress_percent,open_tasks,overdue_tasks")))
 				.andExpect(content().string(containsString("Dash project")))
 				.andExpect(content().string(containsString(",1,1")));
+	}
+
+	private static int kpi(String json, String name) {
+		return ((Number) JsonPath.read(json, "$.kpis." + name)).intValue();
 	}
 
 	private String userId(String accessToken) throws Exception {
