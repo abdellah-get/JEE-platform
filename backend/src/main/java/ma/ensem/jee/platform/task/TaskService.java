@@ -111,6 +111,9 @@ public class TaskService {
 		Task task = taskRepository.findById(taskId)
 				.orElseThrow(() -> new ResourceNotFoundException("Tâche introuvable"));
 		Project project = accessService.requireVisibleProject(task.getProjectId(), current);
+		if (task.getStatus() == TaskStatus.DONE) {
+			throw new IllegalArgumentException("Une mission terminée ne peut plus être modifiée.");
+		}
 
 		if (request.title() != null && !request.title().isBlank()) {
 			task.setTitle(request.title().trim());
@@ -208,6 +211,9 @@ public class TaskService {
 		for (int i = 0; i < taskIds.size(); i++) {
 			Task task = byId.get(taskIds.get(i));
 			TaskStatus previous = task.getStatus();
+			if (previous == TaskStatus.DONE && status != TaskStatus.DONE) {
+				throw new IllegalArgumentException("Une mission terminée ne peut plus être modifiée.");
+			}
 			task.setStatus(status);
 			task.setSortOrder(i);
 			if (previous != status) {

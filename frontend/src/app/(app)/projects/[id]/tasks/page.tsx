@@ -26,6 +26,12 @@ import {
 import { canDeleteTask, canManageProject } from "@/lib/projects";
 import type { Project, ProjectMember, Task, TaskPriority, TaskStatus } from "@/lib/types";
 
+function priorityTone(priority: TaskPriority) {
+  if (priority === "HIGH") return "haute";
+  if (priority === "LOW") return "basse";
+  return "moyenne";
+}
+
 export default function ProjectTasksPage() {
   const params = useParams<{ id: string }>();
   const projectId = params.id;
@@ -169,6 +175,7 @@ export default function ProjectTasksPage() {
 
   /** Drop en fin de colonne, ou déplacement via bouton. */
   async function moveTaskToColumn(task: Task, status: TaskStatus) {
+    if (task.status === "DONE") return;
     const columnIds = byStatus[status].map((t) => t.id);
     const next =
       task.status === status
@@ -188,7 +195,7 @@ export default function ProjectTasksPage() {
 
   /** Drop sur une carte : insère avant la cible. */
   async function moveTaskBefore(dragged: Task, before: Task) {
-    if (dragged.id === before.id) return;
+    if (dragged.status === "DONE" || dragged.id === before.id) return;
     const status = before.status;
     const columnIds = byStatus[status]
       .map((t) => t.id)
@@ -199,6 +206,7 @@ export default function ProjectTasksPage() {
 
   /** Clavier : flèches gauche/droite = colonne, haut/bas = ordre dans la colonne. */
   async function onTaskKeyDown(e: KeyboardEvent, task: Task) {
+    if (task.status === "DONE") return;
     const colIndex = TASK_COLUMNS.findIndex((c) => c.status === task.status);
     if (colIndex < 0) return;
 
@@ -254,6 +262,7 @@ export default function ProjectTasksPage() {
   }
 
   async function onAssign(task: Task, nextAssignee: string) {
+    if (task.status === "DONE") return;
     setError(null);
     try {
       const updated = await api.updateTask(
@@ -270,7 +279,7 @@ export default function ProjectTasksPage() {
   }
 
   async function onSavePanel(payload: TaskEditPayload) {
-    if (!selectedTask) return;
+    if (!selectedTask || selectedTask.status === "DONE") return;
     setPanelSaving(true);
     setPanelError(null);
     try {
@@ -315,8 +324,8 @@ export default function ProjectTasksPage() {
           </Link>
           <h1 className="mt-2 page-title">Tableau Kanban</h1>
           <p className="page-subtitle">
-            {project.progressPercent}% d’avancement — glisse les cartes, ou utilise
-            les flèches clavier. Clique pour éditer.
+            {project.progressPercent}% d’avancement — glisse les cartes ouvertes, ou
+            utilise les flèches. Une mission faite s’ouvre en détail, sans modification.
           </p>
         </div>
       </div>
@@ -340,7 +349,7 @@ export default function ProjectTasksPage() {
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as TaskPriority)}
-              className="rounded-lg border border-line px-3 py-2 text-sm"
+              className="select-field"
             >
               <option value="LOW">Basse</option>
               <option value="MEDIUM">Moyenne</option>
@@ -353,7 +362,7 @@ export default function ProjectTasksPage() {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="rounded-lg border border-line px-3 py-2 text-sm"
+              className="input-field"
             />
           </div>
           <div>
@@ -361,7 +370,7 @@ export default function ProjectTasksPage() {
             <select
               value={assigneeId}
               onChange={(e) => setAssigneeId(e.target.value)}
-              className="rounded-lg border border-line px-3 py-2 text-sm"
+              className="select-field"
             >
               <option value="">—</option>
               {members.map((m) => (
@@ -388,7 +397,7 @@ export default function ProjectTasksPage() {
             rows={2}
             maxLength={4000}
             placeholder="Contexte court…"
-            className="w-full resize-y rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none ring-brand focus:ring-2"
+            className="input-field resize-y"
           />
         </label>
       </form>
@@ -427,12 +436,19 @@ export default function ProjectTasksPage() {
               </span>
             </h2>
             <ul className="space-y-2">
-              {byStatus[col.status].map((task) => (
+              {byStatus[col.status].map((task) => {
+                const done = task.status === "DONE";
+                const assignee = members.find((m) => m.userId === task.assigneeId);
+                return (
                 <li
                   key={task.id}
-                  draggable
+                  draggable={!done}
                   tabIndex={0}
-                  aria-label={`${task.title}. ${col.label}. Flèches pour déplacer.`}
+                  aria-label={
+                    done
+                      ? `${task.title}. Fait. Ouvrir le détail.`
+                      : `${task.title}. ${col.label}. Flèches pour déplacer.`
+                  }
                   onKeyDown={(e) => {
                     if (
                       e.key === "ArrowLeft" ||
@@ -444,6 +460,10 @@ export default function ProjectTasksPage() {
                     }
                   }}
                   onDragStart={(e) => {
+                    if (done) {
+                      e.preventDefault();
+                      return;
+                    }
                     e.dataTransfer.setData("text/task-id", task.id);
                     e.dataTransfer.effectAllowed = "move";
                   }}
@@ -458,7 +478,10 @@ export default function ProjectTasksPage() {
                     const dragged = tasks.find((t) => t.id === taskId);
                     if (dragged) void moveTaskBefore(dragged, task);
                   }}
-                  className="cursor-grab rounded-lg border border-line bg-surface p-3 shadow-sm outline-none ring-brand focus-visible:ring-2 active:cursor-grabbing"
+                  data-priority={task.priority}
+                  className={`task-card rounded-lg border border-line bg-surface p-3 shadow-sm outline-none ring-brand focus-visible:ring-2 ${
+                    done ? "cursor-default" : "cursor-grab active:cursor-grabbing"
+                  }`}
                 >
                   <button
                     type="button"
@@ -469,68 +492,86 @@ export default function ProjectTasksPage() {
                     className="w-full text-left"
                   >
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <p className="text-sm font-medium text-ink">{task.title}</p>
-                      <DueBadge dueDate={task.dueDate} status={task.status} />
+                      <p className="font-[family-name:var(--font-syne)] text-sm font-semibold tracking-tight text-ink">
+                        {task.title}
+                      </p>
+                      <span className="chip" data-tone={priorityTone(task.priority)}>
+                        {priorityLabel(task.priority)}
+                      </span>
+                      {done ? (
+                        <span className="chip" data-tone="termine">
+                          Fait
+                        </span>
+                      ) : (
+                        <DueBadge dueDate={task.dueDate} status={task.status} />
+                      )}
                     </div>
                     {task.description && (
                       <p className="mt-1 line-clamp-2 text-xs text-muted">
                         {task.description}
                       </p>
                     )}
-                    <p className="mt-1 text-xs text-muted">
-                      {priorityLabel(task.priority)}
-                      {task.dueDate ? (
-                        <>
-                          {" · "}
-                          <span className={dueDateClassName(task.dueDate, task.status)}>
-                            {formatDueDate(task.dueDate)}
-                          </span>
-                        </>
-                      ) : null}
-                    </p>
-                  </button>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <label className="sr-only" htmlFor={`assign-${task.id}`}>
-                      Assigné
-                    </label>
-                    <select
-                      id={`assign-${task.id}`}
-                      value={task.assigneeId ?? ""}
-                      onChange={(e) => onAssign(task, e.target.value)}
-                      className="max-w-full flex-1 rounded border border-line px-1.5 py-1 text-xs"
-                    >
-                      <option value="">Non assigné</option>
-                      {members.map((m) => (
-                        <option key={m.userId} value={m.userId}>
-                          {m.firstName} {m.lastName}
-                        </option>
-                      ))}
-                    </select>
-                    {allowDelete ? (
-                      <button
-                        type="button"
-                        onClick={() => onDelete(task.id)}
-                        className="text-xs text-red-600 hover:underline"
-                      >
-                        Suppr.
-                      </button>
+                    {task.dueDate ? (
+                      <p className="mt-1 text-xs text-muted">
+                        <span className={dueDateClassName(task.dueDate, task.status)}>
+                          {formatDueDate(task.dueDate)}
+                        </span>
+                      </p>
                     ) : null}
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {TASK_COLUMNS.filter((c) => c.status !== task.status).map((c) => (
-                      <button
-                        key={c.status}
-                        type="button"
-                        onClick={() => void moveTaskToColumn(task, c.status)}
-                        aria-label={`Vers ${c.label}`}
-                        className="rounded bg-brand-soft px-1.5 py-0.5 text-[11px] text-ink/80 hover:bg-brand-soft"
-                      >
-                        → {c.label}
-                      </button>
-                    ))}
-                  </div>
+                  </button>
+                  {done ? (
+                    <p className="mt-2 text-xs text-muted">
+                      {assignee
+                        ? `${assignee.firstName} ${assignee.lastName}`
+                        : "Non assigné"}
+                    </p>
+                  ) : (
+                    <>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <label className="sr-only" htmlFor={`assign-${task.id}`}>
+                          Assigné
+                        </label>
+                        <select
+                          id={`assign-${task.id}`}
+                          value={task.assigneeId ?? ""}
+                          onChange={(e) => onAssign(task, e.target.value)}
+                          className="select-field max-w-full flex-1 py-1 text-xs"
+                        >
+                          <option value="">Non assigné</option>
+                          {members.map((m) => (
+                            <option key={m.userId} value={m.userId}>
+                              {m.firstName} {m.lastName}
+                            </option>
+                          ))}
+                        </select>
+                        {allowDelete ? (
+                          <button
+                            type="button"
+                            onClick={() => onDelete(task.id)}
+                            className="text-xs text-danger hover:underline"
+                          >
+                            Suppr.
+                          </button>
+                        ) : null}
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {TASK_COLUMNS.filter((c) => c.status !== task.status).map((c) => (
+                          <button
+                            key={c.status}
+                            type="button"
+                            onClick={() => void moveTaskToColumn(task, c.status)}
+                            aria-label={`Vers ${c.label}`}
+                            className="rounded bg-brand-soft px-1.5 py-0.5 text-[11px] text-ink/80 hover:bg-brand-soft"
+                          >
+                            → {c.label}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </li>
-              ))}
+                );
+              })}
             </ul>
           </section>
         ))}

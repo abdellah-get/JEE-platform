@@ -122,6 +122,86 @@ class TaskControllerTest {
 	}
 
 	@Test
+	void finishedMissionStaysLockedButCanStillBeDeleted() throws Exception {
+		String bureauToken = registerAndPromote("bureau.done@ensem.jee", "Bureau", "Done", ClubRole.BUREAU);
+		String chefToken = register("chef.done@ensem.jee", "Chef", "Done");
+		String chefId = userId(chefToken);
+
+		String projectId = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects")
+						.header("Authorization", "Bearer " + bureauToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{
+								  "name": "Missions closes",
+								  "chefUserId": "%s"
+								}
+								""".formatted(chefId)))
+						.andExpect(status().isCreated())
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		String taskId = JsonPath.read(
+				mockMvc.perform(post("/api/v1/projects/" + projectId + "/tasks")
+						.header("Authorization", "Bearer " + chefToken)
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("""
+								{ "title": "Livrable" }
+								"""))
+						.andExpect(status().isCreated())
+						.andReturn()
+						.getResponse()
+						.getContentAsString(),
+				"$.id");
+
+		mockMvc.perform(patch("/api/v1/tasks/" + taskId)
+				.header("Authorization", "Bearer " + chefToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{ "status": "DONE" }
+						"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.status").value("DONE"));
+
+		mockMvc.perform(patch("/api/v1/tasks/" + taskId)
+				.header("Authorization", "Bearer " + chefToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{ "title": "Nouveau titre" }
+						"""))
+				.andExpect(status().isConflict())
+				.andExpect(jsonPath("$.error").value("Une mission terminée ne peut plus être modifiée."));
+
+		mockMvc.perform(put("/api/v1/projects/" + projectId + "/tasks/reorder")
+				.header("Authorization", "Bearer " + chefToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "status": "TODO",
+						  "taskIds": ["%s"]
+						}
+						""".formatted(taskId)))
+				.andExpect(status().isConflict());
+
+		mockMvc.perform(put("/api/v1/projects/" + projectId + "/tasks/reorder")
+				.header("Authorization", "Bearer " + chefToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "status": "DONE",
+						  "taskIds": ["%s"]
+						}
+						""".formatted(taskId)))
+				.andExpect(status().isOk());
+
+		mockMvc.perform(delete("/api/v1/tasks/" + taskId)
+				.header("Authorization", "Bearer " + chefToken))
+				.andExpect(status().isNoContent());
+	}
+
+	@Test
 	void reorderTasksPersistsSortOrderAndStatus() throws Exception {
 		String bureauToken = registerAndPromote("bureau.reorder@ensem.jee", "Bureau", "Reorder", ClubRole.BUREAU);
 		String chefToken = register("chef.reorder@ensem.jee", "Chef", "Reorder");

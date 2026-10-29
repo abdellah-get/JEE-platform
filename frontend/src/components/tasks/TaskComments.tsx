@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
@@ -14,9 +14,11 @@ type Props = {
   taskId: string;
   /** Chef projet / bureau : peut supprimer les commentaires des autres. */
   canModerate?: boolean;
+  /** Mission terminée : lecture seule. */
+  readOnly?: boolean;
 };
 
-export function TaskComments({ taskId, canModerate = false }: Props) {
+export function TaskComments({ taskId, canModerate = false, readOnly = false }: Props) {
   const { accessToken, user } = useAuth();
   const toast = useToast();
   const [comments, setComments] = useState<TaskComment[]>([]);
@@ -48,8 +50,7 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
     };
   }, [accessToken, taskId]);
 
-  async function onPost(e: FormEvent) {
-    e.preventDefault();
+  async function onPost() {
     if (!accessToken || !body.trim()) return;
     setPosting(true);
     try {
@@ -106,7 +107,7 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
         <ul className="space-y-3">
           {comments.map((c) => {
             const isAuthor = user?.userId === c.authorId;
-            const canDelete = isAuthor || canModerate;
+            const canDelete = !readOnly && (isAuthor || canModerate);
             return (
               <li key={c.id} className="rounded-lg border border-line bg-paper/80 px-3 py-2">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -122,13 +123,13 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
                       onChange={(e) => setEditBody(e.target.value)}
                       rows={3}
                       maxLength={4000}
-                      className="w-full rounded-lg border border-line bg-surface px-2 py-1.5 text-sm"
+                      className="input-field"
                     />
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => void onSaveEdit(c.id)}
-                        className="rounded bg-brand px-2 py-1 text-xs text-white"
+                        className="btn btn-primary px-2 py-1 text-xs"
                       >
                         Enregistrer
                       </button>
@@ -144,9 +145,9 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
                 ) : (
                   <p className="mt-1 whitespace-pre-wrap text-sm text-ink">{c.body}</p>
                 )}
-                {editingId !== c.id && (isAuthor || canDelete) && (
+                {!readOnly && editingId !== c.id && (isAuthor || canDelete) && (
                   <div className="mt-1.5 flex gap-3">
-                    {isAuthor && (
+                    {isAuthor && !readOnly && (
                       <button
                         type="button"
                         onClick={() => {
@@ -162,7 +163,7 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
                       <button
                         type="button"
                         onClick={() => setPendingDeleteId(c.id)}
-                        className="text-[11px] text-red-600 hover:underline"
+                        className="text-[11px] text-danger hover:underline"
                       >
                         Supprimer
                       </button>
@@ -175,7 +176,8 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
         </ul>
       )}
 
-      <form onSubmit={onPost} className="space-y-2">
+      {readOnly ? null : (
+      <div className="space-y-2">
         <label className="block space-y-1" htmlFor="new-comment">
           <span className="text-xs font-medium text-ink/80">Ajouter un commentaire</span>
           <textarea
@@ -185,17 +187,19 @@ export function TaskComments({ taskId, canModerate = false }: Props) {
             rows={3}
             maxLength={4000}
             placeholder="Répondre à l’équipe…"
-            className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none ring-brand focus:ring-2"
+            className="input-field"
           />
         </label>
         <button
-          type="submit"
+          type="button"
+          onClick={() => void onPost()}
           disabled={posting || !body.trim()}
           className="btn btn-primary text-xs"
         >
           {posting ? "Envoi…" : "Publier"}
         </button>
-      </form>
+      </div>
+      )}
 
       <ConfirmDialog
         open={pendingDeleteId !== null}
