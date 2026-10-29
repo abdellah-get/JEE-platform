@@ -21,6 +21,7 @@ import ma.ensem.jee.platform.auth.dto.RegisterRequest;
 import ma.ensem.jee.platform.auth.dto.RegisterResponse;
 import ma.ensem.jee.platform.common.BadRequestException;
 import ma.ensem.jee.platform.user.ClubRole;
+import ma.ensem.jee.platform.user.MembershipStatus;
 import ma.ensem.jee.platform.user.User;
 import ma.ensem.jee.platform.user.UserRepository;
 
@@ -30,7 +31,17 @@ public class AuthService {
 	public static final String REFRESH_COOKIE = "refresh_token";
 
 	private static final String PENDING_MESSAGE =
-			"Compte créé. Il sera activé par le bureau avant ta première connexion.";
+			"Inscription bien reçue. Ta demande va être traitée par le bureau. Tu pourras accéder à la plateforme une fois qu’elle sera acceptée.";
+
+	private static final String INVALID_CREDENTIALS = "Email ou mot de passe incorrect";
+
+	private static final String PENDING_LOGIN =
+			"Compte en attente. Ta demande est en cours de traitement par le bureau.";
+
+	private static final String REJECTED_LOGIN =
+			"Ta demande d’adhésion a été refusée par le bureau.";
+
+	private static final String INACTIVE_LOGIN = "Compte désactivé";
 
 	private final UserRepository userRepository;
 	private final RefreshTokenRepository refreshTokenRepository;
@@ -67,15 +78,24 @@ public class AuthService {
 							+ ").");
 		}
 
+		String lastName = request.lastName();
+		if (lastName == null || lastName.isBlank()) {
+			lastName = "";
+		}
+		else {
+			lastName = lastName.trim();
+		}
+
 		User user = new User(
 				email,
 				passwordEncoder.encode(request.password()),
 				request.firstName().trim(),
-				request.lastName().trim(),
+				lastName,
 				ClubRole.MEMBRE);
 
 		if (registrationProperties.isRequireApproval()) {
 			user.setActive(false);
+			user.setMembershipStatus(MembershipStatus.PENDING);
 			userRepository.save(user);
 			return RegisterOutcome.pending(RegisterResponse.pending(PENDING_MESSAGE));
 		}
@@ -86,27 +106,49 @@ public class AuthService {
 
 	@Transactional
 	public AuthResult login(LoginRequest request) {
+		String email = request.email().trim().toLowerCase();
 		try {
 			authenticationManager.authenticate(
-					new UsernamePasswordAuthenticationToken(
-							request.email().trim().toLowerCase(),
-							request.password()));
+					new UsernamePasswordAuthenticationToken(email, request.password()));
 		}
 		catch (DisabledException | LockedException ex) {
-			throw new BadCredentialsException("Compte en attente d'activation ou désactivé");
+			throw credentialsForInactiveAccount(email, request.password());
 		}
 		catch (BadCredentialsException ex) {
-			throw new BadCredentialsException("Email ou mot de passe incorrect");
+			throw new BadCredentialsException(INVALID_CREDENTIALS);
 		}
 
-		User user = userRepository.findByEmailIgnoreCase(request.email().trim().toLowerCase())
-				.orElseThrow(() -> new BadCredentialsException("Email ou mot de passe incorrect"));
+		User user = userRepository.findByEmailIgnoreCase(email)
+				.orElseThrow(() -> new BadCredentialsException(INVALID_CREDENTIALS));
 
 		if (!user.isActive()) {
-			throw new BadCredentialsException("Compte en attente d'activation ou désactivé");
+			throw new BadCredentialsException(messageForInactive(user));
 		}
 
 		return buildAuthResult(user);
+	}
+
+	/**
+	 * Inactive accounts fail {@code isAccountNonLocked} before Spring compares the password.
+	 * Check it here so a wrong password stays indistinguishable from an unknown email.
+	 */
+	private BadCredentialsException credentialsForInactiveAccount(String email, String rawPassword) {
+		User user = userRepository.findByEmailIgnoreCase(email).orElse(null);
+		if (user == null || !passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
+			return new BadCredentialsException(INVALID_CREDENTIALS);
+		}
+		return new BadCredentialsException(messageForInactive(user));
+	}
+
+	private static String messageForInactive(User user) {
+		MembershipStatus status = user.getMembershipStatus();
+		if (status == MembershipStatus.PENDING) {
+			return PENDING_LOGIN;
+		}
+		if (status == MembershipStatus.REJECTED) {
+			return REJECTED_LOGIN;
+		}
+		return INACTIVE_LOGIN;
 	}
 
 	@Transactional

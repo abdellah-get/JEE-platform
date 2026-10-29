@@ -124,6 +124,7 @@ export type AdminUser = {
   lastName: string;
   clubRole: ClubRole;
   active: boolean;
+  membershipStatus: "PENDING" | "APPROVED" | "REJECTED";
   createdAt: string;
 };
 

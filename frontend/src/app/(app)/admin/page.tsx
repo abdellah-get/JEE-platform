@@ -41,6 +41,15 @@ export default function AdminPage() {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Link
+          href="/admin/requests"
+          className="surface-interactive block p-5"
+        >
+          <p className="font-medium text-ink">Demandes d’adhésion</p>
+          <p className="mt-1 text-sm text-muted">
+            Accepter ou refuser les nouvelles inscriptions.
+          </p>
+        </Link>
+        <Link
           href="/admin/members"
           className="surface-interactive block p-5"
         >
