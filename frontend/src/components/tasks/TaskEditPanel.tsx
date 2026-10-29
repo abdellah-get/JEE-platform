@@ -1,11 +1,13 @@
 "use client";
 
 import { FormEvent, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { Field } from "@/components/auth/Field";
 import { TaskComments } from "@/components/tasks/TaskComments";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { formatDueDate, priorityLabel } from "@/lib/tasks";
 import type { ProjectMember, Task, TaskPriority } from "@/lib/types";
 
 export type TaskEditPayload = {
@@ -30,6 +32,23 @@ type Props = {
   onDelete: () => Promise<void>;
 };
 
+function assigneeName(task: Task, members: ProjectMember[]) {
+  const member = members.find((m) => m.userId === task.assigneeId);
+  if (!member) return "Non assigné";
+  return `${member.firstName} ${member.lastName}`;
+}
+
+function priorityTone(priority: TaskPriority) {
+  switch (priority) {
+    case "HIGH":
+      return "haute";
+    case "MEDIUM":
+      return "moyenne";
+    case "LOW":
+      return "basse";
+  }
+}
+
 export function TaskEditPanel({
   task,
   members,
@@ -41,6 +60,7 @@ export function TaskEditPanel({
   onSave,
   onDelete,
 }: Props) {
+  const readOnly = task.status === "DONE";
   const titleId = useId();
   const panelRef = useRef<HTMLElement>(null);
   const [title, setTitle] = useState(task.title);
@@ -49,8 +69,22 @@ export function TaskEditPanel({
   const [dueDate, setDueDate] = useState(task.dueDate ?? "");
   const [assigneeId, setAssigneeId] = useState(task.assigneeId ?? "");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  useFocusTrap(panelRef, true);
+  useFocusTrap(panelRef, mounted);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [mounted]);
 
   useEffect(() => {
     setTitle(task.title);
@@ -68,10 +102,11 @@ export function TaskEditPanel({
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose, confirmDelete]);
 
-  async function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (readOnly) return;
     const trimmedDue = dueDate.trim();
-    await onSave({
+    void onSave({
       title: title.trim(),
       description,
       priority,
@@ -82,12 +117,14 @@ export function TaskEditPanel({
     });
   }
 
-  return (
-    <div className="fixed inset-0 z-40 flex justify-end">
+  if (!mounted) return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex justify-end">
       <button
         type="button"
         aria-label="Fermer le panneau"
-        className="absolute inset-0 bg-brand/30"
+        className="absolute inset-0 bg-black/60"
         onClick={onClose}
       />
       <aside
@@ -97,146 +134,188 @@ export function TaskEditPanel({
         aria-labelledby={titleId}
         className="relative z-10 flex h-full w-full max-w-md flex-col border-l border-line bg-surface shadow-xl"
       >
-        <div className="flex items-start justify-between gap-3 border-b border-line px-4 py-3">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-muted">
-              Modifier la tâche
+        <div className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-brand">
+              {readOnly ? "Mission terminée" : "Modifier la tâche"}
             </p>
-            <h2 id={titleId} className="mt-0.5 text-lg font-semibold text-ink">
-              Édition
+            <h2
+              id={titleId}
+              className="mt-1 font-[family-name:var(--font-syne)] text-xl font-semibold tracking-tight text-ink"
+            >
+              {task.title}
             </h2>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {readOnly ? (
+                <span className="chip" data-tone="termine">
+                  Fait
+                </span>
+              ) : null}
+              <span className="chip" data-tone={priorityTone(task.priority)}>
+                {priorityLabel(task.priority)}
+              </span>
+            </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg px-2 py-1 text-sm text-muted hover:bg-brand-soft"
+            className="btn btn-secondary shrink-0 px-3 py-1.5 text-sm"
           >
             Fermer
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
-          <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
-            <Field
-              id="edit-task-title"
-              label="Titre"
-              value={title}
-              onChange={setTitle}
-              required
-            />
-
-            <label className="block space-y-1.5" htmlFor="edit-task-description">
-              <span className="text-sm font-medium text-ink/80">Description</span>
-              <textarea
-                id="edit-task-description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={5}
-                maxLength={4000}
-                placeholder="Contexte, livrables, liens…"
-                className="w-full resize-y rounded-lg border border-line bg-surface px-3 py-2 text-sm outline-none ring-brand focus:ring-2"
+        {readOnly ? (
+          <div className="flex min-h-0 flex-1 flex-col">
+            <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
+              <p className="text-sm text-muted">
+                Cette mission est terminée. Tu peux relire le détail, pas le modifier.
+              </p>
+              <dl className="space-y-3 text-sm">
+                <div>
+                  <dt className="text-muted">Description</dt>
+                  <dd className="mt-1 whitespace-pre-wrap text-ink">
+                    {task.description?.trim() || "Aucune description."}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-muted">Échéance</dt>
+                  <dd className="mt-1 text-ink">
+                    {task.dueDate ? formatDueDate(task.dueDate) : "Sans échéance"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-muted">Assigné</dt>
+                  <dd className="mt-1 text-ink">{assigneeName(task, members)}</dd>
+                </div>
+              </dl>
+              <TaskComments taskId={task.id} readOnly />
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+            <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
+              <Field
+                id="edit-task-title"
+                label="Titre"
+                value={title}
+                onChange={setTitle}
+                required
               />
-            </label>
 
-            <div className="grid grid-cols-2 gap-3">
+              <label className="block space-y-1.5" htmlFor="edit-task-description">
+                <span className="text-sm font-semibold text-ink">Description</span>
+                <textarea
+                  id="edit-task-description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={5}
+                  maxLength={4000}
+                  placeholder="Contexte, livrables, liens…"
+                  className="input-field resize-y"
+                />
+              </label>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label
+                    htmlFor="edit-task-priority"
+                    className="mb-1.5 block text-sm font-semibold text-ink"
+                  >
+                    Priorité
+                  </label>
+                  <select
+                    id="edit-task-priority"
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value as TaskPriority)}
+                    className="select-field w-full"
+                  >
+                    <option value="LOW">Basse</option>
+                    <option value="MEDIUM">Moyenne</option>
+                    <option value="HIGH">Haute</option>
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="edit-task-due"
+                    className="mb-1.5 block text-sm font-semibold text-ink"
+                  >
+                    Échéance
+                  </label>
+                  <input
+                    id="edit-task-due"
+                    type="date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className="input-field"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label
-                  htmlFor="edit-task-priority"
-                  className="mb-1 block text-sm font-medium text-ink/80"
+                  htmlFor="edit-task-assignee"
+                  className="mb-1.5 block text-sm font-semibold text-ink"
                 >
-                  Priorité
+                  Assigné
                 </label>
                 <select
-                  id="edit-task-priority"
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value as TaskPriority)}
-                  className="w-full rounded-lg border border-line px-3 py-2 text-sm"
+                  id="edit-task-assignee"
+                  value={assigneeId}
+                  onChange={(e) => setAssigneeId(e.target.value)}
+                  className="select-field w-full"
                 >
-                  <option value="LOW">Basse</option>
-                  <option value="MEDIUM">Moyenne</option>
-                  <option value="HIGH">Haute</option>
+                  <option value="">Non assigné</option>
+                  {members.map((m) => (
+                    <option key={m.userId} value={m.userId}>
+                      {m.firstName} {m.lastName}
+                    </option>
+                  ))}
                 </select>
               </div>
-              <div>
-                <label
-                  htmlFor="edit-task-due"
-                  className="mb-1 block text-sm font-medium text-ink/80"
+
+              {error && (
+                <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
+                  {error}
+                </p>
+              )}
+
+              <TaskComments taskId={task.id} canModerate={canModerateComments} />
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-5 py-3">
+              {canDelete ? (
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => setConfirmDelete(true)}
+                  className="text-sm text-danger hover:underline disabled:opacity-50"
                 >
-                  Échéance
-                </label>
-                <input
-                  id="edit-task-due"
-                  type="date"
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full rounded-lg border border-line px-3 py-2 text-sm"
-                />
+                  Supprimer
+                </button>
+              ) : (
+                <span />
+              )}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={saving}
+                  className="btn btn-secondary"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  disabled={saving || !title.trim()}
+                  className="btn btn-primary"
+                >
+                  {saving ? "Enregistrement…" : "Enregistrer"}
+                </button>
               </div>
             </div>
-
-            <div>
-              <label
-                htmlFor="edit-task-assignee"
-                className="mb-1 block text-sm font-medium text-ink/80"
-              >
-                Assigné
-              </label>
-              <select
-                id="edit-task-assignee"
-                value={assigneeId}
-                onChange={(e) => setAssigneeId(e.target.value)}
-                className="w-full rounded-lg border border-line px-3 py-2 text-sm"
-              >
-                <option value="">Non assigné</option>
-                {members.map((m) => (
-                  <option key={m.userId} value={m.userId}>
-                    {m.firstName} {m.lastName}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {error && (
-              <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
-                {error}
-              </p>
-            )}
-
-            <TaskComments taskId={task.id} canModerate={canModerateComments} />
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line px-4 py-3">
-            {canDelete ? (
-              <button
-                type="button"
-                disabled={saving}
-                onClick={() => setConfirmDelete(true)}
-                className="text-sm text-red-600 hover:underline disabled:opacity-50"
-              >
-                Supprimer
-              </button>
-            ) : (
-              <span />
-            )}
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                disabled={saving}
-                className="rounded-lg border border-line px-3 py-2 text-sm text-ink/80 hover:bg-paper disabled:opacity-50"
-              >
-                Annuler
-              </button>
-              <button
-                type="submit"
-                disabled={saving || !title.trim()}
-                className="btn btn-primary"
-              >
-                {saving ? "Enregistrement…" : "Enregistrer"}
-              </button>
-            </div>
-          </div>
-        </form>
+          </form>
+        )}
       </aside>
 
       <ConfirmDialog
@@ -252,6 +331,7 @@ export function TaskEditPanel({
           void onDelete();
         }}
       />
-    </div>
+    </div>,
+    document.body,
   );
 }
