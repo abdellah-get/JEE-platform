@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 public record PageResponse<T>(
 		List<T> content,
@@ -28,7 +30,12 @@ public record PageResponse<T>(
 				page.isLast());
 	}
 
-	/** In-memory slice for lists already filtered in service layer. */
+	public static Pageable toPageable(int page, int size) {
+		return PageRequest.of(Math.max(page, 0), normalizeSize(size));
+	}
+
+	/** @deprecated Prefer DB pagination via {@link #from(Page)} / {@link #toPageable(int, int)}. */
+	@Deprecated
 	public static <T> PageResponse<T> slice(List<T> all, int page, int size) {
 		int safeSize = normalizeSize(size);
 		int safePage = Math.max(page, 0);

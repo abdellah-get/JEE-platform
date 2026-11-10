@@ -1,14 +1,15 @@
 package ma.ensem.jee.platform.user;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
+import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
 import ma.ensem.jee.platform.user.dto.AdminUserResponse;
 import ma.ensem.jee.platform.user.dto.DecideMembershipRequest;
@@ -26,12 +27,13 @@ public class AdminUserService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<AdminUserResponse> listAll(MembershipStatus membership) {
+	public PageResponse<AdminUserResponse> listAll(MembershipStatus membership, int page, int size) {
 		requireBureauOrAdmin();
-		return userRepository.findAllByOrderByLastNameAscFirstNameAsc().stream()
-				.filter(user -> membership == null || user.getMembershipStatus() == membership)
-				.map(AdminUserResponse::from)
-				.toList();
+		var pageable = PageResponse.toPageable(page, size);
+		Page<User> users = membership == null
+				? userRepository.findAllByOrderByLastNameAscFirstNameAsc(pageable)
+				: userRepository.findByMembershipStatusOrderByLastNameAscFirstNameAsc(membership, pageable);
+		return PageResponse.from(users.map(AdminUserResponse::from));
 	}
 
 	@Transactional

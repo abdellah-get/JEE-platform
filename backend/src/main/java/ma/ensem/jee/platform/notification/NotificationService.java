@@ -4,11 +4,13 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
+import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
 import ma.ensem.jee.platform.notification.dto.NotificationResponse;
 import ma.ensem.jee.platform.user.User;
@@ -26,12 +28,13 @@ public class NotificationService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<NotificationResponse> listMine(boolean unreadOnly) {
+	public PageResponse<NotificationResponse> listMine(boolean unreadOnly, int page, int size) {
 		UUID userId = SecurityUtils.currentUser().getId();
-		List<Notification> list = unreadOnly
-				? notificationRepository.findByUserIdAndReadAtIsNullOrderByCreatedAtDesc(userId)
-				: notificationRepository.findByUserIdOrderByCreatedAtDesc(userId);
-		return list.stream().map(NotificationResponse::from).toList();
+		var pageable = PageResponse.toPageable(page, size);
+		Page<Notification> list = unreadOnly
+				? notificationRepository.findByUserIdAndReadAtIsNullOrderByCreatedAtDesc(userId, pageable)
+				: notificationRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable);
+		return PageResponse.from(list.map(NotificationResponse::from));
 	}
 
 	@Transactional(readOnly = true)

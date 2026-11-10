@@ -28,7 +28,7 @@ public class NotificationController {
 			@RequestParam(defaultValue = "false") boolean unreadOnly,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size) {
-		return PageResponse.slice(notificationService.listMine(unreadOnly), page, size);
+		return notificationService.listMine(unreadOnly, page, size);
 	}
 
 	@GetMapping("/unread-count")

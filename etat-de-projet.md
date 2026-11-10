@@ -2,10 +2,11 @@
 
 Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement notable.
 
-**Dernière mise à jour :** 2026-10-25  
+**Dernière mise à jour :** 2026-11-10  
 **Board GitHub :** [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)  
 **Étude post-P4 :** [docs/ETUDE-AMELIORATIONS.md](./docs/ETUDE-AMELIORATIONS.md)  
-**Étude P8 :** [docs/ETUDE-P8.md](./docs/ETUDE-P8.md)
+**Étude P8 :** [docs/ETUDE-P8.md](./docs/ETUDE-P8.md)  
+**Étude P9–P11 :** [docs/ETUDE-P9.md](./docs/ETUDE-P9.md)
 
 ---
 
@@ -21,9 +22,12 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P5 Prod & auth | **Terminé** | 6/6 (#45–#50) |
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
-| P8 Sécurité session & UX SaaS | **En cours** | 10/13 (#87–#99) |
+| P8 Sécurité session & UX SaaS | **Terminé** | 13/13 (#87–#99) |
+| P9 Fiabiliser | **En cours** | 2/8 (#140–#147) |
+| P10 Quotidien club | **Backlog** | 0/7 (#148–#154) |
+| P11 Junior-Entreprise | **Backlog** | 0/5 (#155–#159) |
 
-Étude : [docs/ETUDE-P8.md](./docs/ETUDE-P8.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
+Étude : [docs/ETUDE-P9.md](./docs/ETUDE-P9.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
 ---
 
@@ -125,9 +129,63 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [98](https://github.com/abdellah-get/JEE-platform/issues/98) | Access token hors localStorage | **Terminé** |
 | [99](https://github.com/abdellah-get/JEE-platform/issues/99) | Pagination + OpenAPI + Actuator | **Terminé** |
 
+### P9 — Fiabiliser (perf, stockage, data, a11y)
+
+| # | Mission | Statut |
+|---|---------|--------|
+| [140](https://github.com/abdellah-get/JEE-platform/issues/140) | Pagination JPA réelle (`PageResponse.slice`) | **Terminé** |
+| [141](https://github.com/abdellah-get/JEE-platform/issues/141) | Corriger N+1 projets + commentaires | **Terminé** |
+| [142](https://github.com/abdellah-get/JEE-platform/issues/142) | Attachments S3/R2 + MIME sniff | **À faire** |
+| [143](https://github.com/abdellah-get/JEE-platform/issues/143) | Généraliser TanStack Query | **À faire** |
+| [144](https://github.com/abdellah-get/JEE-platform/issues/144) | Recherche serveur + Cmd+K | **À faire** |
+| [145](https://github.com/abdellah-get/JEE-platform/issues/145) | Focus trap drawer/cloche + bottom nav | **À faire** |
+| [146](https://github.com/abdellah-get/JEE-platform/issues/146) | E2E admin + attachments + notifs | **À faire** |
+| [147](https://github.com/abdellah-get/JEE-platform/issues/147) | Prod hardening OpenAPI + refresh reuse + batch notifs | **À faire** |
+
+### P10 — Quotidien club
+
+| # | Mission | Statut |
+|---|---------|--------|
+| [148](https://github.com/abdellah-get/JEE-platform/issues/148) | Calendrier vue semaine / agenda | **Backlog** |
+| [149](https://github.com/abdellah-get/JEE-platform/issues/149) | RSVP / présence événements | **Backlog** |
+| [150](https://github.com/abdellah-get/JEE-platform/issues/150) | Digest email + préférences notifs | **Backlog** |
+| [151](https://github.com/abdellah-get/JEE-platform/issues/151) | Preview PJ + markdown annonces | **Backlog** |
+| [152](https://github.com/abdellah-get/JEE-platform/issues/152) | Audit log actions admin | **Backlog** |
+| [153](https://github.com/abdellah-get/JEE-platform/issues/153) | Landing enrichie + inscription en attente | **Backlog** |
+| [154](https://github.com/abdellah-get/JEE-platform/issues/154) | Vue charge membre cross-projets | **Backlog** |
+
+### P11 — Junior-Entreprise
+
+| # | Mission | Statut |
+|---|---------|--------|
+| [155](https://github.com/abdellah-get/JEE-platform/issues/155) | CRM missions (leads, devis, contrats) | **Backlog** |
+| [156](https://github.com/abdellah-get/JEE-platform/issues/156) | Finance légère (budget, notes de frais) | **Backlog** |
+| [157](https://github.com/abdellah-get/JEE-platform/issues/157) | Pipeline recrutement + pôles | **Backlog** |
+| [158](https://github.com/abdellah-get/JEE-platform/issues/158) | Notifs temps réel (SSE/WebSocket) | **Backlog** |
+| [159](https://github.com/abdellah-get/JEE-platform/issues/159) | 2FA et/ou SSO campus | **Backlog** |
+
 ---
 
 ## Journal des réalisations
+
+### 2026-11-10 — Missions #140 + #141 terminées (pagination JPA + N+1)
+
+**Fait :**
+- Listes API paginées en SQL via `Pageable` + `PageResponse.from` (projets, annonces, events, notifs, admin users, mes tâches)
+- Batch rôles projet (`findByUserIdAndProjectIdIn`) et auteurs commentaires / annonces / events
+- Mes tâches : filtre visibilité en JPQL (`findAssignedToVisibleProjects`)
+- Tests controllers concernés verts
+
+**Prochaine mission :** [#142](https://github.com/abdellah-get/JEE-platform/issues/142) — attachments S3/R2 + MIME sniff.
+
+### 2026-11-10 — Backlog P9–P11 créé sur GitHub
+
+**Fait :**
+- Labels `phase:P9` / `P10` / `P11` + milestones associés
+- 20 issues (#140–#159) ajoutées au board [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
+- Étude : [docs/ETUDE-P9.md](./docs/ETUDE-P9.md)
+
+**Prochaine mission :** [#140](https://github.com/abdellah-get/JEE-platform/issues/140) — pagination JPA réelle.
 
 ### 2026-10-25 — Mission #99 terminée (pagination + OpenAPI + Actuator)
 

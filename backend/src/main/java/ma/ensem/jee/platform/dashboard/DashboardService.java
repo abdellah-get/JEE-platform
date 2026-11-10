@@ -57,8 +57,8 @@ public class DashboardService {
 	public DashboardResponse get() {
 		UserPrincipal current = SecurityUtils.currentUser();
 
-		List<ProjectResponse> projects = projectService.list().stream().limit(6).toList();
-		List<TaskResponse> tasks = taskService.listMine(null, null, null).stream()
+		List<ProjectResponse> projects = projectService.list(0, 6).content();
+		List<TaskResponse> tasks = taskService.listMine(null, null, null, 0, 20).content().stream()
 				.filter(t -> t.status() != TaskStatus.DONE)
 				.limit(8)
 				.toList();

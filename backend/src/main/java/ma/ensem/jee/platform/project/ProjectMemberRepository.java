@@ -1,5 +1,6 @@
 package ma.ensem.jee.platform.project;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,6 +12,8 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Pr
 	List<ProjectMember> findByProjectIdOrderByJoinedAtAsc(UUID projectId);
 
 	Optional<ProjectMember> findByProjectIdAndUserId(UUID projectId, UUID userId);
+
+	List<ProjectMember> findByUserIdAndProjectIdIn(UUID userId, Collection<UUID> projectIds);
 
 	boolean existsByProjectIdAndUserId(UUID projectId, UUID userId);
 

@@ -44,7 +44,7 @@ public class ProjectController {
 	public PageResponse<ProjectResponse> list(
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size) {
-		return PageResponse.slice(projectService.list(), page, size);
+		return projectService.list(page, size);
 	}
 
 	@GetMapping("/{projectId}")
