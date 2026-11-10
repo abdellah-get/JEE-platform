@@ -30,6 +30,22 @@ public class LoggingMailService implements MailService {
 		log.info("[mail:log] Digest for {} — {}\n{}", toEmail, subject, body);
 	}
 
+	@Override
+	public void sendProjectInvite(
+			String toEmail,
+			String projectName,
+			String inviterName,
+			String projectUrl,
+			boolean accountExists) {
+		log.info(
+				"[mail:log] Project invite for {} → {} by {} (exists={}) {}",
+				toEmail,
+				projectName,
+				inviterName,
+				accountExists,
+				projectUrl);
+	}
+
 	/** Visible for integration tests. */
 	public String getLastResetUrl() {
 		return lastResetUrl.get();

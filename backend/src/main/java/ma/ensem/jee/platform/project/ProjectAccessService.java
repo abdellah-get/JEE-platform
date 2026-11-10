@@ -84,4 +84,11 @@ public class ProjectAccessService {
 			throw new AccessDeniedException("Seul le chef de projet ou le bureau peut supprimer une tâche");
 		}
 	}
+
+	/** Archive / hard-delete projet : bureau ou admin tech uniquement. */
+	public void requireCanDeleteProject(UserPrincipal user) {
+		if (!isClubStaff(user)) {
+			throw new AccessDeniedException("Seul le bureau peut archiver ou supprimer un projet");
+		}
+	}
 }

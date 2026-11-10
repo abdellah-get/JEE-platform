@@ -5,10 +5,13 @@ import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
+import { canAccessAdmin } from "@/lib/auth-storage";
 import {
   PROJECT_STATUSES,
   canManageProject,
@@ -21,6 +24,7 @@ export default function ProjectSettingsPage() {
   const projectId = params.id;
   const router = useRouter();
   const { accessToken, user, loading } = useAuth();
+  const toast = useToast();
   const [project, setProject] = useState<Project | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -28,6 +32,8 @@ export default function ProjectSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [confirm, setConfirm] = useState<"archive" | "hard" | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!accessToken || !projectId) return;
@@ -170,6 +176,67 @@ export default function ProjectSettingsPage() {
           {saving ? "Enregistrement…" : "Enregistrer"}
         </button>
       </form>
+
+      {canAccessAdmin(user.clubRole) ? (
+        <section className="space-y-3 rounded-lg border border-danger/30 bg-danger/5 p-5">
+          <h2 className="text-sm font-semibold text-ink">Zone bureau</h2>
+          <p className="text-sm text-muted">
+            Archiver masque le projet (statut ARCHIVE). Supprimer efface le
+            projet et cascade tâches / membres / PJ via la base.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setConfirm("archive")}
+            >
+              Archiver
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary text-danger"
+              onClick={() => setConfirm("hard")}
+            >
+              Supprimer définitivement
+            </button>
+          </div>
+        </section>
+      ) : null}
+
+      <ConfirmDialog
+        open={confirm !== null}
+        title={
+          confirm === "hard"
+            ? "Supprimer définitivement ?"
+            : "Archiver ce projet ?"
+        }
+        description={
+          confirm === "hard"
+            ? "Irréversible : tâches, membres et pièces jointes liés seront retirés."
+            : "Le projet passera en ARCHIVE. Tu pourras le rouvrir plus tard via le statut."
+        }
+        confirmLabel={confirm === "hard" ? "Supprimer" : "Archiver"}
+        danger={confirm === "hard"}
+        busy={deleting}
+        onCancel={() => !deleting && setConfirm(null)}
+        onConfirm={() => {
+          void (async () => {
+            setDeleting(true);
+            try {
+              const hard = confirm === "hard";
+              await api.deleteProject(accessToken!, projectId, hard);
+              toast.success(hard ? "Projet supprimé." : "Projet archivé.");
+              router.replace("/projects");
+            } catch (err) {
+              toast.error(
+                err instanceof ApiError ? err.message : "Action impossible",
+              );
+              setDeleting(false);
+              setConfirm(null);
+            }
+          })();
+        }}
+      />
     </div>
   );
 }

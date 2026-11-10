@@ -26,6 +26,9 @@ export default function ProjectTeamPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [addUserId, setAddUserId] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<ProjectRole>("CONTRIBUTEUR");
+  const [inviting, setInviting] = useState(false);
 
   useEffect(() => {
     if (!accessToken || !projectId) return;
@@ -126,6 +129,37 @@ export default function ProjectTeamPage() {
       toast.error(message);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function onInvite(e: FormEvent) {
+    e.preventDefault();
+    if (!inviteEmail.trim()) return;
+    setInviting(true);
+    setError(null);
+    try {
+      const res = await api.inviteProjectMember(accessToken!, projectId, {
+        email: inviteEmail.trim(),
+        role: inviteRole,
+      });
+      toast.success(res.message);
+      setInviteEmail("");
+      if (res.addedToProject && res.userId) {
+        setDraft((prev) =>
+          prev.some((m) => m.userId === res.userId)
+            ? prev
+            : [...prev, { userId: res.userId!, role: res.role }],
+        );
+        const directory = await api.listUsers(accessToken!);
+        setUsers(directory);
+      }
+    } catch (err) {
+      const message =
+        err instanceof ApiError ? err.message : "Invitation impossible";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setInviting(false);
     }
   }
 
@@ -233,6 +267,40 @@ export default function ProjectTeamPage() {
           </button>
         )}
       </form>
+
+      {manage ? (
+        <form onSubmit={onInvite} className="space-y-3 surface-quiet p-5">
+          <h2 className="text-sm font-semibold text-ink">Inviter par email</h2>
+          <p className="text-sm text-muted">
+            Compte existant → ajout + email. Sinon → invitation à s’inscrire.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <input
+              type="email"
+              className="input-field min-w-[14rem] flex-1"
+              placeholder="prenom.nom@ensem.ac.ma"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              required
+            />
+            <select
+              className="input-field"
+              value={inviteRole}
+              onChange={(e) => setInviteRole(e.target.value as ProjectRole)}
+            >
+              <option value="CONTRIBUTEUR">Contributeur</option>
+              <option value="CHEF_PROJET">Chef de projet</option>
+            </select>
+            <button
+              type="submit"
+              className="btn btn-secondary"
+              disabled={inviting || !inviteEmail.trim()}
+            >
+              {inviting ? "Envoi…" : "Inviter"}
+            </button>
+          </div>
+        </form>
+      ) : null}
     </div>
   );
 }

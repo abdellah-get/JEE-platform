@@ -26,6 +26,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P9 Fiabiliser | **Terminé** | 8/8 (#140–#147) |
 | P10 Quotidien club | **Terminé** | 7/7 (#148–#154) |
 | P11 Junior-Entreprise | **Terminé** | 5/5 (#155–#159) |
+| P12 Polish club | **Terminé** | 3/3 (#166–#168) |
 
 Étude : [docs/ETUDE-P9.md](./docs/ETUDE-P9.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
@@ -164,9 +165,26 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [158](https://github.com/abdellah-get/JEE-platform/issues/158) | Notifs temps réel (SSE/WebSocket) | **Terminé** |
 | [159](https://github.com/abdellah-get/JEE-platform/issues/159) | 2FA et/ou SSO campus | **Terminé** |
 
+### P12 — Polish club
+
+| # | Mission | Statut |
+|---|---------|--------|
+| [166](https://github.com/abdellah-get/JEE-platform/issues/166) | Invite email équipe projet | **Terminé** |
+| [167](https://github.com/abdellah-get/JEE-platform/issues/167) | Archive / suppression projet | **Terminé** |
+| [168](https://github.com/abdellah-get/JEE-platform/issues/168) | E2E P11 CRM / finance / recrutement | **Terminé** |
+
 ---
 
 ## Journal des réalisations
+
+### 2026-11-10 — Missions #166–#168 terminées (invite, archive, E2E P11) — P12 clos
+
+**Fait :**
+- Invite membre par email (ajout si compte existant + MailService)
+- DELETE projet soft ARCHIVE / hard cascade (bureau) + UI confirmation
+- Playwright `p11-modules.spec.ts` (CRM, finance, recrutement)
+
+**Prochaine étape :** usage réel / backlog opportuniste.
 
 ### 2026-11-10 — Missions #157–#159 terminées (recrutement, SSE, 2FA) — P11 clos
 

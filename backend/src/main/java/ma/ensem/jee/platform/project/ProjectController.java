@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.project.dto.CreateProjectRequest;
+import ma.ensem.jee.platform.project.dto.InviteMemberRequest;
+import ma.ensem.jee.platform.project.dto.InviteMemberResponse;
 import ma.ensem.jee.platform.project.dto.ProjectActivityResponse;
 import ma.ensem.jee.platform.project.dto.ProjectMemberResponse;
 import ma.ensem.jee.platform.project.dto.ProjectResponse;
@@ -67,6 +71,29 @@ public class ProjectController {
 			@PathVariable UUID projectId,
 			@Valid @RequestBody ReplaceMembersRequest request) {
 		return projectService.replaceMembers(projectId, request);
+	}
+
+	@PostMapping("/{projectId}/invites")
+	@ResponseStatus(HttpStatus.CREATED)
+	public InviteMemberResponse invite(
+			@PathVariable UUID projectId,
+			@Valid @RequestBody InviteMemberRequest request) {
+		return projectService.invite(projectId, request);
+	}
+
+	/**
+	 * Soft-archive by default. Pass {@code hard=true} to permanently delete
+	 * (cascade tasks/members/attachments via FK).
+	 */
+	@DeleteMapping("/{projectId}")
+	public ResponseEntity<ProjectResponse> archiveOrDelete(
+			@PathVariable UUID projectId,
+			@RequestParam(defaultValue = "false") boolean hard) {
+		ProjectResponse body = projectService.archiveOrDelete(projectId, hard);
+		if (hard) {
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.ok(body);
 	}
 
 	@GetMapping("/{projectId}/activity")

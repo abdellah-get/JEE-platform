@@ -9,6 +9,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,9 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
+import ma.ensem.jee.platform.common.BadRequestException;
 import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
+import ma.ensem.jee.platform.mail.MailService;
 import ma.ensem.jee.platform.project.dto.CreateProjectRequest;
+import ma.ensem.jee.platform.project.dto.InviteMemberRequest;
+import ma.ensem.jee.platform.project.dto.InviteMemberResponse;
 import ma.ensem.jee.platform.project.dto.ProjectActivityResponse;
 import ma.ensem.jee.platform.project.dto.ProjectMemberRequest;
 import ma.ensem.jee.platform.project.dto.ProjectMemberResponse;
@@ -36,18 +41,26 @@ public class ProjectService {
 	private final ProjectAccessService accessService;
 	private final ProjectActivityService activityService;
 	private final UserRepository userRepository;
+	private final MailService mailService;
+	private final String frontendBaseUrl;
 
 	public ProjectService(
 			ProjectRepository projectRepository,
 			ProjectMemberRepository projectMemberRepository,
 			ProjectAccessService accessService,
 			ProjectActivityService activityService,
-			UserRepository userRepository) {
+			UserRepository userRepository,
+			MailService mailService,
+			@Value("${app.password-reset.frontend-base-url:http://localhost:3000}") String frontendBaseUrl) {
 		this.projectRepository = projectRepository;
 		this.projectMemberRepository = projectMemberRepository;
 		this.accessService = accessService;
 		this.activityService = activityService;
 		this.userRepository = userRepository;
+		this.mailService = mailService;
+		this.frontendBaseUrl = frontendBaseUrl.endsWith("/")
+				? frontendBaseUrl.substring(0, frontendBaseUrl.length() - 1)
+				: frontendBaseUrl;
 	}
 
 	@Transactional
@@ -174,6 +187,113 @@ public class ProjectService {
 	@Transactional(readOnly = true)
 	public List<ProjectActivityResponse> listActivity(UUID projectId) {
 		return activityService.list(projectId);
+	}
+
+	@Transactional
+	public InviteMemberResponse invite(UUID projectId, InviteMemberRequest request) {
+		UserPrincipal current = SecurityUtils.currentUser();
+		accessService.requireCanManageMembers(projectId, current);
+		Project project = projectRepository.findById(projectId)
+				.orElseThrow(() -> new ResourceNotFoundException("Projet introuvable"));
+
+		String email = request.email().trim().toLowerCase();
+		ProjectRole role = request.role() == ProjectRole.CHEF_PROJET
+				? ProjectRole.CHEF_PROJET
+				: ProjectRole.CONTRIBUTEUR;
+
+		User existing = userRepository.findByEmailIgnoreCase(email).orElse(null);
+		boolean added = false;
+		UUID userId = null;
+
+		if (existing != null) {
+			if (!existing.isActive()) {
+				throw new BadRequestException("Ce compte est inactif — impossible de l’ajouter");
+			}
+			userId = existing.getId();
+			if (projectMemberRepository.existsByProjectIdAndUserId(projectId, userId)) {
+				mailService.sendProjectInvite(
+						email,
+						project.getName(),
+						current.getUsername(),
+						frontendBaseUrl + "/projects/" + projectId,
+						true);
+				return new InviteMemberResponse(
+						email,
+						true,
+						false,
+						true,
+						userId,
+						role,
+						"Déjà membre — email de rappel envoyé");
+			}
+			if (role == ProjectRole.CHEF_PROJET) {
+				demoteOtherChefs(projectId);
+			}
+			projectMemberRepository.save(new ProjectMember(projectId, userId, role));
+			activityService.recordMemberAdded(
+					projectId,
+					current.getId(),
+					existing.getFirstName() + " " + existing.getLastName(),
+					role);
+			added = true;
+			mailService.sendProjectInvite(
+					email,
+					project.getName(),
+					current.getUsername(),
+					frontendBaseUrl + "/projects/" + projectId,
+					true);
+			return new InviteMemberResponse(
+					email,
+					true,
+					added,
+					true,
+					userId,
+					role,
+					"Membre ajouté et email envoyé");
+		}
+
+		mailService.sendProjectInvite(
+				email,
+				project.getName(),
+				current.getUsername(),
+				frontendBaseUrl + "/register",
+				false);
+		return new InviteMemberResponse(
+				email,
+				false,
+				false,
+				true,
+				null,
+				role,
+				"Aucun compte — invitation à s’inscrire envoyée");
+	}
+
+	/**
+	 * Soft-delete by default (status ARCHIVE). {@code hard=true} permanently removes the
+	 * project; related tasks/members/attachments cascade via FK.
+	 */
+	@Transactional
+	public ProjectResponse archiveOrDelete(UUID projectId, boolean hard) {
+		UserPrincipal current = SecurityUtils.currentUser();
+		accessService.requireCanDeleteProject(current);
+		Project project = projectRepository.findById(projectId)
+				.orElseThrow(() -> new ResourceNotFoundException("Projet introuvable"));
+
+		if (hard) {
+			projectRepository.delete(project);
+			return null;
+		}
+
+		project.setStatus(ProjectStatus.ARCHIVE);
+		return ProjectResponse.from(project, accessService.findRole(projectId, current.getId()).orElse(null));
+	}
+
+	private void demoteOtherChefs(UUID projectId) {
+		for (ProjectMember member : projectMemberRepository.findByProjectIdOrderByJoinedAtAsc(projectId)) {
+			if (member.getProjectRole() == ProjectRole.CHEF_PROJET) {
+				member.setProjectRole(ProjectRole.CONTRIBUTEUR);
+			}
+		}
 	}
 
 	private void validateMembers(List<ProjectMemberRequest> members) {

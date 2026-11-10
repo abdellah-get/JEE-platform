@@ -54,4 +54,41 @@ public class SmtpMailService implements MailService {
 		mailSender.send(message);
 		log.info("Notification digest email sent to {}", toEmail);
 	}
+
+	@Override
+	public void sendProjectInvite(
+			String toEmail,
+			String projectName,
+			String inviterName,
+			String projectUrl,
+			boolean accountExists) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setFrom(from);
+		message.setTo(toEmail);
+		message.setSubject("JEE Platform — Invitation projet « " + projectName + " »");
+		String body = accountExists
+				? """
+						Bonjour,
+
+						%s t’invite sur le projet « %s ».
+						Ouvre le projet :
+
+						%s
+
+						À bientôt sur la plateforme JEE.
+						""".formatted(inviterName, projectName, projectUrl)
+				: """
+						Bonjour,
+
+						%s t’invite sur le projet « %s » de la plateforme JEE.
+						Crée un compte (email académique) puis rejoins le projet :
+
+						%s
+
+						Si tu n’es pas concerné(e), ignore cet email.
+						""".formatted(inviterName, projectName, projectUrl);
+		message.setText(body);
+		mailSender.send(message);
+		log.info("Project invite email sent to {} for {}", toEmail, projectName);
+	}
 }

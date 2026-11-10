@@ -407,6 +407,47 @@ export function replaceProjectMembers(
   );
 }
 
+export function inviteProjectMember(
+  accessToken: string,
+  projectId: string,
+  body: { email: string; role: ProjectRole },
+) {
+  return apiFetch<{
+    email: string;
+    accountExists: boolean;
+    addedToProject: boolean;
+    emailSent: boolean;
+    userId: string | null;
+    role: ProjectRole;
+    message: string;
+  }>(
+    `/api/v1/projects/${projectId}/invites`,
+    { method: "POST", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+/** Soft-archive (default) or hard-delete (`hard: true`). */
+export async function deleteProject(
+  accessToken: string,
+  projectId: string,
+  hard = false,
+): Promise<Project | null> {
+  if (hard) {
+    await apiFetch<void>(
+      `/api/v1/projects/${projectId}?hard=true`,
+      { method: "DELETE" },
+      accessToken,
+    );
+    return null;
+  }
+  return apiFetch<Project>(
+    `/api/v1/projects/${projectId}`,
+    { method: "DELETE" },
+    accessToken,
+  );
+}
+
 export function listProjectActivity(accessToken: string, projectId: string) {
   return apiFetch<ProjectActivity[]>(
     `/api/v1/projects/${projectId}/activity`,
