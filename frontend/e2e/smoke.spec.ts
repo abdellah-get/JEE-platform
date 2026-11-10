@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { loginAs } from "./helpers";
+import { goSideNav, loginAs } from "./helpers";
 
 /**
  * Smoke against a seeded API (SEED_ENABLED=true).
@@ -16,7 +16,7 @@ test("login → dashboard → Kanban projet", async ({ page }) => {
     page.locator(".page-subtitle").filter({ hasText: /Repère vite ce qui bloque/i }),
   ).toBeVisible();
 
-  await page.locator('nav a[href="/projects"]').click();
+  await goSideNav(page, "/projects");
   await expect(page).toHaveURL(/\/projects$/);
   await expect(page.getByRole("heading", { name: "Projets" })).toBeVisible();
 

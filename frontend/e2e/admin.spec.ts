@@ -1,17 +1,17 @@
 import { expect, test } from "@playwright/test";
 
-import { loginAs } from "./helpers";
+import { goSideNav, loginAs } from "./helpers";
 
 test("admin membres — toggle actif (bureau)", async ({ page }) => {
   await loginAs(page, "bureau@ensem.jee");
 
-  await page.locator('nav a[href="/admin"]').click();
+  await goSideNav(page, "/admin");
   await expect(page).toHaveURL(/\/admin$/);
   await expect(
     page.getByRole("heading", { name: "Administration" }),
   ).toBeVisible();
 
-  await page.getByRole("link", { name: /Membres/ }).click();
+  await page.locator('a[href="/admin/members"]').click();
   await expect(page).toHaveURL(/\/admin\/members$/);
   await expect(page.getByRole("heading", { name: "Membres" })).toBeVisible();
 

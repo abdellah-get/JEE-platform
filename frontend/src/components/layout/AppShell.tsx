@@ -233,7 +233,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </main>
         <nav
           aria-label="Raccourcis mobiles"
-          className="glass-bar fixed inset-x-0 bottom-0 z-20 flex items-stretch justify-around border-t border-line pb-[env(safe-area-inset-bottom)] md:hidden"
+          className="glass-bar fixed inset-x-0 bottom-0 z-20 hidden items-stretch justify-around border-t border-line pb-[env(safe-area-inset-bottom)] max-md:flex"
         >
           {MOBILE_BOTTOM_NAV.map((item) => {
             const active =

@@ -3,12 +3,12 @@ import { writeFileSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import { loginAs } from "./helpers";
+import { goSideNav, loginAs } from "./helpers";
 
 test("upload + liste pièce jointe sur projet", async ({ page }) => {
   await loginAs(page, "chef@ensem.jee");
 
-  await page.locator('nav a[href="/projects"]').click();
+  await goSideNav(page, "/projects");
   await page.getByRole("link", { name: /Site Junior ENSEM/i }).click();
   await expect(page).toHaveURL(/\/projects\/[^/]+$/);
 

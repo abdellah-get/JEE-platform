@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-import { loginAs } from "./helpers";
+import { goSideNav, loginAs } from "./helpers";
 
 test("lecture et création d’annonce (bureau)", async ({ page }) => {
   await loginAs(page, "bureau@ensem.jee");
 
-  await page.locator('nav a[href="/announcements"]').click();
+  await goSideNav(page, "/announcements");
   await expect(page).toHaveURL(/\/announcements$/);
   await expect(page.getByRole("heading", { name: "Annonces" })).toBeVisible();
 

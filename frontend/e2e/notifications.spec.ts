@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { loginAs } from "./helpers";
+import { goSideNav, loginAs } from "./helpers";
 
 test("notifications — pin annonce puis mark all (chef)", async ({
   page,
@@ -9,7 +9,7 @@ test("notifications — pin annonce puis mark all (chef)", async ({
   // Bureau pins an announcement → notifs for other active members
   const bureau = await browser.newPage();
   await loginAs(bureau, "bureau@ensem.jee");
-  await bureau.locator('nav a[href="/announcements"]').click();
+  await goSideNav(bureau, "/announcements");
   await bureau
     .getByRole("link", { name: /AG extraordinaire vendredi/i })
     .click();
@@ -40,8 +40,11 @@ test("notifications — pin annonce puis mark all (chef)", async ({
   await markAll.click();
   await expect(markAll).toBeHidden({ timeout: 10_000 });
 
-  // Bell panel opens with focus trap / dialog
-  await page.getByRole("button", { name: "Notifs", exact: true }).click();
+  // Bell uses aria-label "Notifications" (or "N notifications non lues")
+  await page
+    .getByRole("button", { name: /notifications/i })
+    .first()
+    .click();
   const dialog = page.getByRole("dialog", { name: "Notifications" });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole("button", { name: "Tout lu" })).toHaveCount(0);
