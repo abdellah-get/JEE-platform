@@ -81,6 +81,15 @@ export default function AdminPage() {
             Tâches ouvertes / en retard par personne, export CSV.
           </p>
         </Link>
+        <Link
+          href="/admin/recruitment"
+          className="surface-interactive block p-5"
+        >
+          <p className="font-medium text-ink">Recrutement</p>
+          <p className="mt-1 text-sm text-muted">
+            Pipeline candidatures, entretiens et pôles.
+          </p>
+        </Link>
       </div>
     </div>
   );

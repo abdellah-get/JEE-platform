@@ -6,6 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 
 import { useAuth } from "@/context/AuthContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { useNotificationStream } from "@/hooks/useNotificationStream";
 import * as api from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import type { AppNotification } from "@/lib/types";
@@ -19,11 +20,13 @@ export function NotificationBell() {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
   useFocusTrap(panelRef, open);
+  useNotificationStream(accessToken);
 
   const { data: countData } = useQuery({
     queryKey: queryKeys.unreadNotificationCount,
     queryFn: () => api.getUnreadNotificationCount(accessToken!),
     enabled: Boolean(accessToken),
+    // Fallback if SSE is down (Render idle / proxy); SSE updates the cache live.
     refetchInterval: 60_000,
   });
   const count = countData?.count ?? 0;

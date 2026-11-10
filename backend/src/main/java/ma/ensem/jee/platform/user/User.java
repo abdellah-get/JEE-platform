@@ -61,6 +61,15 @@ public class User {
 	@Column(name = "last_digest_sent_at")
 	private Instant lastDigestSentAt;
 
+	@Column(name = "totp_secret", length = 64)
+	private String totpSecret;
+
+	@Column(name = "totp_enabled", nullable = false)
+	private boolean totpEnabled = false;
+
+	@Column(name = "totp_confirmed_at")
+	private Instant totpConfirmedAt;
+
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
 
@@ -202,6 +211,30 @@ public class User {
 
 	public void setLastDigestSentAt(Instant lastDigestSentAt) {
 		this.lastDigestSentAt = lastDigestSentAt;
+	}
+
+	public String getTotpSecret() {
+		return totpSecret;
+	}
+
+	public void setTotpSecret(String totpSecret) {
+		this.totpSecret = totpSecret;
+	}
+
+	public boolean isTotpEnabled() {
+		return totpEnabled;
+	}
+
+	public void setTotpEnabled(boolean totpEnabled) {
+		this.totpEnabled = totpEnabled;
+	}
+
+	public Instant getTotpConfirmedAt() {
+		return totpConfirmedAt;
+	}
+
+	public void setTotpConfirmedAt(Instant totpConfirmedAt) {
+		this.totpConfirmedAt = totpConfirmedAt;
 	}
 
 	public Instant getCreatedAt() {

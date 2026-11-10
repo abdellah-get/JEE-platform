@@ -3,12 +3,14 @@ package ma.ensem.jee.platform.notification;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.notification.dto.NotificationResponse;
@@ -29,6 +31,11 @@ public class NotificationController {
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size) {
 		return notificationService.listMine(unreadOnly, page, size);
+	}
+
+	@GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter stream() {
+		return notificationService.openStream();
 	}
 
 	@GetMapping("/unread-count")

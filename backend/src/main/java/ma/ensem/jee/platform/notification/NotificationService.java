@@ -21,10 +21,15 @@ public class NotificationService {
 
 	private final NotificationRepository notificationRepository;
 	private final UserRepository userRepository;
+	private final NotificationSseHub sseHub;
 
-	public NotificationService(NotificationRepository notificationRepository, UserRepository userRepository) {
+	public NotificationService(
+			NotificationRepository notificationRepository,
+			UserRepository userRepository,
+			NotificationSseHub sseHub) {
 		this.notificationRepository = notificationRepository;
 		this.userRepository = userRepository;
+		this.sseHub = sseHub;
 	}
 
 	@Transactional(readOnly = true)
@@ -76,6 +81,7 @@ public class NotificationService {
 				title,
 				body,
 				link));
+		publishUnread(assigneeId);
 	}
 
 	@Transactional
@@ -96,6 +102,7 @@ public class NotificationService {
 				.toList();
 		if (!batch.isEmpty()) {
 			notificationRepository.saveAll(batch);
+			batch.stream().map(Notification::getUserId).distinct().forEach(this::publishUnread);
 		}
 	}
 
@@ -117,6 +124,7 @@ public class NotificationService {
 				.toList();
 		if (!batch.isEmpty()) {
 			notificationRepository.saveAll(batch);
+			batch.stream().map(Notification::getUserId).distinct().forEach(this::publishUnread);
 		}
 	}
 
@@ -141,6 +149,17 @@ public class NotificationService {
 				title,
 				body,
 				link));
+		publishUnread(creatorId);
+	}
+
+	public org.springframework.web.servlet.mvc.method.annotation.SseEmitter openStream() {
+		UUID userId = SecurityUtils.currentUser().getId();
+		return sseHub.subscribe(userId);
+	}
+
+	private void publishUnread(UUID userId) {
+		long count = notificationRepository.countByUserIdAndReadAtIsNull(userId);
+		sseHub.publishUnread(userId, count);
 	}
 
 	private static String statusLabel(String status) {

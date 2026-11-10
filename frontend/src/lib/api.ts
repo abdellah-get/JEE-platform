@@ -36,11 +36,16 @@ import type {
   ProjectMember,
   ProjectRole,
   ProjectStatus,
+  Pole,
   QuoteStatus,
+  RecruitmentEntry,
+  RecruitmentStage,
   SearchResponse,
   Task,
   TaskComment,
   TaskPriority,
+  TotpSetup,
+  TotpStatus,
   Workload,
   TaskStatus,
   UserSummary,
@@ -53,6 +58,7 @@ export type MeResponse = {
   lastName: string;
   clubRole: ClubRole;
   active: boolean;
+  totpEnabled?: boolean;
   notificationPreferences?: import("./types").NotificationPreferences;
 };
 
@@ -106,9 +112,9 @@ function toUser(res: AuthResponse): AuthUser {
   return {
     userId: res.userId,
     email: res.email,
-    firstName: res.firstName,
-    lastName: res.lastName,
-    clubRole: res.clubRole,
+    firstName: res.firstName ?? "",
+    lastName: res.lastName ?? "",
+    clubRole: res.clubRole ?? "MEMBRE",
   };
 }
 
@@ -141,6 +147,9 @@ async function silentRefresh(): Promise<RefreshResult> {
           };
         }
         const data = (await res.json()) as AuthResponse;
+        if (!data.accessToken) {
+          return { status: "expired" };
+        }
         const nextUser = toUser(data);
         const stored = getStoredUser();
         saveSession(data.accessToken, stored ?? nextUser);
@@ -231,6 +240,13 @@ export function register(body: {
 
 export function login(body: { email: string; password: string }) {
   return apiFetch<AuthResponse>("/api/v1/auth/login", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function verifyTwoFactor(body: { preAuthToken: string; code: string }) {
+  return apiFetch<AuthResponse>("/api/v1/auth/2fa/verify", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -1250,4 +1266,89 @@ export function decideExpenseClaim(
     { method: "PATCH", body: JSON.stringify(body) },
     accessToken,
   );
+}
+
+export function listPoles(accessToken: string, activeOnly = false) {
+  const params = new URLSearchParams({ activeOnly: String(activeOnly) });
+  return apiFetch<Pole[]>(
+    `/api/v1/recruitment/poles?${params}`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function createPole(
+  accessToken: string,
+  body: { name: string; description?: string },
+) {
+  return apiFetch<Pole>(
+    "/api/v1/recruitment/poles",
+    { method: "POST", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function listRecruitmentPipeline(
+  accessToken: string,
+  stage?: RecruitmentStage,
+) {
+  const params = new URLSearchParams();
+  if (stage) params.set("stage", stage);
+  const q = params.toString();
+  return apiFetch<RecruitmentEntry[]>(
+    `/api/v1/recruitment/pipeline${q ? `?${q}` : ""}`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function updateRecruitmentEntry(
+  accessToken: string,
+  id: string,
+  body: {
+    stage?: RecruitmentStage;
+    poleId?: string;
+    clearPole?: boolean;
+    notes?: string;
+    interviewAt?: string;
+  },
+) {
+  return apiFetch<RecruitmentEntry>(
+    `/api/v1/recruitment/pipeline/${id}`,
+    { method: "PATCH", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function getTotpStatus(accessToken: string) {
+  return apiFetch<TotpStatus>("/api/v1/me/2fa", { method: "GET" }, accessToken);
+}
+
+export function beginTotpSetup(accessToken: string) {
+  return apiFetch<TotpSetup>(
+    "/api/v1/me/2fa/setup",
+    { method: "POST" },
+    accessToken,
+  );
+}
+
+export function confirmTotpSetup(accessToken: string, code: string) {
+  return apiFetch<TotpStatus>(
+    "/api/v1/me/2fa/confirm",
+    { method: "POST", body: JSON.stringify({ code }) },
+    accessToken,
+  );
+}
+
+export function disableTotp(accessToken: string, code: string) {
+  return apiFetch<TotpStatus>(
+    "/api/v1/me/2fa",
+    { method: "DELETE", body: JSON.stringify({ code }) },
+    accessToken,
+  );
+}
+
+/** SSE stream URL (use fetch + Authorization; EventSource cannot set headers). */
+export function notificationsStreamUrl() {
+  return `${API_URL}/api/v1/notifications/stream`;
 }

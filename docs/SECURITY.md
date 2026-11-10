@@ -82,3 +82,22 @@ REGISTRATION_ALLOWED_DOMAINS=ensem.ac.ma,ensem.jee
 REGISTRATION_REQUIRE_APPROVAL=true
 SPRINGDOC_ENABLED=false
 ```
+
+## 2FA TOTP (P11)
+
+| Élément | Comportement |
+|---------|----------------|
+| **Activation** | `POST /api/v1/me/2fa/setup` → secret Base32 + URI `otpauth://` + 8 recovery codes (affichés une fois). Confirmer avec `POST /me/2fa/confirm`. |
+| **Login** | Mot de passe OK + `totp_enabled` → réponse `requiresTwoFactor` + `preAuthToken` (JWT 5 min, type `pre_auth_2fa`). Puis `POST /auth/2fa/verify` avec code TOTP ou recovery (8 chiffres). |
+| **Stockage** | Secret TOTP en clair en base (nécessaire pour vérifier) ; recovery codes hashés SHA-256. Protéger la DB / backups. |
+| **Bureau** | 2FA **optionnelle** avec nudge UI. SSO campus **non livré** (pas d’IdP club) — à brancher plus tard (OIDC). |
+| **Tests** | `TotpServiceTest` (génération / vérification fenêtre ±1). |
+
+## Notifications temps réel (SSE)
+
+| Élément | Comportement |
+|---------|----------------|
+| **Canal** | `GET /api/v1/notifications/stream` (`text/event-stream`), JWT Bearer via `fetch` (EventSource ne peut pas poser `Authorization`). |
+| **Events** | `connected`, puis `notifications` avec `{ unreadCount }`. |
+| **Fallback** | Cloche : polling 60 s si le stream est coupé ; reconnexion SSE avec backoff. |
+| **Limites Render** | Une instance = hub mémoire OK. Idle proxy / timeout ~5–30 min → clients se reconnectent. Multi-instance → Redis pub/sub requis (non implémenté). Ne pas ouvrir des dizaines de streams par utilisateur. |

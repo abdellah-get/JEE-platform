@@ -240,14 +240,16 @@ export type Dashboard = {
 };
 
 export type AuthResponse = {
-  accessToken: string;
-  tokenType: string;
-  expiresInMinutes: number;
+  accessToken?: string | null;
+  tokenType?: string | null;
+  expiresInMinutes?: number | null;
   userId: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  clubRole: ClubRole;
+  firstName?: string | null;
+  lastName?: string | null;
+  clubRole?: ClubRole | null;
+  requiresTwoFactor?: boolean | null;
+  preAuthToken?: string | null;
 };
 
 export type SearchHitType = "PROJECT" | "TASK" | "ANNOUNCEMENT" | "MEMBER";
@@ -386,4 +388,49 @@ export type FinanceSummary = {
   totalBudgetCents: number;
   totalApprovedExpensesCents: number;
   pendingClaimsCount: number;
+};
+
+export type RecruitmentStage =
+  | "CANDIDATURE"
+  | "ENTRETIEN"
+  | "DECISION"
+  | "ACCEPTED"
+  | "REJECTED";
+
+export type Pole = {
+  id: string;
+  name: string;
+  description: string | null;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type RecruitmentEntry = {
+  id: string;
+  userId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  membershipStatus: "PENDING" | "APPROVED" | "REJECTED";
+  poleId: string | null;
+  poleName: string | null;
+  stage: RecruitmentStage;
+  notes: string | null;
+  interviewAt: string | null;
+  decidedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type TotpStatus = {
+  enabled: boolean;
+  pendingSetup: boolean;
+  unusedRecoveryCodes: number;
+};
+
+export type TotpSetup = {
+  secret: string;
+  otpAuthUri: string;
+  recoveryCodes: string[];
 };
