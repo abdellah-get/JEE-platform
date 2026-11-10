@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
@@ -13,7 +14,8 @@ import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canAccessAdmin } from "@/lib/auth-storage";
 import { formatEventWhen } from "@/lib/date-input";
-import type { ClubEvent, PageResponse } from "@/lib/types";
+import { queryKeys } from "@/lib/query-keys";
+import type { ClubEvent } from "@/lib/types";
 
 function splitEvents(events: ClubEvent[]) {
   const now = Date.now();
@@ -76,25 +78,14 @@ function EventCard({ event }: { event: ClubEvent }) {
 
 export default function EventsPage() {
   const { accessToken, user, loading } = useAuth();
-  const [pageData, setPageData] = useState<PageResponse<ClubEvent> | null>(null);
   const [page, setPage] = useState(0);
   const [query, setQuery] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(true);
 
-  useEffect(() => {
-    if (!accessToken) return;
-    setBusy(true);
-    setError(null);
-    api
-      .listEvents(accessToken, page)
-      .then(setPageData)
-      .catch((err) => {
-        if (err instanceof ApiError && err.status === 401) return;
-        setError(err instanceof ApiError ? err.message : "Chargement impossible");
-      })
-      .finally(() => setBusy(false));
-  }, [accessToken, page]);
+  const { data: pageData, error, isPending: busy } = useQuery({
+    queryKey: queryKeys.events(page),
+    queryFn: () => api.listEvents(accessToken!, page),
+    enabled: Boolean(accessToken),
+  });
 
   const items = pageData?.content ?? [];
 
@@ -107,6 +98,8 @@ export default function EventsPage() {
   );
   const { upcoming, past } = splitEvents(filtered);
   const shownCount = query ? filtered.length : (pageData?.totalElements ?? filtered.length);
+  const errorMessage =
+    error instanceof ApiError ? error.message : error ? "Chargement impossible" : null;
 
   if (loading || !user || !accessToken) {
     return <LoadingBlock label="Chargement des événements…" rows={4} />;
@@ -134,9 +127,9 @@ export default function EventsPage() {
         }
       />
 
-      {error && (
+      {errorMessage && (
         <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
+          {errorMessage}
         </p>
       )}
 

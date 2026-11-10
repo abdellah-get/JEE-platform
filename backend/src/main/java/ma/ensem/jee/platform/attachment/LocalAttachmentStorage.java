@@ -7,9 +7,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(prefix = "app.attachments", name = "backend", havingValue = "local", matchIfMissing = true)
 public class LocalAttachmentStorage implements AttachmentStorage {
 
 	private final Path root;

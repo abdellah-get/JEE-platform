@@ -23,7 +23,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
 | P8 Sécurité session & UX SaaS | **Terminé** | 13/13 (#87–#99) |
-| P9 Fiabiliser | **En cours** | 2/8 (#140–#147) |
+| P9 Fiabiliser | **En cours** | 5/8 (#140–#147) |
 | P10 Quotidien club | **Backlog** | 0/7 (#148–#154) |
 | P11 Junior-Entreprise | **Backlog** | 0/5 (#155–#159) |
 
@@ -135,9 +135,9 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 |---|---------|--------|
 | [140](https://github.com/abdellah-get/JEE-platform/issues/140) | Pagination JPA réelle (`PageResponse.slice`) | **Terminé** |
 | [141](https://github.com/abdellah-get/JEE-platform/issues/141) | Corriger N+1 projets + commentaires | **Terminé** |
-| [142](https://github.com/abdellah-get/JEE-platform/issues/142) | Attachments S3/R2 + MIME sniff | **À faire** |
-| [143](https://github.com/abdellah-get/JEE-platform/issues/143) | Généraliser TanStack Query | **À faire** |
-| [144](https://github.com/abdellah-get/JEE-platform/issues/144) | Recherche serveur + Cmd+K | **À faire** |
+| [142](https://github.com/abdellah-get/JEE-platform/issues/142) | Attachments S3/R2 + MIME sniff | **Terminé** |
+| [143](https://github.com/abdellah-get/JEE-platform/issues/143) | Généraliser TanStack Query | **Terminé** |
+| [144](https://github.com/abdellah-get/JEE-platform/issues/144) | Recherche serveur + Cmd+K | **Terminé** |
 | [145](https://github.com/abdellah-get/JEE-platform/issues/145) | Focus trap drawer/cloche + bottom nav | **À faire** |
 | [146](https://github.com/abdellah-get/JEE-platform/issues/146) | E2E admin + attachments + notifs | **À faire** |
 | [147](https://github.com/abdellah-get/JEE-platform/issues/147) | Prod hardening OpenAPI + refresh reuse + batch notifs | **À faire** |
@@ -167,6 +167,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-11-10 — Missions #142–#144 terminées (S3/MIME, Query, Cmd+K)
+
+**Fait :**
+- `ATTACHMENTS_BACKEND=local|s3` + `S3AttachmentStorage` (R2/S3) ; sniff MIME magic bytes
+- TanStack Query étendu (annonces, events, calendrier, projet, admin) + `query-keys`
+- `GET /api/v1/search` + palette ⌘K dans AppShell
+- Docs DEPLOY + étude P9
+
+**Prochaine mission :** [#145](https://github.com/abdellah-get/JEE-platform/issues/145) — focus trap drawer/cloche + bottom nav.
 
 ### 2026-11-10 — Missions #140 + #141 terminées (pagination JPA + N+1)
 

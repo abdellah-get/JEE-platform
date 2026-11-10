@@ -20,6 +20,7 @@ import type {
   ProjectMember,
   ProjectRole,
   ProjectStatus,
+  SearchResponse,
   Task,
   TaskComment,
   TaskPriority,
@@ -815,6 +816,15 @@ export function markNotificationRead(accessToken: string, id: string) {
   return apiFetch<AppNotification>(
     `/api/v1/notifications/${id}/read`,
     { method: "POST" },
+    accessToken,
+  );
+}
+
+export function search(accessToken: string, q: string) {
+  const params = new URLSearchParams({ q });
+  return apiFetch<SearchResponse>(
+    `/api/v1/search?${params}`,
+    { method: "GET" },
     accessToken,
   );
 }

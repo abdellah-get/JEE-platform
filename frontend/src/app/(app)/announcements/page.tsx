@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
@@ -12,29 +13,18 @@ import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canAccessAdmin } from "@/lib/auth-storage";
-import type { Announcement, PageResponse } from "@/lib/types";
+import { queryKeys } from "@/lib/query-keys";
 
 export default function AnnouncementsPage() {
   const { accessToken, user, loading } = useAuth();
-  const [pageData, setPageData] = useState<PageResponse<Announcement> | null>(null);
   const [page, setPage] = useState(0);
   const [query, setQuery] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(true);
 
-  useEffect(() => {
-    if (!accessToken) return;
-    setBusy(true);
-    setError(null);
-    api
-      .listAnnouncements(accessToken, page)
-      .then(setPageData)
-      .catch((err) => {
-        if (err instanceof ApiError && err.status === 401) return;
-        setError(err instanceof ApiError ? err.message : "Chargement impossible");
-      })
-      .finally(() => setBusy(false));
-  }, [accessToken, page]);
+  const { data: pageData, error, isPending } = useQuery({
+    queryKey: queryKeys.announcements(page),
+    queryFn: () => api.listAnnouncements(accessToken!, page),
+    enabled: Boolean(accessToken),
+  });
 
   const items = pageData?.content ?? [];
 
@@ -46,6 +36,8 @@ export default function AnnouncementsPage() {
   }, [items, query]);
   const urgentCount = filtered.filter((a) => a.pinned).length;
   const shownCount = query ? filtered.length : (pageData?.totalElements ?? filtered.length);
+  const errorMessage =
+    error instanceof ApiError ? error.message : error ? "Chargement impossible" : null;
 
   if (loading || !user || !accessToken) {
     return <LoadingBlock label="Chargement des annonces…" rows={4} />;
@@ -68,13 +60,13 @@ export default function AnnouncementsPage() {
         }
       />
 
-      {error && (
+      {errorMessage && (
         <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
+          {errorMessage}
         </p>
       )}
 
-      {busy ? (
+      {isPending ? (
         <LoadingBlock label="Chargement des annonces…" />
       ) : items.length === 0 ? (
         <EmptyState

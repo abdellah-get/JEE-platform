@@ -112,4 +112,12 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 			order by t.dueDate asc
 			""")
 	List<Task> findDueBetween(@Param("from") LocalDate from, @Param("to") LocalDate to);
+
+	@Query("""
+			select t from Task t
+			where lower(t.title) like lower(concat('%', :q, '%'))
+			   or (t.description is not null and lower(t.description) like lower(concat('%', :q, '%')))
+			order by t.updatedAt desc
+			""")
+	Page<Task> searchByText(@Param("q") String q, Pageable pageable);
 }

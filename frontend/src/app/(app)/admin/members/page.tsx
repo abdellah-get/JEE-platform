@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
@@ -13,31 +14,23 @@ import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canAccessAdmin } from "@/lib/auth-storage";
 import { formatPersonName } from "@/lib/names";
-import type { AdminUser, PageResponse } from "@/lib/types";
+import { queryKeys } from "@/lib/query-keys";
 
 export default function AdminMembersPage() {
   const { accessToken, user, loading } = useAuth();
   const toast = useToast();
-  const [pageData, setPageData] = useState<PageResponse<AdminUser> | null>(null);
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(0);
   const [query, setQuery] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [listBusy, setListBusy] = useState(true);
 
-  useEffect(() => {
-    if (!accessToken || !canAccessAdmin(user?.clubRole)) return;
-    setListBusy(true);
-    setError(null);
-    api
-      .listAdminUsers(accessToken, page)
-      .then(setPageData)
-      .catch((err) => {
-        if (err instanceof ApiError && err.status === 401) return;
-        setError(err instanceof ApiError ? err.message : "Chargement impossible");
-      })
-      .finally(() => setListBusy(false));
-  }, [accessToken, user?.clubRole, page]);
+  const { data: pageData, error, isPending: listBusy } = useQuery({
+    queryKey: queryKeys.adminUsers(page),
+    queryFn: () => api.listAdminUsers(accessToken!, page),
+    enabled: Boolean(accessToken && canAccessAdmin(user?.clubRole)),
+  });
+  const errorMessage =
+    error instanceof ApiError ? error.message : error ? "Chargement impossible" : null;
 
   const users = useMemo(
     () =>
@@ -78,8 +71,7 @@ export default function AdminMembersPage() {
     );
   }
 
-  async function toggleActive(target: AdminUser) {
-    setError(null);
+  async function toggleActive(target: { userId: string; active: boolean }) {
     setBusyId(target.userId);
     try {
       const updated = await api.updateUserActive(
@@ -87,21 +79,11 @@ export default function AdminMembersPage() {
         target.userId,
         !target.active,
       );
-      setPageData((prev) =>
-        prev
-          ? {
-              ...prev,
-              content: prev.content.map((u) =>
-                u.userId === updated.userId ? updated : u,
-              ),
-            }
-          : prev,
-      );
+      await queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast.success(updated.active ? "Compte activé." : "Compte désactivé.");
     } catch (err) {
       const message =
         err instanceof ApiError ? err.message : "Mise à jour impossible";
-      setError(message);
       toast.error(message);
     } finally {
       setBusyId(null);
@@ -124,9 +106,9 @@ export default function AdminMembersPage() {
         </p>
       </div>
 
-      {error && (
+      {errorMessage && (
         <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
+          {errorMessage}
         </p>
       )}
 

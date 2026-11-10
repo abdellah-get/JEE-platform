@@ -75,7 +75,7 @@ class AttachmentControllerTest {
 				"file",
 				"pv-ag.pdf",
 				"application/pdf",
-				"contenu-pv".getBytes());
+				"%PDF-1.4\ncontenu-pv".getBytes());
 
 		MvcResult uploaded = mockMvc.perform(multipart("/api/v1/projects/" + projectId + "/attachments")
 				.file(file)
@@ -103,8 +103,8 @@ class AttachmentControllerTest {
 		MockMultipartFile badType = new MockMultipartFile(
 				"file",
 				"hack.exe",
-				"application/x-msdownload",
-				"x".getBytes());
+				"application/pdf",
+				new byte[] {'M', 'Z', (byte) 0x90, 0x00, 0x03});
 		mockMvc.perform(multipart("/api/v1/projects/" + projectId + "/attachments")
 				.file(badType)
 				.header("Authorization", "Bearer " + chefToken))
