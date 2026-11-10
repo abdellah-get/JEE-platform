@@ -48,14 +48,15 @@ Repo → **Settings** → **Code security** → Dependabot alerts + Dependabot s
 | **Rate-limit auth** | `POST` login / register / forgot-password / refresh / reset-password : 20 req / IP / endpoint / 60 s (configurable). Réponse `429` + `Retry-After`. |
 | **Refresh silencieux** | Sur `401` API (hors `/auth/**`) : un `POST /auth/refresh` puis retry. Échec → clear session + redirect `/login`. Single-flight (pas de boucle). |
 | **Refresh stocké + rotation** | Chaque refresh JWT est hashé (SHA-256) en base (`refresh_tokens`). Un refresh réussi révoque l’ancien et en émet un nouveau. Logout révoque le cookie courant. |
+| **Refresh reuse detection** | Réutilisation d’un refresh déjà révoqué (vol / replay après rotation) → `revokeAllForUser` : **toutes** les sessions refresh de l’utilisateur sont invalidées. |
 | **Change / reset MDP** | `POST /me/password` et `POST /auth/reset-password` révoquent **tous** les refresh tokens de l’utilisateur (sessions restantes coupées). L’access JWT en cours expire naturellement (TTL 30 min). |
 | **Anti-CSRF refresh/logout** | Spring CSRF cookie désactivé volontairement (API JWT stateless + front cross-origin : cookie `XSRF-TOKEN` illisible depuis Vercel). À la place : `AuthCookieCsrfFilter` — `POST /auth/refresh` et `/auth/logout` exigent `X-Requested-With: XMLHttpRequest` (preflight CORS) ; si `Origin` est présent, il doit être dans `CORS_ORIGINS`. L’access JWT Bearer n’est pas auto-envoyé par le navigateur → pas de surface CSRF. |
 | **Security headers** | `X-Content-Type-Options`, `Referrer-Policy: strict-origin-when-cross-origin`, `X-Frame-Options: DENY` (sauf H2 local → `SAMEORIGIN`). HSTS 1 an si `JWT_COOKIE_SECURE=true`. |
-| **Health DB** | `GET /api/v1/health` renvoie `db=UP|DOWN` ; HTTP 503 si la base est inaccessible. |
+| **Health custom** | `GET /api/v1/health` renvoie toujours **HTTP 200** tant que le process tourne ; JSON `status` / `db` = `UP\|DOWN`. Évite qu’un 503 fasse échouer les health checks Render/Docker et garde une ancienne release. |
+| **Actuator readiness** | `/actuator/health`, `/liveness`, `/readiness` publics (détails `never`). Utiliser **liveness** pour « process up » ; readiness suit l’indicateur Spring (DB, etc.). Ne pas confondre avec `/api/v1/health` (toujours 200 + champ `db`). |
 | **Rate-limit auth étendu** | Aussi `POST /auth/refresh` et `/auth/reset-password` (même fenêtre / IP). |
 | **Access JWT hors `localStorage`** | Access token en **mémoire** (React + module). Reprise de session uniquement via cookie HttpOnly `refresh_token`. Profil `jee_user` peut rester en `localStorage` (pas un secret). Cookie client `jee_auth` = hint middleware non secret. |
-| **Actuator** | Exposé : `/actuator/health` (+ `liveness` / `readiness` probes) public. Autres endpoints Actuator : authentifiés. Détails health : `never`. |
-| **OpenAPI / Swagger** | `/v3/api-docs` + `/swagger-ui.html` **authentifiés** (JWT). Désactivable : `SPRINGDOC_ENABLED=false`. |
+| **OpenAPI / Swagger** | En local : `/v3/api-docs` + `/swagger-ui.html` **authentifiés** (JWT). En prod-like : `SPRINGDOC_ENABLED=false` obligatoire (`application-prod` + `ProductionSafetyValidator` refuse le démarrage sinon). |
 
 Variables : `AUTH_RATE_LIMIT_ENABLED`, `AUTH_RATE_LIMIT_MAX`, `AUTH_RATE_LIMIT_WINDOW_SECONDS`.
 
@@ -79,4 +80,5 @@ JWT_COOKIE_SECURE=true
 SEED_ENABLED=false
 REGISTRATION_ALLOWED_DOMAINS=ensem.ac.ma,ensem.jee
 REGISTRATION_REQUIRE_APPROVAL=true
+SPRINGDOC_ENABLED=false
 ```

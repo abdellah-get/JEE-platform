@@ -10,6 +10,9 @@ Specs CI (API seed `SEED_ENABLED=true`) :
 | `announcements.spec.ts` | lecture + création annonce (compte bureau) |
 | `events.spec.ts` | événements + calendrier + création (compte bureau) |
 | `auth-token-storage.spec.ts` | access JWT absent de `localStorage` (login + reload) |
+| `admin.spec.ts` | admin membres toggle actif + page demandes (bureau) |
+| `attachments.spec.ts` | upload + liste PJ sur projet (chef) |
+| `notifications.spec.ts` | pin annonce (bureau) → mark all + cloche (chef) |
 
 ## Prérequis
 

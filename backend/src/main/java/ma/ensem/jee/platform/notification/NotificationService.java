@@ -80,16 +80,17 @@ public class NotificationService {
 		String title = "Annonce urgente";
 		String body = "« " + truncate(announcementTitle, 80) + " » a été épinglée.";
 		String link = "/announcements/" + announcementId;
-		for (User user : recipients) {
-			if (user.getId().equals(authorId)) {
-				continue;
-			}
-			notificationRepository.save(new Notification(
-					user.getId(),
-					NotificationType.ANNOUNCEMENT_PINNED,
-					title,
-					body,
-					link));
+		List<Notification> batch = recipients.stream()
+				.filter(user -> !user.getId().equals(authorId))
+				.map(user -> new Notification(
+						user.getId(),
+						NotificationType.ANNOUNCEMENT_PINNED,
+						title,
+						body,
+						link))
+				.toList();
+		if (!batch.isEmpty()) {
+			notificationRepository.saveAll(batch);
 		}
 	}
 
@@ -99,16 +100,17 @@ public class NotificationService {
 		String title = "Événement à retenir";
 		String body = "« " + truncate(eventTitle, 80) + " » a été épinglé.";
 		String link = "/events/" + eventId;
-		for (User user : recipients) {
-			if (user.getId().equals(authorId)) {
-				continue;
-			}
-			notificationRepository.save(new Notification(
-					user.getId(),
-					NotificationType.EVENT_PINNED,
-					title,
-					body,
-					link));
+		List<Notification> batch = recipients.stream()
+				.filter(user -> !user.getId().equals(authorId))
+				.map(user -> new Notification(
+						user.getId(),
+						NotificationType.EVENT_PINNED,
+						title,
+						body,
+						link))
+				.toList();
+		if (!batch.isEmpty()) {
+			notificationRepository.saveAll(batch);
 		}
 	}
 

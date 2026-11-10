@@ -105,11 +105,24 @@ class AuthControllerTest {
 		mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", refreshCookie))
 				.andExpect(status().isUnauthorized());
 
-		mockMvc.perform(cookieAuthPost("/api/v1/auth/logout", rotatedCookie))
+		// Reuse also revoked the rotated session — login again for logout coverage
+		MvcResult loginAgain = mockMvc.perform(post("/api/v1/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "email": "%s",
+						  "password": "%s"
+						}
+						""".formatted(email, password)))
+				.andExpect(status().isOk())
+				.andReturn();
+		String logoutCookie = loginAgain.getResponse().getCookie(AuthService.REFRESH_COOKIE).getValue();
+
+		mockMvc.perform(cookieAuthPost("/api/v1/auth/logout", logoutCookie))
 				.andExpect(status().isNoContent());
 
 		// Logout revokes the current refresh token
-		mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", rotatedCookie))
+		mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", logoutCookie))
 				.andExpect(status().isUnauthorized());
 
 		mockMvc.perform(post("/api/v1/auth/login")
@@ -120,6 +133,62 @@ class AuthControllerTest {
 						  "password": "wrong-password"
 						}
 						""".formatted(email)))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void refreshReuseRevokesAllSessionsForUser() throws Exception {
+		String email = "reuse.test@ensem.jee";
+		String password = "Password123!";
+
+		mockMvc.perform(post("/api/v1/auth/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "email": "%s",
+						  "password": "%s",
+						  "firstName": "Reuse",
+						  "lastName": "Guard"
+						}
+						""".formatted(email, password)))
+				.andExpect(status().isCreated());
+
+		MvcResult loginA = mockMvc.perform(post("/api/v1/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "email": "%s",
+						  "password": "%s"
+						}
+						""".formatted(email, password)))
+				.andExpect(status().isOk())
+				.andReturn();
+		String cookieA = loginA.getResponse().getCookie(AuthService.REFRESH_COOKIE).getValue();
+
+		MvcResult loginB = mockMvc.perform(post("/api/v1/auth/login")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{
+						  "email": "%s",
+						  "password": "%s"
+						}
+						""".formatted(email, password)))
+				.andExpect(status().isOk())
+				.andReturn();
+		String cookieB = loginB.getResponse().getCookie(AuthService.REFRESH_COOKIE).getValue();
+
+		MvcResult rotated = mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", cookieA))
+				.andExpect(status().isOk())
+				.andReturn();
+		String cookieA2 = rotated.getResponse().getCookie(AuthService.REFRESH_COOKIE).getValue();
+
+		// Replay of rotated token → family revoke
+		mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", cookieA))
+				.andExpect(status().isUnauthorized());
+
+		mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", cookieA2))
+				.andExpect(status().isUnauthorized());
+		mockMvc.perform(cookieAuthPost("/api/v1/auth/refresh", cookieB))
 				.andExpect(status().isUnauthorized());
 	}
 

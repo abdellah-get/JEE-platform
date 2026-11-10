@@ -23,7 +23,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P6 Collaboration UX | **Terminé** | 6/6 (#51–#56) |
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
 | P8 Sécurité session & UX SaaS | **Terminé** | 13/13 (#87–#99) |
-| P9 Fiabiliser | **En cours** | 5/8 (#140–#147) |
+| P9 Fiabiliser | **Terminé** | 8/8 (#140–#147) |
 | P10 Quotidien club | **Backlog** | 0/7 (#148–#154) |
 | P11 Junior-Entreprise | **Backlog** | 0/5 (#155–#159) |
 
@@ -138,9 +138,9 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [142](https://github.com/abdellah-get/JEE-platform/issues/142) | Attachments S3/R2 + MIME sniff | **Terminé** |
 | [143](https://github.com/abdellah-get/JEE-platform/issues/143) | Généraliser TanStack Query | **Terminé** |
 | [144](https://github.com/abdellah-get/JEE-platform/issues/144) | Recherche serveur + Cmd+K | **Terminé** |
-| [145](https://github.com/abdellah-get/JEE-platform/issues/145) | Focus trap drawer/cloche + bottom nav | **À faire** |
-| [146](https://github.com/abdellah-get/JEE-platform/issues/146) | E2E admin + attachments + notifs | **À faire** |
-| [147](https://github.com/abdellah-get/JEE-platform/issues/147) | Prod hardening OpenAPI + refresh reuse + batch notifs | **À faire** |
+| [145](https://github.com/abdellah-get/JEE-platform/issues/145) | Focus trap drawer/cloche + bottom nav | **Terminé** |
+| [146](https://github.com/abdellah-get/JEE-platform/issues/146) | E2E admin + attachments + notifs | **Terminé** |
+| [147](https://github.com/abdellah-get/JEE-platform/issues/147) | Prod hardening OpenAPI + refresh reuse + batch notifs | **Terminé** |
 
 ### P10 — Quotidien club
 
@@ -167,6 +167,16 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-11-10 — Missions #145–#147 terminées (a11y mobile, E2E, hardening) — P9 clos
+
+**Fait :**
+- Focus trap drawer + NotificationBell ; bottom nav mobile (Tâches / Calendrier / Notifs / Plus)
+- E2E `admin` / `attachments` / `notifications`
+- `ProductionSafetyValidator` refuse springdoc en prod-like ; refresh reuse → `revokeAllForUser` ; batch `saveAll` notifs pin
+- SECURITY.md (health 200 vs Actuator readiness) + `SPRINGDOC_ENABLED=false` en profil prod
+
+**Prochaine mission :** [#148](https://github.com/abdellah-get/JEE-platform/issues/148) — calendrier vue semaine / agenda (P10).
 
 ### 2026-11-10 — Missions #142–#144 terminées (S3/MIME, Query, Cmd+K)
 
