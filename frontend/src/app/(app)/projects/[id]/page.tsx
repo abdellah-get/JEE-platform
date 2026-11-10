@@ -1,8 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 
 import { ProjectAttachments } from "@/components/projects/ProjectAttachments";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -12,7 +12,8 @@ import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canManageProject, roleLabel, statusLabel } from "@/lib/projects";
-import type { Project, ProjectActivity, ProjectMember, ProjectStatus } from "@/lib/types";
+import { queryKeys } from "@/lib/query-keys";
+import type { ProjectStatus } from "@/lib/types";
 
 function tone(status: ProjectStatus) {
   switch (status) {
@@ -48,41 +49,35 @@ export default function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
   const projectId = params.id;
   const { accessToken, user, loading } = useAuth();
-  const [project, setProject] = useState<Project | null>(null);
-  const [members, setMembers] = useState<ProjectMember[]>([]);
-  const [activity, setActivity] = useState<ProjectActivity[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!accessToken || !projectId) return;
-    let cancelled = false;
-    Promise.all([
-      api.getProject(accessToken, projectId),
-      api.listProjectMembers(accessToken, projectId),
-      api.listProjectActivity(accessToken, projectId),
-    ])
-      .then(([p, m, a]) => {
-        if (!cancelled) {
-          setProject(p);
-          setMembers(m);
-          setActivity(a);
-        }
-      })
-      .catch((err) => {
-        if (!cancelled) {
-          setError(
-            err instanceof ApiError
-              ? err.status === 404
-                ? "Projet introuvable ou accès refusé."
-                : err.message
-              : "Chargement impossible",
-          );
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [accessToken, projectId]);
+  const projectQuery = useQuery({
+    queryKey: queryKeys.project(projectId),
+    queryFn: () => api.getProject(accessToken!, projectId),
+    enabled: Boolean(accessToken && projectId),
+  });
+  const membersQuery = useQuery({
+    queryKey: queryKeys.projectMembers(projectId),
+    queryFn: () => api.listProjectMembers(accessToken!, projectId),
+    enabled: Boolean(accessToken && projectId),
+  });
+  const activityQuery = useQuery({
+    queryKey: queryKeys.projectActivity(projectId),
+    queryFn: () => api.listProjectActivity(accessToken!, projectId),
+    enabled: Boolean(accessToken && projectId),
+  });
+
+  const project = projectQuery.data ?? null;
+  const members = membersQuery.data ?? [];
+  const activity = activityQuery.data ?? [];
+  const loadError = projectQuery.error ?? membersQuery.error ?? activityQuery.error;
+  const error =
+    loadError instanceof ApiError
+      ? loadError.status === 404
+        ? "Projet introuvable ou accès refusé."
+        : loadError.message
+      : loadError
+        ? "Chargement impossible"
+        : null;
 
   if (loading || !user || !accessToken) {
     return <LoadingBlock label="Ouverture du projet…" rows={4} />;

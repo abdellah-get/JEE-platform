@@ -209,3 +209,18 @@ export type AuthResponse = {
   lastName: string;
   clubRole: ClubRole;
 };
+
+export type SearchHitType = "PROJECT" | "TASK" | "ANNOUNCEMENT" | "MEMBER";
+
+export type SearchHit = {
+  type: SearchHitType;
+  id: string;
+  title: string;
+  subtitle: string | null;
+  href: string;
+};
+
+export type SearchResponse = {
+  query: string;
+  results: SearchHit[];
+};

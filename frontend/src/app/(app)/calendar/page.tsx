@@ -1,7 +1,8 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
@@ -10,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { formatEventWhen } from "@/lib/date-input";
+import { queryKeys } from "@/lib/query-keys";
 import type { CalendarItem } from "@/lib/types";
 
 function startOfMonth(d: Date) {
@@ -140,27 +142,18 @@ function DayPanel({
 export default function CalendarPage() {
   const { accessToken, user, loading } = useAuth();
   const [cursor, setCursor] = useState(() => startOfMonth(new Date()));
-  const [items, setItems] = useState<CalendarItem[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(true);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const from = isoDate(cursor);
   const to = isoDate(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0));
 
-  useEffect(() => {
-    if (!accessToken) return;
-    setBusy(true);
-    setError(null);
-    api
-      .getCalendar(accessToken, from, to)
-      .then(setItems)
-      .catch((err) => {
-        if (err instanceof ApiError && err.status === 401) return;
-        setError(err instanceof ApiError ? err.message : "Chargement impossible");
-      })
-      .finally(() => setBusy(false));
-  }, [accessToken, from, to]);
+  const { data: items = [], error, isPending: busy } = useQuery({
+    queryKey: queryKeys.calendar(from, to),
+    queryFn: () => api.getCalendar(accessToken!, from, to),
+    enabled: Boolean(accessToken),
+  });
+  const errorMessage =
+    error instanceof ApiError ? error.message : error ? "Chargement impossible" : null;
 
   const byDay = useMemo(() => {
     const map = new Map<string, CalendarItem[]>();
@@ -246,9 +239,9 @@ export default function CalendarPage() {
         </button>
       </div>
 
-      {error && (
+      {errorMessage && (
         <p className="rounded-lg border border-red-200 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
+          {errorMessage}
         </p>
       )}
 

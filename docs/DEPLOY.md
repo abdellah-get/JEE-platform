@@ -97,7 +97,12 @@ docker run --rm -p 8081:8081 \
 | `REGISTRATION_ALLOWED_DOMAINS` | `ensem.ac.ma` |
 | `REGISTRATION_REQUIRE_APPROVAL` | `true` (prod publique) |
 | `FRONTEND_BASE_URL` | `https://ton-app.vercel.app` |
-| `ATTACHMENTS_PATH` | chemin local livrables (ex. `/var/data/attachments`) |
+| `ATTACHMENTS_BACKEND` | `local` (défaut) ou `s3` (R2/S3) |
+| `ATTACHMENTS_PATH` | chemin local si `local` (ex. `/var/data/attachments`) |
+| `ATTACHMENTS_S3_ENDPOINT` | ex. `https://<accountid>.r2.cloudflarestorage.com` |
+| `ATTACHMENTS_S3_REGION` | `auto` (R2) ou région AWS |
+| `ATTACHMENTS_S3_BUCKET` | nom du bucket |
+| `ATTACHMENTS_S3_ACCESS_KEY` / `ATTACHMENTS_S3_SECRET_KEY` | credentials |
 | `MAIL_FROM` / `MAIL_HOST` / … | SMTP Brevo (optionnel) |
 | `PORT` | laissé à Render |
 
@@ -124,7 +129,7 @@ spring.mail.properties.mail.smtp.starttls.enable=true
 
 **Health check Render :** pointe le health check du service sur `GET /api/v1/health` (ou `/actuator/health/liveness`). La réponse est **toujours HTTP 200** si le process tourne ; lis `status` / `db` dans le JSON. Un 503 sur cet endpoint faisait échouer les deploys Docker et gardait l’ancienne API (sans événements/calendrier).
 
-**Pièces jointes :** le Dockerfile crée `/app/data/attachments` (writable). Sur Free le disque est éphémère — OK pour démo ; pour persister, monte un disk Render et mets `ATTACHMENTS_PATH` dessus.
+**Pièces jointes :** `ATTACHMENTS_BACKEND=local` (défaut) écrit sur disque ; le Dockerfile crée `/app/data/attachments`. Sur Free le disque est éphémère — pour la prod, préfère Cloudflare R2 (`ATTACHMENTS_BACKEND=s3` + endpoint/bucket/clés). Le type MIME est sniffé (magic bytes), pas seulement déclaré par le client.
 
 **Cookies cross-site :** avec `JWT_COOKIE_SECURE=true`, le refresh cookie est `SameSite=None` (requis Vercel ↔ Render).
 

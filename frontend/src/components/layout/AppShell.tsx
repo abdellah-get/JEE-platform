@@ -5,6 +5,10 @@ import { usePathname } from "next/navigation";
 import { useEffect, useId, useState } from "react";
 
 import { ClubLogo } from "@/components/brand/ClubLogo";
+import {
+  CommandPaletteHost,
+  SearchTrigger,
+} from "@/components/layout/CommandPalette";
 import { NotificationBell } from "@/components/layout/NotificationBell";
 import { PageMotion } from "@/components/motion/PageMotion";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
@@ -173,6 +177,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <p className="truncate text-sm font-semibold">{context.label}</p>
             <p className="truncate text-[11px] text-muted">{context.hint}</p>
           </div>
+          <SearchTrigger variant="mobile" />
           <ThemeToggle />
           <NotificationBell />
         </header>
@@ -186,6 +191,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
           </div>
           <div className="flex items-center gap-2">
+            <SearchTrigger variant="desktop" />
             <ThemeToggle />
             <NotificationBell />
           </div>
@@ -196,6 +202,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         >
           <PageMotion>{children}</PageMotion>
         </main>
+        <CommandPaletteHost />
       </div>
     </div>
   );

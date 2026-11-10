@@ -3,7 +3,6 @@ package ma.ensem.jee.platform.attachment;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -79,12 +78,19 @@ public class AttachmentService {
 							+ " Mo)");
 		}
 
-		String contentType = normalizeContentType(file.getContentType());
+		String originalName = sanitizeFileName(file.getOriginalFilename());
+		byte[] header;
+		try {
+			header = file.getInputStream().readNBytes(512);
+		}
+		catch (IOException ex) {
+			throw new BadRequestException("Impossible de lire le fichier");
+		}
+		String contentType = ContentTypeSniffer.sniff(header, originalName);
 		if (!properties.allowedContentTypeList().contains(contentType)) {
 			throw new BadRequestException("Type de fichier non autorisé: " + contentType);
 		}
 
-		String originalName = sanitizeFileName(file.getOriginalFilename());
 		if (taskId != null) {
 			Task task = taskRepository.findById(taskId)
 					.orElseThrow(() -> new ResourceNotFoundException("Tâche introuvable"));
@@ -177,13 +183,6 @@ public class AttachmentService {
 		return attachments.stream()
 				.map(a -> AttachmentResponse.from(a, names.getOrDefault(a.getUploadedById(), "Membre")))
 				.toList();
-	}
-
-	private static String normalizeContentType(String raw) {
-		if (raw == null || raw.isBlank()) {
-			return "application/octet-stream";
-		}
-		return raw.split(";")[0].trim().toLowerCase(Locale.ROOT);
 	}
 
 	private static String sanitizeFileName(String name) {
