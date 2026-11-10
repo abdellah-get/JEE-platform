@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 
+import {
+  AttachmentPreview,
+  canPreviewAttachment,
+} from "@/components/projects/AttachmentPreview";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
@@ -36,6 +40,7 @@ export function ProjectAttachments({
   const [pendingDelete, setPendingDelete] = useState<ProjectAttachment | null>(
     null,
   );
+  const [preview, setPreview] = useState<ProjectAttachment | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -170,6 +175,15 @@ export function ProjectAttachments({
                   </p>
                 </div>
                 <div className="flex gap-2">
+                  {canPreviewAttachment(item) ? (
+                    <button
+                      type="button"
+                      onClick={() => setPreview(item)}
+                      className="text-xs font-medium underline"
+                    >
+                      Aperçu
+                    </button>
+                  ) : null}
                   <button
                     type="button"
                     onClick={() => void onDownload(item)}
@@ -206,6 +220,14 @@ export function ProjectAttachments({
         busy={deleting}
         onCancel={() => setPendingDelete(null)}
         onConfirm={() => void confirmDelete()}
+      />
+
+      <AttachmentPreview
+        open={preview !== null}
+        projectId={projectId}
+        accessToken={accessToken}
+        item={preview}
+        onClose={() => setPreview(null)}
       />
     </section>
   );

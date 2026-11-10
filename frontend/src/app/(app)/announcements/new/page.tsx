@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
+import { MarkdownEditor } from "@/components/markdown/MarkdownEditor";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
@@ -71,19 +72,14 @@ export default function NewAnnouncementPage() {
 
       <form onSubmit={onSubmit} className="space-y-4 surface-quiet p-5">
         <Field id="title" label="Titre" value={title} onChange={setTitle} required />
-        <div>
-          <label htmlFor="body" className="mb-1 block text-sm font-medium text-ink/80">
-            Contenu
-          </label>
-          <textarea
-            id="body"
-            required
-            rows={6}
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            className="input-field"
-          />
-        </div>
+        <MarkdownEditor
+          id="body"
+          label="Contenu (markdown)"
+          value={body}
+          onChange={setBody}
+          required
+          rows={8}
+        />
         <label className="flex items-center gap-2 text-sm text-ink/80">
           <input
             type="checkbox"

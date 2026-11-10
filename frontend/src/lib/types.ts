@@ -205,6 +205,18 @@ export type NotificationPreferences = {
   notifyEventPinned: boolean;
 };
 
+export type AuditEvent = {
+  id: string;
+  actorId: string | null;
+  actorEmail: string;
+  action: string;
+  targetType: string;
+  targetId: string | null;
+  summary: string;
+  metadataJson: string | null;
+  createdAt: string;
+};
+
 export type DashboardKpis = {
   activeMembers: number;
   totalProjects: number;

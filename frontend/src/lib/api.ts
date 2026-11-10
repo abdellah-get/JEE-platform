@@ -7,6 +7,7 @@ import type {
   AdminUser,
   Announcement,
   AppNotification,
+  AuditEvent,
   AuthResponse,
   AuthUser,
   CalendarItem,
@@ -417,11 +418,10 @@ export async function uploadProjectAttachment(
   return (await res.json()) as ProjectAttachment;
 }
 
-export async function downloadProjectAttachment(
+export async function fetchProjectAttachmentBlob(
   accessToken: string,
   projectId: string,
   attachmentId: string,
-  fileName: string,
 ) {
   const res = await fetch(
     `${API_URL}/api/v1/projects/${projectId}/attachments/${attachmentId}/download`,
@@ -434,7 +434,20 @@ export async function downloadProjectAttachment(
   if (!res.ok) {
     throw new ApiError(res.status, await parseError(res));
   }
-  const blob = await res.blob();
+  return res.blob();
+}
+
+export async function downloadProjectAttachment(
+  accessToken: string,
+  projectId: string,
+  attachmentId: string,
+  fileName: string,
+) {
+  const blob = await fetchProjectAttachmentBlob(
+    accessToken,
+    projectId,
+    attachmentId,
+  );
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -476,6 +489,32 @@ export function listAdminUsers(
   }
   return apiFetch<PageResponse<AdminUser>>(
     `/api/v1/admin/users?${params}`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function listAuditEvents(
+  accessToken: string,
+  opts: {
+    page?: number;
+    size?: number;
+    action?: string;
+    actorId?: string;
+    from?: string;
+    to?: string;
+  } = {},
+) {
+  const params = new URLSearchParams({
+    page: String(opts.page ?? 0),
+    size: String(opts.size ?? 20),
+  });
+  if (opts.action) params.set("action", opts.action);
+  if (opts.actorId) params.set("actorId", opts.actorId);
+  if (opts.from) params.set("from", opts.from);
+  if (opts.to) params.set("to", opts.to);
+  return apiFetch<PageResponse<AuditEvent>>(
+    `/api/v1/admin/audit?${params}`,
     { method: "GET" },
     accessToken,
   );

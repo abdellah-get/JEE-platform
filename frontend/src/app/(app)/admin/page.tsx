@@ -69,6 +69,12 @@ export default function AdminPage() {
               : "Réservé à l’admin technique."}
           </p>
         </Link>
+        <Link href="/admin/audit" className="surface-interactive block p-5">
+          <p className="font-medium text-ink">Journal d’audit</p>
+          <p className="mt-1 text-sm text-muted">
+            Historique des décisions d’adhésion, activations et rôles.
+          </p>
+        </Link>
       </div>
     </div>
   );

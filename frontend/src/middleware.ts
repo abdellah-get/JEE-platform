@@ -48,6 +48,7 @@ export const config = {
   matcher: [
     "/login",
     "/register",
+    "/pending",
     "/forgot-password",
     "/reset-password",
     "/dashboard",
