@@ -75,6 +75,12 @@ export default function AdminPage() {
             Historique des décisions d’adhésion, activations et rôles.
           </p>
         </Link>
+        <Link href="/admin/workload" className="surface-interactive block p-5">
+          <p className="font-medium text-ink">Charge membres</p>
+          <p className="mt-1 text-sm text-muted">
+            Tâches ouvertes / en retard par personne, export CSV.
+          </p>
+        </Link>
       </div>
     </div>
   );

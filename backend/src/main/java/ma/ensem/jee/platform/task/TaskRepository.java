@@ -120,4 +120,15 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
 			order by t.updatedAt desc
 			""")
 	Page<Task> searchByText(@Param("q") String q, Pageable pageable);
+
+	@Query("""
+			select t from Task t
+			where t.status <> ma.ensem.jee.platform.task.TaskStatus.DONE
+			  and t.assigneeId is not null
+			  and (:projectId is null or t.projectId = :projectId)
+			  and (:priority is null or t.priority = :priority)
+			""")
+	List<Task> findOpenAssigned(
+			@Param("projectId") UUID projectId,
+			@Param("priority") TaskPriority priority);
 }

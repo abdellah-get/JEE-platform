@@ -127,7 +127,7 @@ export default function ProjectDetailPage() {
         </div>
       </header>
 
-      <nav aria-label="Espaces du projet" className="grid gap-3 sm:grid-cols-3">
+      <nav aria-label="Espaces du projet" className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Link href={`/projects/${project.id}/tasks`} className="dest-card">
           <strong>Kanban</strong>
           <span>Colonnes, priorités et échéances des tâches.</span>
@@ -135,6 +135,10 @@ export default function ProjectDetailPage() {
         <Link href={`/projects/${project.id}/team`} className="dest-card">
           <strong>Équipe · {members.length}</strong>
           <span>Qui contribue, et avec quel rôle.</span>
+        </Link>
+        <Link href={`/projects/${project.id}/finance`} className="dest-card">
+          <strong>Finance</strong>
+          <span>Budget projet et notes de frais.</span>
         </Link>
         {manage ? (
           <Link href={`/projects/${project.id}/settings`} className="dest-card">

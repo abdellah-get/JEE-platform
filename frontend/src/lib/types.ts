@@ -264,3 +264,126 @@ export type SearchResponse = {
   query: string;
   results: SearchHit[];
 };
+
+export type MemberWorkload = {
+  userId: string | null;
+  firstName: string;
+  lastName: string;
+  email: string;
+  openTasks: number;
+  overdueTasks: number;
+  highPriorityOpen: number;
+  projectCount: number;
+};
+
+export type Workload = {
+  members: MemberWorkload[];
+  totalOpenTasks: number;
+  totalOverdueTasks: number;
+};
+
+export type LeadStatus = "NEW" | "CONTACTED" | "QUALIFIED" | "LOST";
+
+export type MissionStatus =
+  | "LEAD"
+  | "QUOTE"
+  | "CONTRACT"
+  | "IN_PROGRESS"
+  | "DONE"
+  | "CANCELLED";
+
+export type QuoteStatus = "DRAFT" | "SENT" | "ACCEPTED" | "REJECTED";
+
+export type ContractStatus = "DRAFT" | "SIGNED" | "CLOSED";
+
+export type CrmLead = {
+  id: string;
+  companyName: string;
+  contactName: string | null;
+  contactEmail: string | null;
+  status: LeadStatus;
+  notes: string | null;
+  ownerId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CrmQuote = {
+  id: string;
+  missionId: string;
+  amountCents: number;
+  currency: string;
+  status: QuoteStatus;
+  validUntil: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CrmContract = {
+  id: string;
+  missionId: string;
+  amountCents: number;
+  currency: string;
+  status: ContractStatus;
+  signedAt: string | null;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CrmMission = {
+  id: string;
+  leadId: string | null;
+  leadCompanyName: string | null;
+  projectId: string | null;
+  projectName: string | null;
+  title: string;
+  description: string | null;
+  status: MissionStatus;
+  ownerId: string | null;
+  quotes: CrmQuote[];
+  contracts: CrmContract[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type ExpenseCategory = "TRAVEL" | "MATERIALS" | "SOFTWARE" | "OTHER";
+
+export type ExpenseClaimStatus = "PENDING" | "APPROVED" | "REJECTED";
+
+export type ProjectBudget = {
+  projectId: string;
+  projectName: string;
+  amountCents: number;
+  currency: string;
+  approvedExpensesCents: number;
+  remainingCents: number;
+  updatedBy: string | null;
+  updatedAt: string | null;
+};
+
+export type ExpenseClaim = {
+  id: string;
+  projectId: string;
+  projectName: string;
+  submitterId: string;
+  submitterName: string;
+  category: ExpenseCategory;
+  amountCents: number;
+  description: string;
+  status: ExpenseClaimStatus;
+  receiptNote: string | null;
+  decidedBy: string | null;
+  decidedAt: string | null;
+  decisionNote: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type FinanceSummary = {
+  budgets: ProjectBudget[];
+  totalBudgetCents: number;
+  totalApprovedExpensesCents: number;
+  pendingClaimsCount: number;
+};

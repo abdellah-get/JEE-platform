@@ -24,8 +24,8 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
 | P8 Sécurité session & UX SaaS | **Terminé** | 13/13 (#87–#99) |
 | P9 Fiabiliser | **Terminé** | 8/8 (#140–#147) |
-| P10 Quotidien club | **En cours** | 6/7 (#148–#154) |
-| P11 Junior-Entreprise | **Backlog** | 0/5 (#155–#159) |
+| P10 Quotidien club | **Terminé** | 7/7 (#148–#154) |
+| P11 Junior-Entreprise | **En cours** | 2/5 (#155–#159) |
 
 Étude : [docs/ETUDE-P9.md](./docs/ETUDE-P9.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
 
@@ -152,14 +152,14 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | [151](https://github.com/abdellah-get/JEE-platform/issues/151) | Preview PJ + markdown annonces | **Terminé** |
 | [152](https://github.com/abdellah-get/JEE-platform/issues/152) | Audit log actions admin | **Terminé** |
 | [153](https://github.com/abdellah-get/JEE-platform/issues/153) | Landing enrichie + inscription en attente | **Terminé** |
-| [154](https://github.com/abdellah-get/JEE-platform/issues/154) | Vue charge membre cross-projets | **Backlog** |
+| [154](https://github.com/abdellah-get/JEE-platform/issues/154) | Vue charge membre cross-projets | **Terminé** |
 
 ### P11 — Junior-Entreprise
 
 | # | Mission | Statut |
 |---|---------|--------|
-| [155](https://github.com/abdellah-get/JEE-platform/issues/155) | CRM missions (leads, devis, contrats) | **Backlog** |
-| [156](https://github.com/abdellah-get/JEE-platform/issues/156) | Finance légère (budget, notes de frais) | **Backlog** |
+| [155](https://github.com/abdellah-get/JEE-platform/issues/155) | CRM missions (leads, devis, contrats) | **Terminé** |
+| [156](https://github.com/abdellah-get/JEE-platform/issues/156) | Finance légère (budget, notes de frais) | **Terminé** |
 | [157](https://github.com/abdellah-get/JEE-platform/issues/157) | Pipeline recrutement + pôles | **Backlog** |
 | [158](https://github.com/abdellah-get/JEE-platform/issues/158) | Notifs temps réel (SSE/WebSocket) | **Backlog** |
 | [159](https://github.com/abdellah-get/JEE-platform/issues/159) | 2FA et/ou SSO campus | **Backlog** |
@@ -167,6 +167,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 ---
 
 ## Journal des réalisations
+
+### 2026-11-10 — Missions #154–#156 terminées (charge, CRM, finance) — P10 clos
+
+**Fait :**
+- Workload bureau : API + table heatmap + filtres projet/priorité + export CSV (`/admin/workload`)
+- CRM MVP : leads / missions / devis / contrats (Flyway V16), authz bureau/chef, UI listes + fiche
+- Finance légère : budget projet + notes de frais + validation bureau + export CSV (Flyway V17)
+
+**Prochaine mission :** [#157](https://github.com/abdellah-get/JEE-platform/issues/157) — pipeline recrutement + pôles.
 
 ### 2026-11-10 — Missions #151–#153 terminées (preview/markdown, audit, landing)
 
