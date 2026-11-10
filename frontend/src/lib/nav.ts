@@ -48,6 +48,13 @@ export const ADMIN_NAV = {
   hint: "Membres & rôles",
 } as const;
 
+/** Sticky bottom bar on small screens — daily shortcuts. */
+export const MOBILE_BOTTOM_NAV = [
+  { href: "/tasks", label: "Tâches" },
+  { href: "/calendar", label: "Calendrier" },
+  { href: "/notifications", label: "Notifs" },
+] as const;
+
 export function navContext(pathname: string): { label: string; hint: string } {
   const all = [...APP_NAV, ADMIN_NAV];
   const hit =

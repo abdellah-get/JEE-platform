@@ -11,3 +11,12 @@ export async function loginAs(
   await page.getByRole("button", { name: /Continuer|Se connecter/i }).click();
   await expect(page).toHaveURL(/\/dashboard/);
 }
+
+/** Sidebar only — avoids strict-mode clashes with the mobile bottom nav. */
+export function sideNav(page: Page) {
+  return page.getByRole("navigation", { name: "Navigation principale" });
+}
+
+export async function goSideNav(page: Page, href: string) {
+  await sideNav(page).locator(`a[href="${href}"]`).click();
+}

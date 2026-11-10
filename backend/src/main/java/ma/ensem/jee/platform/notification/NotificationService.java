@@ -63,6 +63,10 @@ public class NotificationService {
 		if (assigneeId == null || assigneeId.equals(actorId)) {
 			return;
 		}
+		User assignee = userRepository.findById(assigneeId).orElse(null);
+		if (assignee == null || !assignee.isNotifyTaskAssigned()) {
+			return;
+		}
 		String title = "Tâche assignée";
 		String body = "« " + truncate(taskTitle, 80) + " » t’a été assignée.";
 		String link = "/projects/" + projectId + "/tasks";
@@ -80,16 +84,18 @@ public class NotificationService {
 		String title = "Annonce urgente";
 		String body = "« " + truncate(announcementTitle, 80) + " » a été épinglée.";
 		String link = "/announcements/" + announcementId;
-		for (User user : recipients) {
-			if (user.getId().equals(authorId)) {
-				continue;
-			}
-			notificationRepository.save(new Notification(
-					user.getId(),
-					NotificationType.ANNOUNCEMENT_PINNED,
-					title,
-					body,
-					link));
+		List<Notification> batch = recipients.stream()
+				.filter(user -> !user.getId().equals(authorId))
+				.filter(User::isNotifyAnnouncementPinned)
+				.map(user -> new Notification(
+						user.getId(),
+						NotificationType.ANNOUNCEMENT_PINNED,
+						title,
+						body,
+						link))
+				.toList();
+		if (!batch.isEmpty()) {
+			notificationRepository.saveAll(batch);
 		}
 	}
 
@@ -99,17 +105,51 @@ public class NotificationService {
 		String title = "Événement à retenir";
 		String body = "« " + truncate(eventTitle, 80) + " » a été épinglé.";
 		String link = "/events/" + eventId;
-		for (User user : recipients) {
-			if (user.getId().equals(authorId)) {
-				continue;
-			}
-			notificationRepository.save(new Notification(
-					user.getId(),
-					NotificationType.EVENT_PINNED,
-					title,
-					body,
-					link));
+		List<Notification> batch = recipients.stream()
+				.filter(user -> !user.getId().equals(authorId))
+				.filter(User::isNotifyEventPinned)
+				.map(user -> new Notification(
+						user.getId(),
+						NotificationType.EVENT_PINNED,
+						title,
+						body,
+						link))
+				.toList();
+		if (!batch.isEmpty()) {
+			notificationRepository.saveAll(batch);
 		}
+	}
+
+	@Transactional
+	public void notifyEventRsvp(
+			UUID creatorId,
+			UUID actorId,
+			String actorName,
+			UUID eventId,
+			String eventTitle,
+			String status) {
+		if (creatorId == null || creatorId.equals(actorId)) {
+			return;
+		}
+		String title = "Nouvelle réponse RSVP";
+		String body = actorName + " a répondu « " + statusLabel(status) + " » à « "
+				+ truncate(eventTitle, 60) + " ».";
+		String link = "/events/" + eventId;
+		notificationRepository.save(new Notification(
+				creatorId,
+				NotificationType.EVENT_RSVP,
+				title,
+				body,
+				link));
+	}
+
+	private static String statusLabel(String status) {
+		return switch (status) {
+			case "GOING" -> "Présent";
+			case "MAYBE" -> "Peut-être";
+			case "DECLINED" -> "Absent";
+			default -> status;
+		};
 	}
 
 	private static String truncate(String value, int max) {

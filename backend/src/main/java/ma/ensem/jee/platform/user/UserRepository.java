@@ -16,6 +16,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
 	List<User> findByActiveTrueOrderByLastNameAscFirstNameAsc();
 
+	List<User> findByActiveTrueAndEmailDigestEnabledTrue();
+
 	List<User> findAllByOrderByLastNameAscFirstNameAsc();
 
 	Page<User> findAllByOrderByLastNameAscFirstNameAsc(Pageable pageable);

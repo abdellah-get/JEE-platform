@@ -43,4 +43,15 @@ public class SmtpMailService implements MailService {
 		mailSender.send(message);
 		log.info("Password reset email sent to {}", toEmail);
 	}
+
+	@Override
+	public void sendNotificationDigest(String toEmail, String subject, String body) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setFrom(from);
+		message.setTo(toEmail);
+		message.setSubject(subject);
+		message.setText(body);
+		mailSender.send(message);
+		log.info("Notification digest email sent to {}", toEmail);
+	}
 }

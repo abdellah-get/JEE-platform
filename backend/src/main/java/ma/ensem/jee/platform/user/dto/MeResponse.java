@@ -11,7 +11,8 @@ public record MeResponse(
 		String firstName,
 		String lastName,
 		ClubRole clubRole,
-		boolean active) {
+		boolean active,
+		NotificationPreferencesResponse notificationPreferences) {
 
 	public static MeResponse from(User user) {
 		return new MeResponse(
@@ -20,6 +21,7 @@ public record MeResponse(
 				user.getFirstName(),
 				user.getLastName(),
 				user.getClubRole(),
-				user.isActive());
+				user.isActive(),
+				NotificationPreferencesResponse.from(user));
 	}
 }

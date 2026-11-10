@@ -31,6 +31,8 @@ class ProductionSafetyValidatorTest {
 		when(environment.getProperty("spring.datasource.driver-class-name", "")).thenReturn("org.h2.Driver");
 		when(environment.getProperty("spring.h2.console.enabled", Boolean.class, false)).thenReturn(false);
 		when(environment.getProperty("app.seed.enabled", Boolean.class, false)).thenReturn(false);
+		when(environment.getProperty("springdoc.api-docs.enabled", Boolean.class, Boolean.TRUE))
+				.thenReturn(false);
 		validator = new ProductionSafetyValidator(environment, jwtProperties, registrationProperties);
 	}
 
@@ -127,5 +129,17 @@ class ProductionSafetyValidatorTest {
 
 		assertThatCode(() -> validator.run(new DefaultApplicationArguments()))
 				.doesNotThrowAnyException();
+	}
+
+	@Test
+	void prodRejectsSpringdocEnabled() {
+		when(environment.getActiveProfiles()).thenReturn(new String[] { "prod" });
+		when(environment.getProperty("springdoc.api-docs.enabled", Boolean.class, Boolean.TRUE))
+				.thenReturn(true);
+		jwtProperties.setSecret("a-very-long-production-secret-key-32+");
+
+		assertThatThrownBy(() -> validator.run(new DefaultApplicationArguments()))
+				.isInstanceOf(IllegalStateException.class)
+				.hasMessageContaining("SPRINGDOC_ENABLED");
 	}
 }

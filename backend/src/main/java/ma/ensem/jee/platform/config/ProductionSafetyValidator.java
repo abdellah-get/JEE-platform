@@ -71,7 +71,12 @@ public class ProductionSafetyValidator implements ApplicationRunner {
 						"REGISTRATION_REQUIRE_APPROVAL must be true in production "
 								+ "(new accounts stay inactive until bureau activation).");
 			}
-			log.info("Production safety checks passed (JWT, H2, seed, registration).");
+			if (isSpringdocEnabled()) {
+				throw new IllegalStateException(
+						"SPRINGDOC_ENABLED must be false in production "
+								+ "(OpenAPI / Swagger UI must not be exposed).");
+			}
+			log.info("Production safety checks passed (JWT, H2, seed, registration, OpenAPI).");
 		}
 		else if (isH2ConsoleEnabled()) {
 			log.info("H2 console enabled (local/dev). URL path: /h2-console");
@@ -97,5 +102,12 @@ public class ProductionSafetyValidator implements ApplicationRunner {
 
 	private boolean isSeedEnabled() {
 		return environment.getProperty("app.seed.enabled", Boolean.class, false);
+	}
+
+	private boolean isSpringdocEnabled() {
+		Boolean enabled = environment.getProperty(
+				"springdoc.api-docs.enabled", Boolean.class, Boolean.TRUE);
+		// Fail closed: treat missing/null as enabled so prod must opt out explicitly.
+		return enabled == null || enabled;
 	}
 }

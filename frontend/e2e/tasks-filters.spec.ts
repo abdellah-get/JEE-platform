@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
 
-import { loginAs } from "./helpers";
+import { goSideNav, loginAs } from "./helpers";
 
 test("filtres Mes tâches", async ({ page }) => {
   await loginAs(page, "chef@ensem.jee");
 
-  await page.locator('nav a[href="/tasks"]').click();
+  await goSideNav(page, "/tasks");
   await expect(page).toHaveURL(/\/tasks$/);
   await expect(page.getByRole("heading", { name: "Mes tâches" })).toBeVisible();
   await expect(page.getByText("Maquette homepage")).toBeVisible();

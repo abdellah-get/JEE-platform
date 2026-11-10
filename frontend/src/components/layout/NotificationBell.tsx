@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 
 import { useAuth } from "@/context/AuthContext";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import * as api from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 import type { AppNotification } from "@/lib/types";
@@ -14,8 +15,10 @@ export function NotificationBell() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelId = useId();
+  useFocusTrap(panelRef, open);
 
   const { data: countData } = useQuery({
     queryKey: queryKeys.unreadNotificationCount,
@@ -104,8 +107,10 @@ export function NotificationBell() {
 
       {open && (
         <div
+          ref={panelRef}
           id={panelId}
           role="dialog"
+          aria-modal="true"
           aria-label="Notifications"
           className="absolute right-0 z-50 mt-2 w-[min(20rem,calc(100vw-2rem))] surface-quiet shadow-lg"
         >

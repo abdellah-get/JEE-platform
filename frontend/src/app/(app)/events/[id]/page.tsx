@@ -17,7 +17,7 @@ import {
   fromDatetimeLocalValue,
   toDatetimeLocalValue,
 } from "@/lib/date-input";
-import type { ClubEvent } from "@/lib/types";
+import type { ClubEvent, EventRsvp, EventRsvpStatus } from "@/lib/types";
 
 export default function EventDetailPage() {
   const params = useParams<{ id: string }>();
@@ -34,6 +34,7 @@ export default function EventDetailPage() {
   const [editStartsAt, setEditStartsAt] = useState("");
   const [editEndsAt, setEditEndsAt] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [participants, setParticipants] = useState<EventRsvp[]>([]);
 
   useEffect(() => {
     if (!accessToken || !params.id) return;
@@ -53,6 +54,17 @@ export default function EventDetailPage() {
         setError(err instanceof ApiError ? err.message : "Chargement impossible");
       });
   }, [accessToken, params.id]);
+
+  useEffect(() => {
+    if (!accessToken || !params.id || !user || !canAccessAdmin(user.clubRole)) {
+      setParticipants([]);
+      return;
+    }
+    api
+      .listEventRsvps(accessToken, params.id)
+      .then(setParticipants)
+      .catch(() => setParticipants([]));
+  }, [accessToken, params.id, user]);
 
   if (loading || !user || !accessToken) {
     return <LoadingBlock />;
@@ -141,6 +153,43 @@ export default function EventDetailPage() {
       setError(err instanceof ApiError ? err.message : "Suppression impossible");
       setBusy(false);
       setConfirmDelete(false);
+    }
+  }
+
+  async function setRsvp(status: EventRsvpStatus) {
+    setBusy(true);
+    setError(null);
+    try {
+      const updated = await api.upsertEventRsvp(accessToken!, item!.id, status);
+      setItem(updated);
+      toast.success("Réponse enregistrée.");
+      if (canWrite) {
+        const list = await api.listEventRsvps(accessToken!, item!.id);
+        setParticipants(list);
+      }
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : "RSVP impossible";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function clearRsvp() {
+    setBusy(true);
+    try {
+      const updated = await api.clearEventRsvp(accessToken!, item!.id);
+      setItem(updated);
+      toast.success("Réponse retirée.");
+      if (canWrite) {
+        const list = await api.listEventRsvps(accessToken!, item!.id);
+        setParticipants(list);
+      }
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Action impossible");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -251,6 +300,77 @@ export default function EventDetailPage() {
       )}
 
       {error && !editing && <p className="text-sm text-danger">{error}</p>}
+
+      {!editing && (
+        <section className="surface-quiet space-y-3 p-5" aria-label="RSVP">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 className="text-sm font-semibold text-ink">Ta présence</h2>
+              <p className="mt-0.5 text-xs text-muted">
+                {(item.goingCount ?? 0)} présent
+                {(item.goingCount ?? 0) > 1 ? "s" : ""} · {(item.maybeCount ?? 0)}{" "}
+                peut-être · {(item.declinedCount ?? 0)} absent
+                {(item.declinedCount ?? 0) > 1 ? "s" : ""}
+              </p>
+            </div>
+            {item.myRsvp ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void clearRsvp()}
+                className="text-xs font-semibold text-muted underline"
+              >
+                Retirer ma réponse
+              </button>
+            ) : null}
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {(
+              [
+                ["GOING", "Présent"],
+                ["MAYBE", "Peut-être"],
+                ["DECLINED", "Absent"],
+              ] as const
+            ).map(([status, label]) => (
+              <button
+                key={status}
+                type="button"
+                disabled={busy}
+                onClick={() => void setRsvp(status)}
+                className={`btn ${item.myRsvp === status ? "btn-primary" : "btn-secondary"}`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {canWrite && !editing && participants.length > 0 ? (
+        <section className="surface-quiet p-5" aria-label="Participants">
+          <h2 className="text-sm font-semibold text-ink">Participants</h2>
+          <ul className="mt-3 divide-y divide-line">
+            {participants.map((p) => (
+              <li
+                key={p.id}
+                className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm"
+              >
+                <span>
+                  <span className="font-medium text-ink">{p.userName}</span>
+                  <span className="ml-2 text-xs text-muted">{p.userEmail}</span>
+                </span>
+                <span className="chip" data-tone="actif">
+                  {p.status === "GOING"
+                    ? "Présent"
+                    : p.status === "MAYBE"
+                      ? "Peut-être"
+                      : "Absent"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {canWrite && !editing && (
         <div className="flex flex-wrap gap-2">

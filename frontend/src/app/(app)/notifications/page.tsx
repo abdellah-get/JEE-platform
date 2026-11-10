@@ -33,6 +33,8 @@ function kindMeta(type: NotificationType) {
       return { label: "Annonce", tone: "urgente", kind: "announcement" };
     case "EVENT_PINNED":
       return { label: "Événement", tone: "actif", kind: "event" };
+    case "EVENT_RSVP":
+      return { label: "RSVP", tone: "moyenne", kind: "event" };
   }
 }
 

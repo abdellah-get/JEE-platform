@@ -1,22 +1,22 @@
 import { expect, test } from "@playwright/test";
 
-import { loginAs } from "./helpers";
+import { goSideNav, loginAs } from "./helpers";
 
 test("liste événements + calendrier + création (bureau)", async ({ page }) => {
   await loginAs(page, "bureau@ensem.jee");
 
-  await page.locator('nav a[href="/events"]').click();
+  await goSideNav(page, "/events");
   await expect(page).toHaveURL(/\/events$/);
   await expect(page.getByRole("heading", { name: "Événements" })).toBeVisible();
   await expect(
     page.getByRole("link", { name: /Formation Soft Skills/i }),
   ).toBeVisible();
 
-  await page.locator('nav a[href="/calendar"]').click();
+  await goSideNav(page, "/calendar");
   await expect(page).toHaveURL(/\/calendar$/);
   await expect(page.getByRole("heading", { name: "Calendrier" })).toBeVisible();
 
-  await page.locator('nav a[href="/events"]').click();
+  await goSideNav(page, "/events");
   await page.getByRole("link", { name: "Créer" }).click();
   await expect(page).toHaveURL(/\/events\/new$/);
 

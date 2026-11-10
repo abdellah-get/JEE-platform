@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 
 import { ClubLogo } from "@/components/brand/ClubLogo";
 import {
@@ -14,8 +14,9 @@ import { PageMotion } from "@/components/motion/PageMotion";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 import { canAccessAdmin } from "@/lib/auth-storage";
-import { ADMIN_NAV, APP_NAV, navContext } from "@/lib/nav";
+import { ADMIN_NAV, APP_NAV, MOBILE_BOTTOM_NAV, navContext } from "@/lib/nav";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -23,10 +24,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [resuming, setResuming] = useState(false);
   const navId = useId();
+  const drawerRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const showAdmin = canAccessAdmin(user?.clubRole);
   const context = navContext(pathname);
 
   const links = showAdmin ? [...APP_NAV, ADMIN_NAV] : APP_NAV;
+  const drawerOpen = isMobile && open;
+  useFocusTrap(drawerRef, drawerOpen);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     setOpen(false);
@@ -37,6 +51,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => {
       document.body.style.overflow = "";
     };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
   if (loading) {
@@ -86,7 +112,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </a>
 
       <aside
+        ref={drawerRef}
         id={navId}
+        aria-hidden={isMobile && !open ? true : undefined}
         className={`fixed inset-y-0 left-0 z-40 flex w-[min(18rem,88vw)] flex-col border-r border-line bg-surface/95 pt-[env(safe-area-inset-top)] shadow-[8px_0_32px_rgb(61_61_61/6%)] backdrop-blur-md transition-transform duration-300 ease-out md:static md:w-[16.5rem] md:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
@@ -165,6 +193,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-dvh flex-1 flex-col">
         <header className="glass-bar sticky top-0 z-20 flex items-center gap-3 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:hidden">
           <button
+            ref={menuButtonRef}
             type="button"
             onClick={() => setOpen(true)}
             aria-expanded={open}
@@ -198,10 +227,40 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
         <main
           id="contenu-principal"
-          className="flex-1 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] md:px-8 md:py-8"
+          className="flex-1 px-4 py-6 pb-[max(5.5rem,calc(4rem+env(safe-area-inset-bottom)))] md:px-8 md:py-8 md:pb-8"
         >
           <PageMotion>{children}</PageMotion>
         </main>
+        <nav
+          aria-label="Raccourcis mobiles"
+          className="glass-bar fixed inset-x-0 bottom-0 z-20 hidden items-stretch justify-around border-t border-line pb-[env(safe-area-inset-bottom)] max-md:flex"
+        >
+          {MOBILE_BOTTOM_NAV.map((item) => {
+            const active =
+              pathname === item.href || pathname.startsWith(`${item.href}/`);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={active ? "page" : undefined}
+                className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-semibold ${
+                  active ? "text-brand" : "text-muted"
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            aria-expanded={open}
+            aria-controls={navId}
+            className="flex min-h-12 flex-1 flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-semibold text-muted"
+          >
+            Plus
+          </button>
+        </nav>
         <CommandPaletteHost />
       </div>
     </div>

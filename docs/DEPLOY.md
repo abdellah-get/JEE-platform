@@ -158,7 +158,7 @@ NEXT_PUBLIC_API_URL=https://ton-api.onrender.com
 - [ ] (Optionnel) volume persistant / `ATTACHMENTS_PATH` pour les livrables
 - [ ] `GET /api/v1/health` → HTTP 200, JSON `status=UP` et `db=UP`
 - [ ] `GET /actuator/health` (et probes) → `UP` (public) ; Swagger UI nécessite un JWT
-- [ ] (Prod) `SPRINGDOC_ENABLED=false` si tu ne veux pas exposer l’OpenAPI
+- [ ] (Prod) `SPRINGDOC_ENABLED=false` (défaut profil `prod` ; l’API refuse de démarrer si OpenAPI reste actif)
 - [ ] `/h2-console` inaccessible
 - [ ] `SEED_ENABLED=false`
 - [ ] `REGISTRATION_REQUIRE_APPROVAL=true` + domaines non vides

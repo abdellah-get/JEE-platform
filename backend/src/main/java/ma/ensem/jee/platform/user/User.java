@@ -42,6 +42,25 @@ public class User {
 	@Column(name = "membership_status", nullable = false, length = 16)
 	private MembershipStatus membershipStatus = MembershipStatus.APPROVED;
 
+	@Column(name = "email_digest_enabled", nullable = false)
+	private boolean emailDigestEnabled = false;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "digest_frequency", nullable = false, length = 16)
+	private DigestFrequency digestFrequency = DigestFrequency.WEEKLY;
+
+	@Column(name = "notify_task_assigned", nullable = false)
+	private boolean notifyTaskAssigned = true;
+
+	@Column(name = "notify_announcement_pinned", nullable = false)
+	private boolean notifyAnnouncementPinned = true;
+
+	@Column(name = "notify_event_pinned", nullable = false)
+	private boolean notifyEventPinned = true;
+
+	@Column(name = "last_digest_sent_at")
+	private Instant lastDigestSentAt;
+
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
 
@@ -135,6 +154,54 @@ public class User {
 
 	public void setMembershipStatus(MembershipStatus membershipStatus) {
 		this.membershipStatus = membershipStatus;
+	}
+
+	public boolean isEmailDigestEnabled() {
+		return emailDigestEnabled;
+	}
+
+	public void setEmailDigestEnabled(boolean emailDigestEnabled) {
+		this.emailDigestEnabled = emailDigestEnabled;
+	}
+
+	public DigestFrequency getDigestFrequency() {
+		return digestFrequency;
+	}
+
+	public void setDigestFrequency(DigestFrequency digestFrequency) {
+		this.digestFrequency = digestFrequency;
+	}
+
+	public boolean isNotifyTaskAssigned() {
+		return notifyTaskAssigned;
+	}
+
+	public void setNotifyTaskAssigned(boolean notifyTaskAssigned) {
+		this.notifyTaskAssigned = notifyTaskAssigned;
+	}
+
+	public boolean isNotifyAnnouncementPinned() {
+		return notifyAnnouncementPinned;
+	}
+
+	public void setNotifyAnnouncementPinned(boolean notifyAnnouncementPinned) {
+		this.notifyAnnouncementPinned = notifyAnnouncementPinned;
+	}
+
+	public boolean isNotifyEventPinned() {
+		return notifyEventPinned;
+	}
+
+	public void setNotifyEventPinned(boolean notifyEventPinned) {
+		this.notifyEventPinned = notifyEventPinned;
+	}
+
+	public Instant getLastDigestSentAt() {
+		return lastDigestSentAt;
+	}
+
+	public void setLastDigestSentAt(Instant lastDigestSentAt) {
+		this.lastDigestSentAt = lastDigestSentAt;
 	}
 
 	public Instant getCreatedAt() {

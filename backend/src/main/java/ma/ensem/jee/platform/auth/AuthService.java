@@ -151,7 +151,11 @@ public class AuthService {
 		return INACTIVE_LOGIN;
 	}
 
-	@Transactional
+	/**
+	 * BadCredentials must not roll back token revocations (reuse → family revoke,
+	 * expired / inactive revoke markers).
+	 */
+	@Transactional(noRollbackFor = BadCredentialsException.class)
 	public AuthResult refresh(String refreshToken) {
 		RefreshToken stored = requireActiveRefreshToken(refreshToken);
 		User user = stored.getUser();
@@ -206,9 +210,15 @@ public class AuthService {
 			throw new BadCredentialsException("Refresh token invalide");
 		}
 
-		RefreshToken stored = refreshTokenRepository
-				.findByTokenHashAndRevokedAtIsNull(TokenHashes.sha256(refreshToken))
+		String hash = TokenHashes.sha256(refreshToken);
+		RefreshToken stored = refreshTokenRepository.findByTokenHash(hash)
 				.orElseThrow(() -> new BadCredentialsException("Refresh token invalide ou révoqué"));
+
+		// Reuse of a rotated/revoked token → revoke the whole session family
+		if (stored.isRevoked()) {
+			refreshTokenRepository.revokeAllForUser(stored.getUser().getId(), Instant.now());
+			throw new BadCredentialsException("Refresh token réutilisé — sessions révoquées");
+		}
 
 		if (stored.isExpired(Instant.now())) {
 			stored.revoke();

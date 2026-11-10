@@ -30,16 +30,19 @@ import ma.ensem.jee.platform.task.TaskStatus;
 public class CalendarService {
 
 	private final ClubEventRepository eventRepository;
+	private final EventRsvpRepository rsvpRepository;
 	private final TaskRepository taskRepository;
 	private final ProjectRepository projectRepository;
 	private final ProjectAccessService accessService;
 
 	public CalendarService(
 			ClubEventRepository eventRepository,
+			EventRsvpRepository rsvpRepository,
 			TaskRepository taskRepository,
 			ProjectRepository projectRepository,
 			ProjectAccessService accessService) {
 		this.eventRepository = eventRepository;
+		this.rsvpRepository = rsvpRepository;
 		this.taskRepository = taskRepository;
 		this.projectRepository = projectRepository;
 		this.accessService = accessService;
@@ -59,8 +62,13 @@ public class CalendarService {
 		Instant toInstant = to.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC);
 
 		List<CalendarItemResponse> items = new ArrayList<>();
+		List<ClubEvent> events = eventRepository.findOverlapping(fromInstant, toInstant);
+		Map<UUID, EventRsvpStatus> myRsvps = rsvpRepository
+				.findByEventIdInAndUserId(events.stream().map(ClubEvent::getId).toList(), user.getId())
+				.stream()
+				.collect(Collectors.toMap(EventRsvp::getEventId, EventRsvp::getStatus));
 
-		for (ClubEvent event : eventRepository.findOverlapping(fromInstant, toInstant)) {
+		for (ClubEvent event : events) {
 			items.add(new CalendarItemResponse(
 					"EVENT",
 					event.getId(),
@@ -70,7 +78,8 @@ public class CalendarService {
 					event.getLocation(),
 					"/events/" + event.getId(),
 					event.isPinned(),
-					null));
+					null,
+					myRsvps.get(event.getId())));
 		}
 
 		Set<UUID> visibleProjectIds = visibleProjectIds(user);
@@ -87,7 +96,7 @@ public class CalendarService {
 					continue;
 				}
 				Instant due = task.getDueDate().atStartOfDay().toInstant(ZoneOffset.UTC);
-				items.add(new CalendarItemResponse(
+				items.add(CalendarItemResponse.of(
 						"TASK_DUE",
 						task.getId(),
 						task.getTitle(),
