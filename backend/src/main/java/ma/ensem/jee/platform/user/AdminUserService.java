@@ -7,6 +7,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ma.ensem.jee.platform.audit.AuditService;
 import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
 import ma.ensem.jee.platform.common.PageResponse;
@@ -21,9 +22,11 @@ import ma.ensem.jee.platform.user.dto.UpdateUserActiveRequest;
 public class AdminUserService {
 
 	private final UserRepository userRepository;
+	private final AuditService auditService;
 
-	public AdminUserService(UserRepository userRepository) {
+	public AdminUserService(UserRepository userRepository, AuditService auditService) {
 		this.userRepository = userRepository;
+		this.auditService = auditService;
 	}
 
 	@Transactional(readOnly = true)
@@ -53,6 +56,7 @@ public class AdminUserService {
 		}
 
 		boolean active = Boolean.TRUE.equals(request.active());
+		boolean previous = target.isActive();
 		target.setActive(active);
 		if (active) {
 			target.setMembershipStatus(MembershipStatus.APPROVED);
@@ -60,6 +64,13 @@ public class AdminUserService {
 		else if (target.getMembershipStatus() == MembershipStatus.PENDING) {
 			target.setMembershipStatus(MembershipStatus.REJECTED);
 		}
+		auditService.record(
+				current,
+				active ? "USER_ACTIVATE" : "USER_DEACTIVATE",
+				"USER",
+				target.getId(),
+				(active ? "Activation" : "Désactivation") + " de " + target.getEmail(),
+				"{\"fromActive\":" + previous + ",\"toActive\":" + active + "}");
 		return AdminUserResponse.from(target);
 	}
 
@@ -84,6 +95,15 @@ public class AdminUserService {
 		else {
 			throw new IllegalArgumentException("Décision invalide");
 		}
+		auditService.record(
+				current,
+				request.decision() == MembershipDecision.APPROVE
+						? "MEMBERSHIP_APPROVE"
+						: "MEMBERSHIP_REJECT",
+				"USER",
+				target.getId(),
+				"Décision adhésion " + request.decision().name() + " pour " + target.getEmail(),
+				"{\"decision\":\"" + request.decision().name() + "\"}");
 		return AdminUserResponse.from(target);
 	}
 
@@ -105,7 +125,15 @@ public class AdminUserService {
 			throw new IllegalArgumentException("Impossible de rétrograder le dernier admin technique actif");
 		}
 
+		ClubRole previous = target.getClubRole();
 		target.setClubRole(newRole);
+		auditService.record(
+				current,
+				"USER_ROLE_CHANGE",
+				"USER",
+				target.getId(),
+				"Rôle " + previous + " → " + newRole + " pour " + target.getEmail(),
+				"{\"from\":\"" + previous + "\",\"to\":\"" + newRole + "\"}");
 		return AdminUserResponse.from(target);
 	}
 

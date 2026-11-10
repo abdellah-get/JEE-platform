@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
+import { MarkdownEditor } from "@/components/markdown/MarkdownEditor";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { LoadingBlock } from "@/components/ui/LoadingBlock";
 import { useAuth } from "@/context/AuthContext";
@@ -12,6 +13,7 @@ import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
 import { canAccessAdmin } from "@/lib/auth-storage";
+import { SafeMarkdown } from "@/lib/safe-markdown";
 import type { Announcement } from "@/lib/types";
 
 export default function AnnouncementDetailPage() {
@@ -147,20 +149,14 @@ export default function AnnouncementDetailPage() {
             onChange={setEditTitle}
             required
           />
-          <div>
-            <label htmlFor="edit-body" className="mb-1 block text-sm font-medium text-ink/80">
-              Contenu
-            </label>
-            <textarea
-              id="edit-body"
-              required
-              rows={8}
-              maxLength={10000}
-              value={editBody}
-              onChange={(e) => setEditBody(e.target.value)}
-              className="input-field"
-            />
-          </div>
+          <MarkdownEditor
+            id="edit-body"
+            label="Contenu (markdown)"
+            value={editBody}
+            onChange={setEditBody}
+            required
+            rows={10}
+          />
           {error && <p className="text-sm text-danger">{error}</p>}
           <div className="flex flex-wrap gap-2">
             <button
@@ -199,7 +195,9 @@ export default function AnnouncementDetailPage() {
               ? ` · modifié ${new Date(item.updatedAt).toLocaleString("fr-FR")}`
               : ""}
           </p>
-          <p className="mt-4 whitespace-pre-wrap text-sm text-ink">{item.body}</p>
+          <div className="mt-4">
+            <SafeMarkdown source={item.body} />
+          </div>
         </article>
       )}
 

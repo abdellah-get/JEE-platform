@@ -23,6 +23,12 @@ export const queryKeys = {
   unreadNotificationCount: ["notifications", "unread-count"] as const,
   adminUsers: (page = 0, membership?: string) =>
     ["admin-users", { page, membership }] as const,
+  auditEvents: (filters: {
+    page?: number;
+    action?: string;
+    from?: string;
+    to?: string;
+  }) => ["audit-events", filters] as const,
   usersDirectory: ["users"] as const,
   search: (q: string) => ["search", { q }] as const,
 };
