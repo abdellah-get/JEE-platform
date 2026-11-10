@@ -20,6 +20,7 @@ import ma.ensem.jee.platform.auth.dto.LoginRequest;
 import ma.ensem.jee.platform.auth.dto.RegisterRequest;
 import ma.ensem.jee.platform.auth.dto.RegisterResponse;
 import ma.ensem.jee.platform.common.BadRequestException;
+import ma.ensem.jee.platform.recruitment.RecruitmentService;
 import ma.ensem.jee.platform.user.ClubRole;
 import ma.ensem.jee.platform.user.MembershipStatus;
 import ma.ensem.jee.platform.user.User;
@@ -49,6 +50,7 @@ public class AuthService {
 	private final JwtService jwtService;
 	private final AuthenticationManager authenticationManager;
 	private final RegistrationProperties registrationProperties;
+	private final RecruitmentService recruitmentService;
 
 	public AuthService(
 			UserRepository userRepository,
@@ -56,13 +58,15 @@ public class AuthService {
 			PasswordEncoder passwordEncoder,
 			JwtService jwtService,
 			AuthenticationManager authenticationManager,
-			RegistrationProperties registrationProperties) {
+			RegistrationProperties registrationProperties,
+			RecruitmentService recruitmentService) {
 		this.userRepository = userRepository;
 		this.refreshTokenRepository = refreshTokenRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.jwtService = jwtService;
 		this.authenticationManager = authenticationManager;
 		this.registrationProperties = registrationProperties;
+		this.recruitmentService = recruitmentService;
 	}
 
 	@Transactional
@@ -97,6 +101,7 @@ public class AuthService {
 			user.setActive(false);
 			user.setMembershipStatus(MembershipStatus.PENDING);
 			userRepository.save(user);
+			recruitmentService.ensureEntryForPendingUser(user.getId());
 			return RegisterOutcome.pending(RegisterResponse.pending(PENDING_MESSAGE));
 		}
 
@@ -125,6 +130,19 @@ public class AuthService {
 			throw new BadCredentialsException(messageForInactive(user));
 		}
 
+		if (user.isTotpEnabled()) {
+			String preAuth = jwtService.createPreAuthToken(user);
+			return AuthResult.challenge(AuthResponse.twoFactorChallenge(user.getId(), user.getEmail(), preAuth));
+		}
+
+		return buildAuthResult(user);
+	}
+
+	@Transactional
+	public AuthResult completeLoginAfterTwoFactor(User user) {
+		if (!user.isActive()) {
+			throw new BadCredentialsException(INACTIVE_LOGIN);
+		}
 		return buildAuthResult(user);
 	}
 
@@ -242,9 +260,8 @@ public class AuthService {
 				.sameSite(refreshCookieSameSite())
 				.build();
 
-		AuthResponse body = new AuthResponse(
+		AuthResponse body = AuthResponse.session(
 				access,
-				"Bearer",
 				jwtService.getAccessTokenMinutes(),
 				user.getId(),
 				user.getEmail(),
@@ -256,8 +273,18 @@ public class AuthService {
 	}
 
 	public record AuthResult(AuthResponse body, ResponseCookie refreshCookie) {
+		static AuthResult challenge(AuthResponse body) {
+			return new AuthResult(body, null);
+		}
+
 		public void applyCookie(HttpHeaders headers) {
-			headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+			if (refreshCookie != null) {
+				headers.add(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+			}
+		}
+
+		public boolean isTwoFactorChallenge() {
+			return Boolean.TRUE.equals(body.requiresTwoFactor());
 		}
 	}
 

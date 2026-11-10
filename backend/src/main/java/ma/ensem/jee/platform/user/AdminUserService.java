@@ -12,6 +12,9 @@ import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
 import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
+import ma.ensem.jee.platform.recruitment.RecruitmentEntry;
+import ma.ensem.jee.platform.recruitment.RecruitmentEntryRepository;
+import ma.ensem.jee.platform.recruitment.RecruitmentStage;
 import ma.ensem.jee.platform.user.dto.AdminUserResponse;
 import ma.ensem.jee.platform.user.dto.DecideMembershipRequest;
 import ma.ensem.jee.platform.user.dto.MembershipDecision;
@@ -23,10 +26,15 @@ public class AdminUserService {
 
 	private final UserRepository userRepository;
 	private final AuditService auditService;
+	private final RecruitmentEntryRepository recruitmentEntryRepository;
 
-	public AdminUserService(UserRepository userRepository, AuditService auditService) {
+	public AdminUserService(
+			UserRepository userRepository,
+			AuditService auditService,
+			RecruitmentEntryRepository recruitmentEntryRepository) {
 		this.userRepository = userRepository;
 		this.auditService = auditService;
+		this.recruitmentEntryRepository = recruitmentEntryRepository;
 	}
 
 	@Transactional(readOnly = true)
@@ -87,10 +95,12 @@ public class AdminUserService {
 		if (request.decision() == MembershipDecision.APPROVE) {
 			target.setMembershipStatus(MembershipStatus.APPROVED);
 			target.setActive(true);
+			syncRecruitmentStage(target.getId(), RecruitmentStage.ACCEPTED);
 		}
 		else if (request.decision() == MembershipDecision.REJECT) {
 			target.setMembershipStatus(MembershipStatus.REJECTED);
 			target.setActive(false);
+			syncRecruitmentStage(target.getId(), RecruitmentStage.REJECTED);
 		}
 		else {
 			throw new IllegalArgumentException("Décision invalide");
@@ -151,5 +161,16 @@ public class AdminUserService {
 			throw new AccessDeniedException("Seul l'admin technique peut modifier les rôles club");
 		}
 		return current;
+	}
+
+	private void syncRecruitmentStage(UUID userId, RecruitmentStage stage) {
+		recruitmentEntryRepository.findByUserId(userId).ifPresentOrElse(entry -> {
+			entry.setStage(stage);
+			entry.setDecidedAt(java.time.Instant.now());
+		}, () -> {
+			RecruitmentEntry entry = new RecruitmentEntry(userId, stage);
+			entry.setDecidedAt(java.time.Instant.now());
+			recruitmentEntryRepository.save(entry);
+		});
 	}
 }

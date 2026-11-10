@@ -29,7 +29,7 @@ public record RegisterResponse(
 				"Compte créé.",
 				auth.accessToken(),
 				auth.tokenType(),
-				auth.expiresInMinutes(),
+				auth.expiresInMinutes() != null ? auth.expiresInMinutes() : 0L,
 				auth.userId(),
 				auth.email(),
 				auth.firstName(),
@@ -38,9 +38,8 @@ public record RegisterResponse(
 	}
 
 	public AuthResponse toAuthResponse() {
-		return new AuthResponse(
+		return AuthResponse.session(
 				accessToken,
-				tokenType,
 				expiresInMinutes,
 				userId,
 				email,

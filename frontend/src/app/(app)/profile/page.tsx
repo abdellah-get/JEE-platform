@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { FormEvent, useEffect, useState } from "react";
 
 import { Field } from "@/components/auth/Field";
@@ -9,7 +10,13 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
-import type { ClubRole, DigestFrequency, NotificationPreferences } from "@/lib/types";
+import { queryKeys } from "@/lib/query-keys";
+import type {
+  ClubRole,
+  DigestFrequency,
+  NotificationPreferences,
+  TotpSetup,
+} from "@/lib/types";
 
 function clubRoleLabel(role: ClubRole) {
   switch (role) {
@@ -41,6 +48,7 @@ function initials(firstName: string, lastName: string) {
 export default function ProfilePage() {
   const { user, loading, accessToken, updateLocalUser } = useAuth();
   const toast = useToast();
+  const qc = useQueryClient();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [profileError, setProfileError] = useState<string | null>(null);
@@ -60,6 +68,10 @@ export default function ProfilePage() {
   });
   const [prefsError, setPrefsError] = useState<string | null>(null);
   const [savingPrefs, setSavingPrefs] = useState(false);
+
+  const [totpSetup, setTotpSetup] = useState<TotpSetup | null>(null);
+  const [totpCode, setTotpCode] = useState("");
+  const [totpBusy, setTotpBusy] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -83,12 +95,21 @@ export default function ProfilePage() {
       });
   }, [accessToken]);
 
+  const totpQuery = useQuery({
+    queryKey: queryKeys.totpStatus,
+    queryFn: () => api.getTotpStatus(accessToken!),
+    enabled: Boolean(accessToken),
+  });
+
   if (loading || !user || !accessToken) {
     return <LoadingBlock label="Chargement du profil…" />;
   }
 
   const token = accessToken;
   const displayName = `${firstName.trim()} ${lastName.trim()}`.trim() || user.email;
+  const bureauNudge =
+    (user.clubRole === "BUREAU" || user.clubRole === "ADMIN_TECH") &&
+    !totpQuery.data?.enabled;
 
   function onSaveProfile(e: FormEvent) {
     e.preventDefault();
@@ -392,6 +413,140 @@ export default function ProfilePage() {
             {savingPrefs ? "Enregistrement…" : "Enregistrer les préférences"}
           </button>
         </div>
+      </section>
+
+      <section className="surface-quiet p-5">
+        <h2 className="font-[family-name:var(--font-syne)] text-base font-semibold tracking-tight text-ink">
+          Authentification à deux facteurs (TOTP)
+        </h2>
+        <p className="mt-1 text-sm text-muted">
+          Optionnel pour les membres. Fortement recommandé pour le bureau /
+          admin tech (Authy, Google Authenticator…).
+        </p>
+        {bureauNudge ? (
+          <p className="mt-3 rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-ink">
+            Ton rôle club est sensible — active la 2FA dès que possible.
+          </p>
+        ) : null}
+
+        {totpQuery.isPending ? (
+          <p className="mt-4 text-sm text-muted">Chargement…</p>
+        ) : totpQuery.data?.enabled ? (
+          <div className="mt-4 space-y-3">
+            <p className="text-sm text-ink">
+              2FA active · {totpQuery.data.unusedRecoveryCodes} codes de
+              récupération restants.
+            </p>
+            <form
+              className="flex flex-wrap items-end gap-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void (async () => {
+                  setTotpBusy(true);
+                  try {
+                    await api.disableTotp(token, totpCode.trim());
+                    setTotpCode("");
+                    toast.success("2FA désactivée.");
+                    void qc.invalidateQueries({ queryKey: queryKeys.totpStatus });
+                  } catch (err) {
+                    toast.error(
+                      err instanceof ApiError ? err.message : "Échec",
+                    );
+                  } finally {
+                    setTotpBusy(false);
+                  }
+                })();
+              }}
+            >
+              <Field
+                id="disable-totp"
+                label="Code pour désactiver"
+                value={totpCode}
+                onChange={setTotpCode}
+                required
+              />
+              <button
+                type="submit"
+                className="btn btn-secondary"
+                disabled={totpBusy}
+              >
+                Désactiver
+              </button>
+            </form>
+          </div>
+        ) : totpSetup ? (
+          <div className="mt-4 space-y-3 text-sm">
+            <p>
+              Secret :{" "}
+              <code className="rounded bg-black/5 px-1">{totpSetup.secret}</code>
+            </p>
+            <p className="break-all text-xs text-muted">{totpSetup.otpAuthUri}</p>
+            <div>
+              <p className="font-medium text-ink">Codes de récupération (une fois)</p>
+              <ul className="mt-1 grid grid-cols-2 gap-1 font-mono text-xs">
+                {totpSetup.recoveryCodes.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+            </div>
+            <form
+              className="flex flex-wrap items-end gap-3"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void (async () => {
+                  setTotpBusy(true);
+                  try {
+                    await api.confirmTotpSetup(token, totpCode.trim());
+                    setTotpSetup(null);
+                    setTotpCode("");
+                    toast.success("2FA activée.");
+                    void qc.invalidateQueries({ queryKey: queryKeys.totpStatus });
+                  } catch (err) {
+                    toast.error(
+                      err instanceof ApiError ? err.message : "Code invalide",
+                    );
+                  } finally {
+                    setTotpBusy(false);
+                  }
+                })();
+              }}
+            >
+              <Field
+                id="confirm-totp"
+                label="Code à 6 chiffres"
+                value={totpCode}
+                onChange={setTotpCode}
+                required
+              />
+              <button type="submit" className="btn btn-primary" disabled={totpBusy}>
+                Confirmer
+              </button>
+            </form>
+          </div>
+        ) : (
+          <button
+            type="button"
+            className="btn btn-primary mt-4"
+            disabled={totpBusy}
+            onClick={() => {
+              void (async () => {
+                setTotpBusy(true);
+                try {
+                  const setup = await api.beginTotpSetup(token);
+                  setTotpSetup(setup);
+                } catch (err) {
+                  toast.error(
+                    err instanceof ApiError ? err.message : "Setup impossible",
+                  );
+                } finally {
+                  setTotpBusy(false);
+                }
+              })();
+            }}
+          >
+            Configurer la 2FA
+          </button>
+        )}
       </section>
     </div>
   );

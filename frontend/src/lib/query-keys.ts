@@ -43,4 +43,6 @@ export const queryKeys = {
     ["finance-expenses", { page, status }] as const,
   projectBudget: (id: string) => ["projects", id, "budget"] as const,
   projectExpenses: (id: string) => ["projects", id, "expenses"] as const,
+  recruitmentPipeline: ["recruitment-pipeline"] as const,
+  totpStatus: ["totp-status"] as const,
 };

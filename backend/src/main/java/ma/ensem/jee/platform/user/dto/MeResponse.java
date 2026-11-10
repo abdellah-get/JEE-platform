@@ -12,6 +12,7 @@ public record MeResponse(
 		String lastName,
 		ClubRole clubRole,
 		boolean active,
+		boolean totpEnabled,
 		NotificationPreferencesResponse notificationPreferences) {
 
 	public static MeResponse from(User user) {
@@ -22,6 +23,7 @@ public record MeResponse(
 				user.getLastName(),
 				user.getClubRole(),
 				user.isActive(),
+				user.isTotpEnabled(),
 				NotificationPreferencesResponse.from(user));
 	}
 }

@@ -21,6 +21,7 @@ public class JwtService {
 	public static final String CLAIM_ROLE = "role";
 	public static final String TYPE_ACCESS = "access";
 	public static final String TYPE_REFRESH = "refresh";
+	public static final String TYPE_PRE_AUTH = "pre_auth_2fa";
 
 	private final JwtProperties properties;
 	private final SecretKey key;
@@ -57,6 +58,20 @@ public class JwtService {
 				.compact();
 	}
 
+	/** Short-lived token after password OK, before TOTP. */
+	public String createPreAuthToken(User user) {
+		Instant now = Instant.now();
+		Instant exp = now.plusSeconds(5 * 60);
+		return Jwts.builder()
+				.subject(user.getId().toString())
+				.claim(CLAIM_TYPE, TYPE_PRE_AUTH)
+				.claim("email", user.getEmail())
+				.issuedAt(Date.from(now))
+				.expiration(Date.from(exp))
+				.signWith(key)
+				.compact();
+	}
+
 	public Claims parseClaims(String token) {
 		return Jwts.parser()
 				.verifyWith(key)
@@ -75,6 +90,10 @@ public class JwtService {
 
 	public boolean isRefreshToken(Claims claims) {
 		return TYPE_REFRESH.equals(claims.get(CLAIM_TYPE, String.class));
+	}
+
+	public boolean isPreAuthToken(Claims claims) {
+		return TYPE_PRE_AUTH.equals(claims.get(CLAIM_TYPE, String.class));
 	}
 
 	public long getAccessTokenMinutes() {

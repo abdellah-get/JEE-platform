@@ -5,12 +5,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 
-final class TokenHashes {
+public final class TokenHashes {
 
 	private TokenHashes() {
 	}
 
-	static String sha256(String value) {
+	public static String sha256(String value) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			byte[] hashed = digest.digest(value.getBytes(StandardCharsets.UTF_8));

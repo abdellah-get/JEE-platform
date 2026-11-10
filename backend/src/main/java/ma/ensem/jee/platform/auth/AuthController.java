@@ -17,6 +17,8 @@ import ma.ensem.jee.platform.auth.dto.MessageResponse;
 import ma.ensem.jee.platform.auth.dto.RegisterRequest;
 import ma.ensem.jee.platform.auth.dto.RegisterResponse;
 import ma.ensem.jee.platform.auth.dto.ResetPasswordRequest;
+import ma.ensem.jee.platform.auth.totp.TwoFactorService;
+import ma.ensem.jee.platform.auth.totp.dto.VerifyTwoFactorRequest;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -27,10 +29,15 @@ public class AuthController {
 
 	private final AuthService authService;
 	private final PasswordResetService passwordResetService;
+	private final TwoFactorService twoFactorService;
 
-	public AuthController(AuthService authService, PasswordResetService passwordResetService) {
+	public AuthController(
+			AuthService authService,
+			PasswordResetService passwordResetService,
+			TwoFactorService twoFactorService) {
 		this.authService = authService;
 		this.passwordResetService = passwordResetService;
+		this.twoFactorService = twoFactorService;
 	}
 
 	@PostMapping("/register")
@@ -47,6 +54,14 @@ public class AuthController {
 	@PostMapping("/login")
 	public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
 		AuthService.AuthResult result = authService.login(request);
+		HttpHeaders headers = new HttpHeaders();
+		result.applyCookie(headers);
+		return ResponseEntity.ok().headers(headers).body(result.body());
+	}
+
+	@PostMapping("/2fa/verify")
+	public ResponseEntity<AuthResponse> verifyTwoFactor(@Valid @RequestBody VerifyTwoFactorRequest request) {
+		AuthService.AuthResult result = twoFactorService.verifyLogin(request);
 		HttpHeaders headers = new HttpHeaders();
 		result.applyCookie(headers);
 		return ResponseEntity.ok().headers(headers).body(result.body());

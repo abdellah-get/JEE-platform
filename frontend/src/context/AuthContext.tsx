@@ -24,7 +24,11 @@ type AuthContextValue = {
   user: AuthUser | null;
   accessToken: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (
+    email: string,
+    password: string,
+  ) => Promise<{ requiresTwoFactor: boolean; preAuthToken?: string }>;
+  verifyTwoFactor: (preAuthToken: string, code: string) => Promise<void>;
   register: (input: {
     email: string;
     password: string;
@@ -57,9 +61,9 @@ function toUser(res: AuthResponse): AuthUser {
   return {
     userId: res.userId,
     email: res.email,
-    firstName: res.firstName,
-    lastName: res.lastName,
-    clubRole: res.clubRole,
+    firstName: res.firstName ?? "",
+    lastName: res.lastName ?? "",
+    clubRole: res.clubRole ?? "MEMBRE",
   };
 }
 
@@ -91,6 +95,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   const applyAuth = useCallback((res: AuthResponse) => {
+    if (!res.accessToken) {
+      throw new Error("Jeton d’accès manquant");
+    }
     const nextUser = toUser(res);
     saveSession(res.accessToken, nextUser);
     setAccessToken(res.accessToken);
@@ -157,8 +164,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(
     async (email: string, password: string) => {
       const res = await api.login({ email, password });
+      if (res.requiresTwoFactor && res.preAuthToken) {
+        return {
+          requiresTwoFactor: true as const,
+          preAuthToken: res.preAuthToken,
+        };
+      }
       applyAuth(res);
-      // Navigation handled by the caller (supports ?next=)
+      return { requiresTwoFactor: false as const };
+    },
+    [applyAuth],
+  );
+
+  const verifyTwoFactor = useCallback(
+    async (preAuthToken: string, code: string) => {
+      const res = await api.verifyTwoFactor({ preAuthToken, code });
+      applyAuth(res);
     },
     [applyAuth],
   );
@@ -244,6 +265,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       accessToken,
       loading,
       login,
+      verifyTwoFactor,
       register,
       logout,
       resumeSession,
@@ -255,6 +277,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       accessToken,
       loading,
       login,
+      verifyTwoFactor,
       register,
       logout,
       resumeSession,
