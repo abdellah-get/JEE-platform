@@ -25,6 +25,11 @@ public class LoggingMailService implements MailService {
 		log.info("[mail:log] Password reset for {} → {}", toEmail, resetUrl);
 	}
 
+	@Override
+	public void sendNotificationDigest(String toEmail, String subject, String body) {
+		log.info("[mail:log] Digest for {} — {}\n{}", toEmail, subject, body);
+	}
+
 	/** Visible for integration tests. */
 	public String getLastResetUrl() {
 		return lastResetUrl.get();

@@ -58,7 +58,8 @@ export type TaskComment = {
 export type NotificationType =
   | "TASK_ASSIGNED"
   | "ANNOUNCEMENT_PINNED"
-  | "EVENT_PINNED";
+  | "EVENT_PINNED"
+  | "EVENT_RSVP";
 
 export type AppNotification = {
   id: string;
@@ -149,6 +150,8 @@ export type PageResponse<T> = {
   last: boolean;
 };
 
+export type EventRsvpStatus = "GOING" | "MAYBE" | "DECLINED";
+
 export type ClubEvent = {
   id: string;
   title: string;
@@ -160,6 +163,20 @@ export type ClubEvent = {
   createdById: string;
   createdByName: string;
   createdAt: string;
+  updatedAt: string;
+  myRsvp?: EventRsvpStatus | null;
+  goingCount?: number;
+  maybeCount?: number;
+  declinedCount?: number;
+};
+
+export type EventRsvp = {
+  id: string;
+  eventId: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  status: EventRsvpStatus;
   updatedAt: string;
 };
 
@@ -175,6 +192,17 @@ export type CalendarItem = {
   link: string;
   pinned: boolean;
   meta: string | null;
+  myRsvp?: EventRsvpStatus | null;
+};
+
+export type DigestFrequency = "DAILY" | "WEEKLY";
+
+export type NotificationPreferences = {
+  emailDigestEnabled: boolean;
+  digestFrequency: DigestFrequency;
+  notifyTaskAssigned: boolean;
+  notifyAnnouncementPinned: boolean;
+  notifyEventPinned: boolean;
 };
 
 export type DashboardKpis = {

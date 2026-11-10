@@ -11,6 +11,9 @@ import type {
   AuthUser,
   CalendarItem,
   ClubEvent,
+  EventRsvp,
+  EventRsvpStatus,
+  NotificationPreferences,
   ClubRole,
   Dashboard,
   PageResponse,
@@ -35,6 +38,7 @@ export type MeResponse = {
   lastName: string;
   clubRole: ClubRole;
   active: boolean;
+  notificationPreferences?: import("./types").NotificationPreferences;
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8081";
@@ -259,6 +263,17 @@ export function updateMe(
 ) {
   return apiFetch<MeResponse>(
     "/api/v1/me",
+    { method: "PATCH", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function updateNotificationPreferences(
+  accessToken: string,
+  body: NotificationPreferences,
+) {
+  return apiFetch<NotificationPreferences>(
+    "/api/v1/me/notification-preferences",
     { method: "PATCH", body: JSON.stringify(body) },
     accessToken,
   );
@@ -744,6 +759,34 @@ export function deleteEvent(accessToken: string, id: string) {
   return apiFetch<void>(
     `/api/v1/events/${id}`,
     { method: "DELETE" },
+    accessToken,
+  );
+}
+
+export function upsertEventRsvp(
+  accessToken: string,
+  id: string,
+  status: EventRsvpStatus,
+) {
+  return apiFetch<ClubEvent>(
+    `/api/v1/events/${id}/rsvp`,
+    { method: "PUT", body: JSON.stringify({ status }) },
+    accessToken,
+  );
+}
+
+export function clearEventRsvp(accessToken: string, id: string) {
+  return apiFetch<ClubEvent>(
+    `/api/v1/events/${id}/rsvp`,
+    { method: "DELETE" },
+    accessToken,
+  );
+}
+
+export function listEventRsvps(accessToken: string, id: string) {
+  return apiFetch<EventRsvp[]>(
+    `/api/v1/events/${id}/rsvps`,
+    { method: "GET" },
     accessToken,
   );
 }

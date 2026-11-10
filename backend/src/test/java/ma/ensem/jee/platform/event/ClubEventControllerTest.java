@@ -1,8 +1,10 @@
 package ma.ensem.jee.platform.event;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -157,6 +159,33 @@ class ClubEventControllerTest {
 						"""))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.title").value("AG Formation (reportée)"));
+
+		mockMvc.perform(put("/api/v1/events/" + eventId + "/rsvp")
+				.header("Authorization", "Bearer " + memberToken)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{ "status": "GOING" }
+						"""))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.myRsvp").value("GOING"))
+				.andExpect(jsonPath("$.goingCount").value(1));
+
+		mockMvc.perform(get("/api/v1/events/" + eventId + "/rsvps")
+				.header("Authorization", "Bearer " + bureauToken))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].status").value("GOING"))
+				.andExpect(jsonPath("$[0].userEmail").value("member.events@ensem.jee"));
+
+		mockMvc.perform(get("/api/v1/notifications")
+				.header("Authorization", "Bearer " + bureauToken))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content[?(@.type == 'EVENT_RSVP')]").isNotEmpty());
+
+		mockMvc.perform(delete("/api/v1/events/" + eventId + "/rsvp")
+				.header("Authorization", "Bearer " + memberToken))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.myRsvp").doesNotExist())
+				.andExpect(jsonPath("$.goingCount").value(0));
 	}
 
 	private String register(String email, String firstName, String lastName) throws Exception {

@@ -24,7 +24,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 | P7 Reporting & qualité | **Terminé** | 6/6 (#57–#62) |
 | P8 Sécurité session & UX SaaS | **Terminé** | 13/13 (#87–#99) |
 | P9 Fiabiliser | **Terminé** | 8/8 (#140–#147) |
-| P10 Quotidien club | **Backlog** | 0/7 (#148–#154) |
+| P10 Quotidien club | **En cours** | 3/7 (#148–#154) |
 | P11 Junior-Entreprise | **Backlog** | 0/5 (#155–#159) |
 
 Étude : [docs/ETUDE-P9.md](./docs/ETUDE-P9.md) · Board : [JEE Platform — Missions](https://github.com/users/abdellah-get/projects/6)
@@ -146,9 +146,9 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 | # | Mission | Statut |
 |---|---------|--------|
-| [148](https://github.com/abdellah-get/JEE-platform/issues/148) | Calendrier vue semaine / agenda | **Backlog** |
-| [149](https://github.com/abdellah-get/JEE-platform/issues/149) | RSVP / présence événements | **Backlog** |
-| [150](https://github.com/abdellah-get/JEE-platform/issues/150) | Digest email + préférences notifs | **Backlog** |
+| [148](https://github.com/abdellah-get/JEE-platform/issues/148) | Calendrier vue semaine / agenda | **Terminé** |
+| [149](https://github.com/abdellah-get/JEE-platform/issues/149) | RSVP / présence événements | **Terminé** |
+| [150](https://github.com/abdellah-get/JEE-platform/issues/150) | Digest email + préférences notifs | **Terminé** |
 | [151](https://github.com/abdellah-get/JEE-platform/issues/151) | Preview PJ + markdown annonces | **Backlog** |
 | [152](https://github.com/abdellah-get/JEE-platform/issues/152) | Audit log actions admin | **Backlog** |
 | [153](https://github.com/abdellah-get/JEE-platform/issues/153) | Landing enrichie + inscription en attente | **Backlog** |
@@ -168,6 +168,15 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 
 ## Journal des réalisations
 
+### 2026-11-10 — Missions #148–#150 terminées (calendrier, RSVP, digest)
+
+**Fait :**
+- Calendrier : vues Mois / Semaine / Agenda + navigation prev/next/today
+- RSVP événements (GOING/MAYBE/DECLINED) + API + UI fiche + notif créateur
+- Préférences notifs + digest email (cron, LoggingMail/SMTP) sur `/profile`
+
+**Prochaine mission :** [#151](https://github.com/abdellah-get/JEE-platform/issues/151) — preview PJ + markdown annonces.
+
 ### 2026-11-10 — Missions #145–#147 terminées (a11y mobile, E2E, hardening) — P9 clos
 
 **Fait :**
@@ -176,7 +185,7 @@ Document de suivi vivant. Mis à jour à chaque mission terminée ou avancement 
 - `ProductionSafetyValidator` refuse springdoc en prod-like ; refresh reuse → `revokeAllForUser` ; batch `saveAll` notifs pin
 - SECURITY.md (health 200 vs Actuator readiness) + `SPRINGDOC_ENABLED=false` en profil prod
 
-**Prochaine mission :** [#148](https://github.com/abdellah-get/JEE-platform/issues/148) — calendrier vue semaine / agenda (P10).
+**Prochaine mission :** [#148](https://github.com/abdellah-get/JEE-platform/issues/148) — calendrier vue semaine / agenda (P10) → faite le même jour.
 
 ### 2026-11-10 — Missions #142–#144 terminées (S3/MIME, Query, Cmd+K)
 

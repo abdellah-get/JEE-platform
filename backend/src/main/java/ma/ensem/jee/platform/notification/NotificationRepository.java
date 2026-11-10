@@ -24,6 +24,8 @@ public interface NotificationRepository extends JpaRepository<Notification, UUID
 
 	long countByUserIdAndReadAtIsNull(UUID userId);
 
+	List<Notification> findByUserIdAndCreatedAtAfterOrderByCreatedAtDesc(UUID userId, Instant createdAt);
+
 	Optional<Notification> findByIdAndUserId(UUID id, UUID userId);
 
 	@Modifying(clearAutomatically = true)

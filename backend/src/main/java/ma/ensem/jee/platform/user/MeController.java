@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import ma.ensem.jee.platform.user.dto.ChangePasswordRequest;
 import ma.ensem.jee.platform.user.dto.MeResponse;
+import ma.ensem.jee.platform.user.dto.NotificationPreferencesResponse;
+import ma.ensem.jee.platform.user.dto.UpdateNotificationPreferencesRequest;
 import ma.ensem.jee.platform.user.dto.UpdateProfileRequest;
 
 @RestController
@@ -31,6 +33,12 @@ public class MeController {
 	@PatchMapping
 	public MeResponse update(@Valid @RequestBody UpdateProfileRequest request) {
 		return meService.updateProfile(request);
+	}
+
+	@PatchMapping("/notification-preferences")
+	public NotificationPreferencesResponse updateNotificationPreferences(
+			@Valid @RequestBody UpdateNotificationPreferencesRequest request) {
+		return meService.updateNotificationPreferences(request);
 	}
 
 	@PostMapping("/password")

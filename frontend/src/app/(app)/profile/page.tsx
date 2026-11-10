@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/context/ToastContext";
 import * as api from "@/lib/api";
 import { ApiError } from "@/lib/api";
-import type { ClubRole } from "@/lib/types";
+import type { ClubRole, DigestFrequency, NotificationPreferences } from "@/lib/types";
 
 function clubRoleLabel(role: ClubRole) {
   switch (role) {
@@ -51,6 +51,16 @@ export default function ProfilePage() {
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [savingPassword, setSavingPassword] = useState(false);
 
+  const [prefs, setPrefs] = useState<NotificationPreferences>({
+    emailDigestEnabled: false,
+    digestFrequency: "WEEKLY",
+    notifyTaskAssigned: true,
+    notifyAnnouncementPinned: true,
+    notifyEventPinned: true,
+  });
+  const [prefsError, setPrefsError] = useState<string | null>(null);
+  const [savingPrefs, setSavingPrefs] = useState(false);
+
   useEffect(() => {
     if (!user) return;
     setFirstName(user.firstName);
@@ -58,6 +68,20 @@ export default function ProfilePage() {
     // Only when the account changes. A token refresh must not wipe a draft.
     // eslint-disable-next-line react-hooks/exhaustive-deps -- seed the form once per user
   }, [user?.userId]);
+
+  useEffect(() => {
+    if (!accessToken) return;
+    api
+      .getMe(accessToken)
+      .then((me) => {
+        if (me.notificationPreferences) {
+          setPrefs(me.notificationPreferences);
+        }
+      })
+      .catch(() => {
+        /* ignore — form keeps defaults */
+      });
+  }, [accessToken]);
 
   if (loading || !user || !accessToken) {
     return <LoadingBlock label="Chargement du profil…" />;
@@ -123,12 +147,29 @@ export default function ProfilePage() {
     }
   }
 
+  async function savePrefs() {
+    setPrefsError(null);
+    setSavingPrefs(true);
+    try {
+      const updated = await api.updateNotificationPreferences(token, prefs);
+      setPrefs(updated);
+      toast.success("Préférences enregistrées.");
+    } catch (err) {
+      const message =
+        err instanceof ApiError ? err.message : "Enregistrement impossible";
+      setPrefsError(message);
+      toast.error(message);
+    } finally {
+      setSavingPrefs(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <PageHeader
         eyebrow="Compte & sécurité"
         title="Profil"
-        description="Mets à jour tes infos ou ton mot de passe."
+        description="Identité, mot de passe et préférences de notifications."
       />
 
       <div className="grid items-start gap-4 lg:grid-cols-2">
@@ -259,6 +300,99 @@ export default function ProfilePage() {
           </form>
         </section>
       </div>
+
+      <section className="surface-quiet p-5">
+        <h2 className="font-[family-name:var(--font-syne)] text-base font-semibold tracking-tight text-ink">
+          Notifications & digest
+        </h2>
+        <p className="mt-1 text-sm text-muted">
+          Choisis ce qui apparaît dans l’app, et active un digest email (log local /
+          SMTP en prod).
+        </p>
+        <div className="mt-5 space-y-4">
+          <label className="flex items-start gap-3 text-sm text-ink">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={prefs.notifyTaskAssigned}
+              onChange={(e) =>
+                setPrefs((p) => ({ ...p, notifyTaskAssigned: e.target.checked }))
+              }
+            />
+            <span>Tâches assignées</span>
+          </label>
+          <label className="flex items-start gap-3 text-sm text-ink">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={prefs.notifyAnnouncementPinned}
+              onChange={(e) =>
+                setPrefs((p) => ({
+                  ...p,
+                  notifyAnnouncementPinned: e.target.checked,
+                }))
+              }
+            />
+            <span>Annonces urgentes épinglées</span>
+          </label>
+          <label className="flex items-start gap-3 text-sm text-ink">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={prefs.notifyEventPinned}
+              onChange={(e) =>
+                setPrefs((p) => ({ ...p, notifyEventPinned: e.target.checked }))
+              }
+            />
+            <span>Événements épinglés</span>
+          </label>
+          <div className="brand-rule" />
+          <label className="flex items-start gap-3 text-sm text-ink">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={prefs.emailDigestEnabled}
+              onChange={(e) =>
+                setPrefs((p) => ({ ...p, emailDigestEnabled: e.target.checked }))
+              }
+            />
+            <span>Recevoir un digest email des notifications</span>
+          </label>
+          <label className="block space-y-1.5 text-sm" htmlFor="digest-frequency">
+            <span className="font-semibold text-ink">Fréquence</span>
+            <select
+              id="digest-frequency"
+              className="input-field"
+              value={prefs.digestFrequency}
+              disabled={!prefs.emailDigestEnabled}
+              onChange={(e) =>
+                setPrefs((p) => ({
+                  ...p,
+                  digestFrequency: e.target.value as DigestFrequency,
+                }))
+              }
+            >
+              <option value="DAILY">Quotidien</option>
+              <option value="WEEKLY">Hebdomadaire (lundi)</option>
+            </select>
+          </label>
+
+          {prefsError ? (
+            <p role="alert" className="rounded-lg bg-danger/10 px-3 py-2 text-sm text-danger">
+              {prefsError}
+            </p>
+          ) : null}
+
+          <button
+            type="button"
+            onClick={() => void savePrefs()}
+            disabled={savingPrefs}
+            className="btn btn-primary"
+          >
+            {savingPrefs ? "Enregistrement…" : "Enregistrer les préférences"}
+          </button>
+        </div>
+      </section>
     </div>
   );
 }

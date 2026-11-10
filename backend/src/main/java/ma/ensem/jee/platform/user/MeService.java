@@ -12,6 +12,8 @@ import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
 import ma.ensem.jee.platform.user.dto.ChangePasswordRequest;
 import ma.ensem.jee.platform.user.dto.MeResponse;
+import ma.ensem.jee.platform.user.dto.NotificationPreferencesResponse;
+import ma.ensem.jee.platform.user.dto.UpdateNotificationPreferencesRequest;
 import ma.ensem.jee.platform.user.dto.UpdateProfileRequest;
 
 @Service
@@ -41,6 +43,18 @@ public class MeService {
 		user.setFirstName(request.firstName().trim());
 		user.setLastName(request.lastName().trim());
 		return MeResponse.from(userRepository.save(user));
+	}
+
+	@Transactional
+	public NotificationPreferencesResponse updateNotificationPreferences(
+			UpdateNotificationPreferencesRequest request) {
+		User user = loadCurrentUser();
+		user.setEmailDigestEnabled(Boolean.TRUE.equals(request.emailDigestEnabled()));
+		user.setDigestFrequency(request.digestFrequency());
+		user.setNotifyTaskAssigned(Boolean.TRUE.equals(request.notifyTaskAssigned()));
+		user.setNotifyAnnouncementPinned(Boolean.TRUE.equals(request.notifyAnnouncementPinned()));
+		user.setNotifyEventPinned(Boolean.TRUE.equals(request.notifyEventPinned()));
+		return NotificationPreferencesResponse.from(userRepository.save(user));
 	}
 
 	@Transactional
