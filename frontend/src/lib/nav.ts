@@ -31,6 +31,16 @@ export const APP_NAV = [
     hint: "Vue mois",
   },
   {
+    href: "/crm",
+    label: "CRM",
+    hint: "Leads & missions",
+  },
+  {
+    href: "/finance",
+    label: "Finance",
+    hint: "Budgets & frais",
+  },
+  {
     href: "/notifications",
     label: "Notifications",
     hint: "Alertes récentes",

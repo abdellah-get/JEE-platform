@@ -12,8 +12,19 @@ import type {
   AuthUser,
   CalendarItem,
   ClubEvent,
+  ContractStatus,
+  CrmContract,
+  CrmLead,
+  CrmMission,
+  CrmQuote,
   EventRsvp,
   EventRsvpStatus,
+  ExpenseCategory,
+  ExpenseClaim,
+  ExpenseClaimStatus,
+  FinanceSummary,
+  LeadStatus,
+  MissionStatus,
   NotificationPreferences,
   ClubRole,
   Dashboard,
@@ -21,13 +32,16 @@ import type {
   Project,
   ProjectActivity,
   ProjectAttachment,
+  ProjectBudget,
   ProjectMember,
   ProjectRole,
   ProjectStatus,
+  QuoteStatus,
   SearchResponse,
   Task,
   TaskComment,
   TaskPriority,
+  Workload,
   TaskStatus,
   UserSummary,
 } from "./types";
@@ -915,6 +929,325 @@ export function markAllNotificationsRead(accessToken: string) {
   return apiFetch<{ updated: number }>(
     "/api/v1/notifications/read-all",
     { method: "POST" },
+    accessToken,
+  );
+}
+
+export function getWorkload(
+  accessToken: string,
+  filters: { projectId?: string; priority?: TaskPriority } = {},
+) {
+  const params = new URLSearchParams();
+  if (filters.projectId) params.set("projectId", filters.projectId);
+  if (filters.priority) params.set("priority", filters.priority);
+  const q = params.toString();
+  return apiFetch<Workload>(
+    `/api/v1/admin/workload${q ? `?${q}` : ""}`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export async function downloadWorkloadExportCsv(
+  accessToken: string,
+  filters: { projectId?: string; priority?: TaskPriority } = {},
+): Promise<void> {
+  const params = new URLSearchParams();
+  if (filters.projectId) params.set("projectId", filters.projectId);
+  if (filters.priority) params.set("priority", filters.priority);
+  const q = params.toString();
+  const res = await fetch(
+    `${API_URL}/api/v1/admin/workload/export.csv${q ? `?${q}` : ""}`,
+    {
+      method: "GET",
+      headers: { Authorization: `Bearer ${accessToken}` },
+      credentials: "include",
+    },
+  );
+  if (!res.ok) {
+    throw new ApiError(res.status, await parseError(res));
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "jee-workload-export.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export function listCrmLeads(
+  accessToken: string,
+  page = 0,
+  status?: LeadStatus,
+  size = 20,
+) {
+  const params = new URLSearchParams({ page: String(page), size: String(size) });
+  if (status) params.set("status", status);
+  return apiFetch<PageResponse<CrmLead>>(
+    `/api/v1/crm/leads?${params}`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function createCrmLead(
+  accessToken: string,
+  body: {
+    companyName: string;
+    contactName?: string;
+    contactEmail?: string;
+    status?: LeadStatus;
+    notes?: string;
+  },
+) {
+  return apiFetch<CrmLead>("/api/v1/crm/leads", { method: "POST", body: JSON.stringify(body) }, accessToken);
+}
+
+export function updateCrmLead(
+  accessToken: string,
+  id: string,
+  body: {
+    companyName?: string;
+    contactName?: string;
+    contactEmail?: string;
+    status?: LeadStatus;
+    notes?: string;
+  },
+) {
+  return apiFetch<CrmLead>(
+    `/api/v1/crm/leads/${id}`,
+    { method: "PATCH", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function listCrmMissions(
+  accessToken: string,
+  page = 0,
+  status?: MissionStatus,
+  size = 20,
+) {
+  const params = new URLSearchParams({ page: String(page), size: String(size) });
+  if (status) params.set("status", status);
+  return apiFetch<PageResponse<CrmMission>>(
+    `/api/v1/crm/missions?${params}`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function getCrmMission(accessToken: string, id: string) {
+  return apiFetch<CrmMission>(`/api/v1/crm/missions/${id}`, { method: "GET" }, accessToken);
+}
+
+export function createCrmMission(
+  accessToken: string,
+  body: {
+    leadId?: string;
+    projectId?: string;
+    title: string;
+    description?: string;
+    status?: MissionStatus;
+  },
+) {
+  return apiFetch<CrmMission>(
+    "/api/v1/crm/missions",
+    { method: "POST", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function updateCrmMission(
+  accessToken: string,
+  id: string,
+  body: {
+    leadId?: string;
+    projectId?: string;
+    title?: string;
+    description?: string;
+    status?: MissionStatus;
+    clearLead?: boolean;
+    clearProject?: boolean;
+  },
+) {
+  return apiFetch<CrmMission>(
+    `/api/v1/crm/missions/${id}`,
+    { method: "PATCH", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function createCrmQuote(
+  accessToken: string,
+  missionId: string,
+  body: {
+    amountCents: number;
+    currency?: string;
+    status?: QuoteStatus;
+    validUntil?: string;
+    notes?: string;
+  },
+) {
+  return apiFetch<CrmQuote>(
+    `/api/v1/crm/missions/${missionId}/quotes`,
+    { method: "POST", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function updateCrmQuote(
+  accessToken: string,
+  id: string,
+  body: {
+    amountCents?: number;
+    currency?: string;
+    status?: QuoteStatus;
+    validUntil?: string;
+    notes?: string;
+  },
+) {
+  return apiFetch<CrmQuote>(
+    `/api/v1/crm/quotes/${id}`,
+    { method: "PATCH", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function createCrmContract(
+  accessToken: string,
+  missionId: string,
+  body: {
+    amountCents: number;
+    currency?: string;
+    status?: ContractStatus;
+    signedAt?: string;
+    notes?: string;
+  },
+) {
+  return apiFetch<CrmContract>(
+    `/api/v1/crm/missions/${missionId}/contracts`,
+    { method: "POST", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function updateCrmContract(
+  accessToken: string,
+  id: string,
+  body: {
+    amountCents?: number;
+    currency?: string;
+    status?: ContractStatus;
+    signedAt?: string;
+    notes?: string;
+  },
+) {
+  return apiFetch<CrmContract>(
+    `/api/v1/crm/contracts/${id}`,
+    { method: "PATCH", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function getFinanceSummary(accessToken: string) {
+  return apiFetch<FinanceSummary>(
+    "/api/v1/finance/summary",
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export async function downloadFinanceExportCsv(accessToken: string): Promise<void> {
+  const res = await fetch(`${API_URL}/api/v1/finance/export.csv`, {
+    method: "GET",
+    headers: { Authorization: `Bearer ${accessToken}` },
+    credentials: "include",
+  });
+  if (!res.ok) {
+    throw new ApiError(res.status, await parseError(res));
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "jee-finance-export.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export function getProjectBudget(accessToken: string, projectId: string) {
+  return apiFetch<ProjectBudget>(
+    `/api/v1/finance/projects/${projectId}/budget`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function upsertProjectBudget(
+  accessToken: string,
+  projectId: string,
+  body: { amountCents: number; currency?: string },
+) {
+  return apiFetch<ProjectBudget>(
+    `/api/v1/finance/projects/${projectId}/budget`,
+    { method: "PUT", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function listProjectExpenses(accessToken: string, projectId: string) {
+  return apiFetch<ExpenseClaim[]>(
+    `/api/v1/finance/projects/${projectId}/expenses`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function createProjectExpense(
+  accessToken: string,
+  projectId: string,
+  body: {
+    category: ExpenseCategory;
+    amountCents: number;
+    description: string;
+    receiptNote?: string;
+  },
+) {
+  return apiFetch<ExpenseClaim>(
+    `/api/v1/finance/projects/${projectId}/expenses`,
+    { method: "POST", body: JSON.stringify(body) },
+    accessToken,
+  );
+}
+
+export function listFinanceExpenses(
+  accessToken: string,
+  page = 0,
+  status?: ExpenseClaimStatus,
+  size = 20,
+) {
+  const params = new URLSearchParams({ page: String(page), size: String(size) });
+  if (status) params.set("status", status);
+  return apiFetch<PageResponse<ExpenseClaim>>(
+    `/api/v1/finance/expenses?${params}`,
+    { method: "GET" },
+    accessToken,
+  );
+}
+
+export function decideExpenseClaim(
+  accessToken: string,
+  id: string,
+  body: { status: ExpenseClaimStatus; decisionNote?: string },
+) {
+  return apiFetch<ExpenseClaim>(
+    `/api/v1/finance/expenses/${id}/decision`,
+    { method: "PATCH", body: JSON.stringify(body) },
     accessToken,
   );
 }

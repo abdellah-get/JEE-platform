@@ -31,4 +31,16 @@ export const queryKeys = {
   }) => ["audit-events", filters] as const,
   usersDirectory: ["users"] as const,
   search: (q: string) => ["search", { q }] as const,
+  workload: (filters: { projectId?: string; priority?: string }) =>
+    ["workload", filters] as const,
+  crmLeads: (page = 0, status?: string) =>
+    ["crm-leads", { page, status }] as const,
+  crmMissions: (page = 0, status?: string) =>
+    ["crm-missions", { page, status }] as const,
+  crmMission: (id: string) => ["crm-missions", id] as const,
+  financeSummary: ["finance-summary"] as const,
+  financeExpenses: (page = 0, status?: string) =>
+    ["finance-expenses", { page, status }] as const,
+  projectBudget: (id: string) => ["projects", id, "budget"] as const,
+  projectExpenses: (id: string) => ["projects", id, "expenses"] as const,
 };
