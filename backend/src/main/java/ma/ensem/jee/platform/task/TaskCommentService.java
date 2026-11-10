@@ -1,7 +1,10 @@
 package ma.ensem.jee.platform.task;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ import ma.ensem.jee.platform.project.ProjectRole;
 import ma.ensem.jee.platform.task.dto.CreateTaskCommentRequest;
 import ma.ensem.jee.platform.task.dto.TaskCommentResponse;
 import ma.ensem.jee.platform.task.dto.UpdateTaskCommentRequest;
+import ma.ensem.jee.platform.user.User;
 import ma.ensem.jee.platform.user.UserRepository;
 
 @Service
@@ -39,8 +43,10 @@ public class TaskCommentService {
 	@Transactional(readOnly = true)
 	public List<TaskCommentResponse> listByTask(UUID taskId) {
 		requireVisibleTask(taskId);
-		return commentRepository.findByTaskIdOrderByCreatedAtAsc(taskId).stream()
-				.map(this::toResponse)
+		List<TaskComment> comments = commentRepository.findByTaskIdOrderByCreatedAtAsc(taskId);
+		Map<UUID, String> authorNames = authorNames(comments);
+		return comments.stream()
+				.map(c -> TaskCommentResponse.from(c, authorNames.getOrDefault(c.getAuthorId(), "Inconnu")))
 				.toList();
 	}
 
@@ -99,9 +105,16 @@ public class TaskCommentService {
 	}
 
 	private TaskCommentResponse toResponse(TaskComment comment) {
-		String authorName = userRepository.findById(comment.getAuthorId())
-				.map(u -> u.getFirstName() + " " + u.getLastName())
-				.orElse("Inconnu");
-		return TaskCommentResponse.from(comment, authorName);
+		return TaskCommentResponse.from(
+				comment, authorNames(List.of(comment)).getOrDefault(comment.getAuthorId(), "Inconnu"));
+	}
+
+	private Map<UUID, String> authorNames(List<TaskComment> comments) {
+		Set<UUID> ids = comments.stream().map(TaskComment::getAuthorId).collect(Collectors.toSet());
+		if (ids.isEmpty()) {
+			return Map.of();
+		}
+		return userRepository.findAllById(ids).stream()
+				.collect(Collectors.toMap(User::getId, u -> u.getFirstName() + " " + u.getLastName()));
 	}
 }

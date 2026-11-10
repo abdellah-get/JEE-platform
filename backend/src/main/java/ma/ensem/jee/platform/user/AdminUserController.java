@@ -32,7 +32,7 @@ public class AdminUserController {
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size,
 			@RequestParam(required = false) MembershipStatus membership) {
-		return PageResponse.slice(adminUserService.listAll(membership), page, size);
+		return adminUserService.listAll(membership, page, size);
 	}
 
 	@PatchMapping("/{userId}/active")

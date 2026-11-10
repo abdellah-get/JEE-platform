@@ -34,7 +34,7 @@ public class AnnouncementController {
 	public PageResponse<AnnouncementResponse> list(
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size) {
-		return PageResponse.slice(announcementService.list(), page, size);
+		return announcementService.list(page, size);
 	}
 
 	@GetMapping("/{id}")

@@ -34,7 +34,7 @@ public class ClubEventController {
 	public PageResponse<ClubEventResponse> list(
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size) {
-		return PageResponse.slice(eventService.list(), page, size);
+		return eventService.list(page, size);
 	}
 
 	@GetMapping("/{id}")

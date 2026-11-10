@@ -1,8 +1,12 @@
 package ma.ensem.jee.platform.announcement;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,9 +16,11 @@ import ma.ensem.jee.platform.announcement.dto.CreateAnnouncementRequest;
 import ma.ensem.jee.platform.announcement.dto.UpdateAnnouncementRequest;
 import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
+import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
 import ma.ensem.jee.platform.notification.NotificationService;
 import ma.ensem.jee.platform.user.ClubRole;
+import ma.ensem.jee.platform.user.User;
 import ma.ensem.jee.platform.user.UserRepository;
 
 @Service
@@ -34,18 +40,22 @@ public class AnnouncementService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<AnnouncementResponse> list() {
+	public PageResponse<AnnouncementResponse> list(int page, int size) {
 		SecurityUtils.currentUser();
-		return announcementRepository.findAllByOrderByPinnedDescCreatedAtDesc().stream()
-				.map(this::toResponse)
-				.toList();
+		Page<Announcement> announcements = announcementRepository
+				.findAllByOrderByPinnedDescCreatedAtDesc(PageResponse.toPageable(page, size));
+		Map<UUID, String> authorNames = authorNames(announcements.getContent());
+		return PageResponse.from(announcements.map(a -> AnnouncementResponse.from(
+				a, authorNames.getOrDefault(a.getAuthorId(), "Inconnu"))));
 	}
 
 	@Transactional(readOnly = true)
 	public List<AnnouncementResponse> listPinned() {
 		SecurityUtils.currentUser();
-		return announcementRepository.findByPinnedTrueOrderByCreatedAtDesc().stream()
-				.map(this::toResponse)
+		List<Announcement> pinned = announcementRepository.findByPinnedTrueOrderByCreatedAtDesc();
+		Map<UUID, String> authorNames = authorNames(pinned);
+		return pinned.stream()
+				.map(a -> AnnouncementResponse.from(a, authorNames.getOrDefault(a.getAuthorId(), "Inconnu")))
 				.toList();
 	}
 
@@ -114,9 +124,16 @@ public class AnnouncementService {
 	}
 
 	private AnnouncementResponse toResponse(Announcement announcement) {
-		String authorName = userRepository.findById(announcement.getAuthorId())
-				.map(u -> u.getFirstName() + " " + u.getLastName())
-				.orElse("Inconnu");
-		return AnnouncementResponse.from(announcement, authorName);
+		return AnnouncementResponse.from(
+				announcement, authorNames(List.of(announcement)).getOrDefault(announcement.getAuthorId(), "Inconnu"));
+	}
+
+	private Map<UUID, String> authorNames(List<Announcement> announcements) {
+		Set<UUID> ids = announcements.stream().map(Announcement::getAuthorId).collect(Collectors.toSet());
+		if (ids.isEmpty()) {
+			return Map.of();
+		}
+		return userRepository.findAllById(ids).stream()
+				.collect(Collectors.toMap(User::getId, u -> u.getFirstName() + " " + u.getLastName()));
 	}
 }

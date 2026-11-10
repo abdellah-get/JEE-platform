@@ -7,11 +7,13 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
+import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
 import ma.ensem.jee.platform.notification.NotificationService;
 import ma.ensem.jee.platform.project.Project;
@@ -227,31 +229,32 @@ public class TaskService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<TaskResponse> listMine(TaskStatus status, TaskPriority priority, UUID projectId) {
+	public PageResponse<TaskResponse> listMine(TaskStatus status, TaskPriority priority, UUID projectId, int page, int size) {
 		UserPrincipal current = SecurityUtils.currentUser();
-		List<Task> tasks = taskRepository.findAssignedTo(current.getId(), status, priority, projectId);
+		var pageable = PageResponse.toPageable(page, size);
+		Page<Task> tasks = accessService.isClubStaff(current)
+				? taskRepository.findAssignedTo(current.getId(), status, priority, projectId, pageable)
+				: taskRepository.findAssignedToVisibleProjects(current.getId(), status, priority, projectId, pageable);
 
-		Set<UUID> projectIds = tasks.stream().map(Task::getProjectId).collect(Collectors.toSet());
+		Set<UUID> projectIds = tasks.getContent().stream().map(Task::getProjectId).collect(Collectors.toSet());
 		Map<UUID, Project> projects = projectRepository.findAllById(projectIds).stream()
 				.collect(Collectors.toMap(Project::getId, Function.identity()));
 
-		// Filtre les projets encore visibles (défense en profondeur)
-		return tasks.stream()
-				.filter(t -> {
-					Project p = projects.get(t.getProjectId());
-					if (p == null) {
-						return false;
-					}
-					try {
-						accessService.requireVisibleProject(p.getId(), current);
-						return true;
-					}
-					catch (RuntimeException ex) {
-						return false;
-					}
-				})
-				.map(t -> toResponse(t, projects.get(t.getProjectId()).getName()))
-				.toList();
+		Set<UUID> assigneeIds = tasks.getContent().stream()
+				.map(Task::getAssigneeId)
+				.filter(id -> id != null)
+				.collect(Collectors.toSet());
+		Map<UUID, String> assigneeNames = assigneeIds.isEmpty()
+				? Map.of()
+				: userRepository.findAllById(assigneeIds).stream()
+						.collect(Collectors.toMap(User::getId, u -> u.getFirstName() + " " + u.getLastName()));
+
+		return PageResponse.from(tasks.map(t -> {
+			Project project = projects.get(t.getProjectId());
+			String projectName = project != null ? project.getName() : null;
+			String assigneeName = t.getAssigneeId() != null ? assigneeNames.get(t.getAssigneeId()) : null;
+			return TaskResponse.from(t, projectName, assigneeName);
+		}));
 	}
 
 	private void recalculateProgress(Project project) {

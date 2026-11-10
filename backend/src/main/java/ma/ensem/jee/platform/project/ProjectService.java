@@ -9,11 +9,14 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
+import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
 import ma.ensem.jee.platform.project.dto.CreateProjectRequest;
 import ma.ensem.jee.platform.project.dto.ProjectActivityResponse;
@@ -74,15 +77,20 @@ public class ProjectService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ProjectResponse> list() {
+	public PageResponse<ProjectResponse> list(int page, int size) {
 		UserPrincipal current = SecurityUtils.currentUser();
-		List<Project> projects = accessService.isClubStaff(current)
-				? projectRepository.findAllByOrderByUpdatedAtDesc()
-				: projectRepository.findAllVisibleToMember(current.getId());
+		Pageable pageable = PageResponse.toPageable(page, size);
+		Page<Project> projects = accessService.isClubStaff(current)
+				? projectRepository.findAllByOrderByUpdatedAtDesc(pageable)
+				: projectRepository.findAllVisibleToMember(current.getId(), pageable);
 
-		return projects.stream()
-				.map(p -> ProjectResponse.from(p, accessService.findRole(p.getId(), current.getId()).orElse(null)))
-				.toList();
+		List<UUID> projectIds = projects.getContent().stream().map(Project::getId).toList();
+		Map<UUID, ProjectRole> rolesByProject = projectIds.isEmpty()
+				? Map.of()
+				: projectMemberRepository.findByUserIdAndProjectIdIn(current.getId(), projectIds).stream()
+						.collect(Collectors.toMap(ProjectMember::getProjectId, ProjectMember::getProjectRole, (a, b) -> a));
+
+		return PageResponse.from(projects.map(p -> ProjectResponse.from(p, rolesByProject.get(p.getId()))));
 	}
 
 	@Transactional(readOnly = true)

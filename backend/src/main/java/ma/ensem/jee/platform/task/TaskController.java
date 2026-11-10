@@ -35,7 +35,7 @@ public class TaskController {
 			@RequestParam(required = false) UUID projectId,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "" + PageResponse.DEFAULT_SIZE) int size) {
-		return PageResponse.slice(taskService.listMine(status, priority, projectId), page, size);
+		return taskService.listMine(status, priority, projectId, page, size);
 	}
 
 	@GetMapping("/tasks/{taskId}")

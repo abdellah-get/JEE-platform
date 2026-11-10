@@ -2,8 +2,12 @@ package ma.ensem.jee.platform.event;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,12 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import ma.ensem.jee.platform.auth.SecurityUtils;
 import ma.ensem.jee.platform.auth.UserPrincipal;
 import ma.ensem.jee.platform.common.BadRequestException;
+import ma.ensem.jee.platform.common.PageResponse;
 import ma.ensem.jee.platform.common.ResourceNotFoundException;
 import ma.ensem.jee.platform.event.dto.ClubEventResponse;
 import ma.ensem.jee.platform.event.dto.CreateClubEventRequest;
 import ma.ensem.jee.platform.event.dto.UpdateClubEventRequest;
 import ma.ensem.jee.platform.notification.NotificationService;
 import ma.ensem.jee.platform.user.ClubRole;
+import ma.ensem.jee.platform.user.User;
 import ma.ensem.jee.platform.user.UserRepository;
 
 @Service
@@ -36,11 +42,13 @@ public class ClubEventService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ClubEventResponse> list() {
+	public PageResponse<ClubEventResponse> list(int page, int size) {
 		SecurityUtils.currentUser();
-		return eventRepository.findAllByOrderByPinnedDescStartsAtAsc().stream()
-				.map(this::toResponse)
-				.toList();
+		Page<ClubEvent> events = eventRepository
+				.findAllByOrderByPinnedDescStartsAtAsc(PageResponse.toPageable(page, size));
+		Map<UUID, String> creatorNames = creatorNames(events.getContent());
+		return PageResponse.from(events.map(e -> ClubEventResponse.from(
+				e, creatorNames.getOrDefault(e.getCreatedById(), "Inconnu"))));
 	}
 
 	@Transactional(readOnly = true)
@@ -125,10 +133,17 @@ public class ClubEventService {
 	}
 
 	private ClubEventResponse toResponse(ClubEvent event) {
-		String name = userRepository.findById(event.getCreatedById())
-				.map(u -> u.getFirstName() + " " + u.getLastName())
-				.orElse("Inconnu");
-		return ClubEventResponse.from(event, name);
+		return ClubEventResponse.from(
+				event, creatorNames(List.of(event)).getOrDefault(event.getCreatedById(), "Inconnu"));
+	}
+
+	private Map<UUID, String> creatorNames(List<ClubEvent> events) {
+		Set<UUID> ids = events.stream().map(ClubEvent::getCreatedById).collect(Collectors.toSet());
+		if (ids.isEmpty()) {
+			return Map.of();
+		}
+		return userRepository.findAllById(ids).stream()
+				.collect(Collectors.toMap(User::getId, u -> u.getFirstName() + " " + u.getLastName()));
 	}
 
 	private static void validateRange(Instant startsAt, Instant endsAt) {
